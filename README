@@ -1,0 +1,97 @@
+This is the README file for Memo.
+
+  Copyright (C) 2008 Jan Stępień
+
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.
+
+About
+=====
+Memo is a recursive acronym standing for Memo Enables Memory Optimisation.
+
+Memo's purpose is enhancing it's user ability to remember foreign words and
+phrases by regular repetition of properly chosen material. Memo regularly
+sends emails containing packs of words or phrases to be translated by the
+receiver.  User replies to the email filling in the answers. Memo parses the
+reply and updates it's database with users results. Sets of questions for
+every test are chosen basing on user's performance in previous tests - the
+words that are most difficult for the user are sent more frequently.
+
+Requirements
+============
+
+The following software is required to run Memo.
+
+ - mailx <http://heirloom.sourceforge.net/mailx.html>.
+ - procmail <http://www.procmail.org/>.
+ - Some essential tools, such as bash, awk, grep and sed. All of these can be
+   found in the GNU operation system <http://www.gnu.org>.
+
+Besides, you are going to need a shell account.
+
+Installation
+============
+
+Just do
+
+  $ ./configure && make install
+
+as there is nothing to make. Details may be found in the INSTALL file.
+
+Before the first execution
+==========================
+
+The current, very immature version of Memo requires some preparation before
+usage. First of all install Memo. In the rest of this part of README it will
+be assumed that executable 'memo' is available in your $PATH.
+
+After Memo has been installed, you need to construct or fetch a words database
+and save it in '~/.memo/db' file. It's format is following:
+
+word|translation|positive_answers|negative_answers
+
+Two first fields are strings consisting of nearly any characters besides '|',
+two other are integers. At the beginning all positive and negative answers
+count should be zeroed. Lines beginning with a has are ignored. Following
+lines are an example of an initial database.
+
+kot|cat|0|0
+pies|dog|0|0
+# End of animals, beginning food category
+mleko|milk|0|0
+flaki wołowe|beef tripe|0|0
+
+Create a ~/.memo/memo.rc file and add to it following two lines:
+
+MEMO_FROM="email_to_which_replies_to_tests_will_be_directed@example.org"
+MEMO_TO="email_to_which_send_test@example.org"
+
+Both addresses may be the same, obviously.
+
+Having a database and a configuration file you are ready to send tests. Now
+it's time to configure receiving. Be sure that your incoming mail is filtered
+by procmail. If it is not, find out how to enable it at procmail's
+documentation. Afterwards add to your ~/.procmailrc the following rule.
+
+:0:
+* ^Subject: Re: memo ([0-9]*)
+| memo -r
+
+Now procmail should forward your replies to Memo's tests to the Memo's parser.
+It's time to give it a first shot.
+
+  $ memo -s
+
+Usage
+=====
+Consider adding to your crontab the following line, adjusted to your needs.
+
+19  12  *   *   *   memo -s
+
+Don't forget to inform the authors in case of spotting a bug or any other
+unwanted behavior which doesn't seem to be a feature.
+
+Copying conditions
+==================
+See the COPYING file.

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Copyright (C) 2008 Jan Stępień
+#
+# This file is part of Memo.
+# 
+# Memo is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# Memo is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with Memo.  If not, see <http://www.gnu.org/licenses/>.
+
+MEMO_VERSION="@VERSION@"
+
+# Loading directory names.
+prefix="@prefix@"
+exec_prefix="@exec_prefix@"
+LIBDIR="@libdir@/memo"
+
+# Loading variables.
+source "$LIBDIR/globals.sh"
+
+# Loading variables which may be overrun by user.
+MEMO_WORKDIR="$WORKDIR"
+MEMO_DBFILE="$DBFILE"
+
+# Loading user's rc file.
+source "$MEMO_WORKDIR/memo.rc"
+
+# Loading variables continued.
+if [[ -z $MEMO_TO ]]
+then
+	MEMO_TO="$TO"
+fi
+if [[ -z $MEMO_FROM ]]
+then
+	MEMO_FROM="$FROM"
+fi
+
+# Loading functions.
+source "$LIBDIR/general.sh"
+source "$LIBDIR/sending.sh"
+source "$LIBDIR/receiving.sh"
+
+# The magic begins here.
+main $*
