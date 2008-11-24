@@ -18,8 +18,11 @@
 # along with Memo.  If not, see <http://www.gnu.org/licenses/>.
 
 source "$LIBDIR/globals.sh"
+source "$LIBDIR/sending.sh"
 
 function receive_email {
+	reply=""
+	tmpfile="$MEMO_WORKDIR/tmp-$MEMO_TIMESTAMP-$$"
 	while read line
 	do
 		if [[ $( echo $line | grep "^ *> *.*=.*$" -c ) -eq 1  ]]
@@ -35,16 +38,21 @@ function receive_email {
 			negative=$( echo $tmp | awk '{ print $4 }' | sed -e "s/_/\ /g" )
 			newpositive="$positive"
 			newnegative="$negative"
+			reply="${reply}Q: '${word}' A: '${ans}'"
 			if [[ $( echo "$correct" | grep "$ans" -c ) -eq 1 ]]
 			then
-				echo $ans ok
 				let newpositive="$positive+1"
+				reply="${reply}, correct."
 			else
-				echo $ans nieok
 				let newnegative="$negative+1"
+				reply="${reply}, incorrect, expected '${correct}'"
 			fi
+			reply="${reply}\n"
 			sed -i $MEMO_DBFILE -e "s/^\($word|[^|]*\)|$positive|$negative$/\1|$newpositive|$newnegative/"
 		fi
 	done
+	echo -e ${reply} > "$tmpfile" || exit 1
+	send_email "$tmpfile" || exit 1
+	rm "$tmpfile" || exit 1
 	return 0
 }

@@ -1,0 +1,3 @@
+2008-11-24  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* receiving.sh: Sending a report after receiving a reply.
