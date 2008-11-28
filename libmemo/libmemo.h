@@ -28,7 +28,8 @@
 
 /**
  * The database.
- * Currently it's a file.
+ * Currently it's a pointer to an SQLite3 database.
+ * @sa http://sqlite.org/
  */
 typedef sqlite3* memo_database;
 
