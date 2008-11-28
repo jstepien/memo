@@ -1,5 +1,9 @@
 2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* general.sh, receiving.sh, sending.sh: Removed redundant includes.
+
+2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* configure.ac: Added sed and awk check, minor changes.
 
 2008-11-24  Jan Stępień <jstepien@users.sourceforge.net>

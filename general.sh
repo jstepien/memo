@@ -17,10 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Memo.  If not, see <http://www.gnu.org/licenses/>.
 
-source "$LIBDIR/globals.sh"
-
 USAGE="$0: usage: $0 [-s|-r]"
-
 
 function usage {
 	echo "$USAGE"

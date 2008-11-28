@@ -17,9 +17,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Memo.  If not, see <http://www.gnu.org/licenses/>.
 
-source "$LIBDIR/globals.sh"
-source "$LIBDIR/sending.sh"
-
 function receive_email {
 	reply=""
 	tmpfile="$MEMO_WORKDIR/tmp-$MEMO_TIMESTAMP-$$"
