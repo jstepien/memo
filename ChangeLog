@@ -1,5 +1,13 @@
 2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/libmemo.h: Added some structs and function headers.
+
+2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* Doxyfile.in: Added Doxyfile.in (to be parsed by configure).
+
+2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* globals.sh, memo.in: Added a function checking whether memo.rc
 	exists.
 
