@@ -18,11 +18,20 @@
 AC_PREREQ(2.61)
 AC_INIT(memo, alpha, jstepien@users.sourceforge.net)
 AM_INIT_AUTOMAKE([-Wall -Werror gnu])
+AC_CONFIG_MACRO_DIR([m4])
+AC_CONFIG_HEADER([config.h])
 
+AC_PROG_CC
 AC_PROG_AWK
 AC_PROG_SED
 
+AX_LIB_SQLITE3
+LDFLAGS="$LDFLAGS $SQLITE3_LDFLAGS"
+AC_PROG_LIBTOOL
+
 AC_CONFIG_FILES([Makefile
+		 libmemo/Makefile
+		 test/Makefile
 		 memo
 		 Doxyfile])
 AC_OUTPUT

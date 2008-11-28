@@ -1,5 +1,19 @@
 2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/libmemo.h: Added a database closing function to the header.
+	* libmemo/database.c, libmemo/Makefile.am:  Started to implement the
+	database using SQLite. Created basic implementations of
+	memo_database_{load,close}.
+	* m4/ax_lib_sqlite3.m4: Added an m4 macro checking for
+	SQLite >= 3.0.0.
+	* test/basic_database_test.c, test/basic_database_test.sh: Created a
+	simple database open/close test.
+	* test/Makefile.am: Added Makefile.am file for test subdirectory.
+	* Makefile.am, autogen.sh, configure.ac: Modified autogen.sh,
+	configure.ac and Makefile.am appropriately
+
+2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* libmemo/libmemo.h: Altered some functions' names, minor changes in
 	comments.
 

@@ -18,6 +18,7 @@
  */
 
 #include <stdio.h>
+#include <sqlite3.h>
 
 /**
  * @defgroup memo_database memo_database
@@ -29,7 +30,7 @@
  * The database.
  * Currently it's a file.
  */
-typedef FILE* memo_database;
+typedef sqlite3* memo_database;
 
 /**
  * Prepares a @ref memo_database.
@@ -38,6 +39,12 @@ typedef FILE* memo_database;
  */
 int
 memo_database_load(memo_database *db, const char *filename);
+
+/**
+ * Closes the database.
+ */
+int
+memo_database_close(memo_database db);
 
 /**
  * @}

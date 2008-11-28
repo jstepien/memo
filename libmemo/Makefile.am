@@ -1,3 +1,3 @@
 lib_LTLIBRARIES=libmemo.la
-libsrpn_la_SOURCES=libmemo.h
+libmemo_la_SOURCES=libmemo.h database.c
 pkginclude_HEADERS=libmemo.h
