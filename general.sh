@@ -19,10 +19,14 @@
 
 USAGE="$0: usage: $0 [-s|-r]"
 
+# Prints usage information.
 function usage {
 	echo "$USAGE"
 }
 
+# Calls a function which prepares an email and saves it to a file and
+# afterwards sends contents of the file using send_email. If everything's fine
+# the temporary file's deleted.
 function send {
 	MEMO_TMPFILE="$MEMO_WORKDIR/tmp-$MEMO_TIMESTAMP-$$"
 	prepare_email "$MEMO_TMPFILE" || exit 1
@@ -31,10 +35,14 @@ function send {
 	exit 0
 }
 
+# Calls receive_email function.
 function receive {
 	receive_email || exit 1
 }
 
+# If arguments count != 1 it prints usage information and quits. Otherwise it
+# runs send or receive function basing on the argument's value. If the value
+# cannot be recognised, it prints usage information and quits.
 function main {
 	if [[ $# -ne 1 ]]
 	then

@@ -17,6 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Memo.  If not, see <http://www.gnu.org/licenses/>.
 
+# Some useful default values.
 if [[ $MEMO_INCLUDED_GLOBALS -ne 1 ]]
 then
 	WORKDIR="$HOME/.memo"
@@ -27,6 +28,8 @@ then
 	MEMO_INCLUDED_GLOBALS=1
 fi
 
+# If the first argument != empty string the function prints it to stderr.
+# Returns 0 on success and other values on failure.
 function error {
 	if [[ -z $1 ]]
 	then
@@ -36,6 +39,9 @@ function error {
 	return 0
 }
 
+# Checks for ~/.memo/memo.rc file (or equivalent). If it doesn't exists,
+# it's created. If the parent directory doesn't exist it also gets created.
+# Returns 0 on success and other values on failure.
 function rc_file_check {
 	if [[ -f "$MEMO_WORKDIR/memo.rc" ]]; then
 		return 0
