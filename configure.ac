@@ -18,4 +18,10 @@
 AC_PREREQ(2.61)
 AC_INIT(memo, alpha, jstepien@users.sourceforge.net)
 AM_INIT_AUTOMAKE([-Wall -Werror gnu])
-AC_OUTPUT(Makefile memo)
+
+AC_PROG_AWK
+AC_PROG_SED
+
+AC_CONFIG_FILES([Makefile
+		 memo ])
+AC_OUTPUT
