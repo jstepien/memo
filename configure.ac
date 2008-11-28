@@ -23,5 +23,6 @@ AC_PROG_AWK
 AC_PROG_SED
 
 AC_CONFIG_FILES([Makefile
-		 memo ])
+		 memo
+		 Doxyfile])
 AC_OUTPUT
