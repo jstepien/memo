@@ -32,6 +32,10 @@ MEMO_WORKDIR="$WORKDIR"
 MEMO_DBFILE="$DBFILE"
 
 # Loading user's rc file.
+rc_file_check
+if [[ $? -ne 0 ]]; then
+	exit 1
+fi
 source "$MEMO_WORKDIR/memo.rc"
 
 # Loading variables continued.

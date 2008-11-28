@@ -35,3 +35,24 @@ function error {
 	echo $1 >&2
 	return 0
 }
+
+function rc_file_check {
+	if [[ -f "$MEMO_WORKDIR/memo.rc" ]]; then
+		return 0
+	else
+		if [[ ! -d "$MEMO_WORKDIR" ]]; then
+			mkdir -p "$MEMO_WORKDIR"
+			if [[ $? -ne 0 ]]; then
+				error "Can't create '$MEMO_WORKDIR'."
+				return 1
+			fi
+		fi
+		echo -e "MEMO_FROM=\"$FROM\"\nMEMO_TO=\"$TO\"" > \
+			"$MEMO_WORKDIR/memo.rc"
+		if [[ $? -ne 0 ]]; then
+			error "Can't write to '$MEMO_WORKDIR/memo.rc'."
+			return 1
+		fi
+	fi
+	return 0
+}
