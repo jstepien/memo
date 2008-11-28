@@ -1,5 +1,10 @@
 2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/libmemo.h: Altered some functions' names, minor changes in
+	comments.
+
+2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* configure.ac: Added Doxyfile.in to AC_CONFIG_FILES.
 	* Doxyfile.in: Removed Doxygen's DETAILS_AT_TOP option as it is
 	obsolete.

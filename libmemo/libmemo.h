@@ -20,7 +20,7 @@
 #include <stdio.h>
 
 /**
- * @defgroup memo_database_group memo_database
+ * @defgroup memo_database memo_database
  * Database related structures and functions.
  * @{
  */
@@ -37,16 +37,15 @@ typedef FILE* memo_database;
  * @param filename A filename of a file with a database.
  */
 int
-load_database(memo_database *db, const char *filename);
+memo_database_load(memo_database *db, const char *filename);
 
 /**
  * @}
  */
 
 /**
- * @defgroup memo_message_group memo_message
+ * @defgroup memo_message memo_message
  * @ref memo_message structure and related functions.
- * @sa memo_message
  * @{
  */
 
@@ -68,25 +67,16 @@ int
 memo_message_to_string(const memo_message *msg, char **string);
 
 /**
- * @}
- */
-
-/**
- * @defgroup test_group Tests, replies and reports
- * @{
- */
-
-/**
  * Prepares a new tests.
  */
 int
-prepare_test(const memo_message *msg, memo_database db);
+memo_message_test_prepare(const memo_message *msg, memo_database db);
 
 /**
  * Parses a reply to a test, optionally prepares a report.
  */
 int
-parse_reply(const memo_message *msg, memo_database db, memo_message *report);
+memo_message_reply_parse(const memo_message *msg, memo_database db, memo_message *report);
 
 /**
  * @}
