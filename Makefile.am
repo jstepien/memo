@@ -1,5 +1,5 @@
 SUBDIRS=libmemo
-if TESTS
+if WITH_CHECK
     SUBDIRS+=test
 endif
 bin_SCRIPTS=memo

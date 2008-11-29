@@ -27,18 +27,24 @@ AC_PROG_SED
 
 AX_LIB_SQLITE3
 LDFLAGS="$LDFLAGS $SQLITE3_LDFLAGS"
-AC_PROG_LIBTOOL
+CFLAGS="$CFLAGS $SQLITE3_CFLAGS"
 
-AC_ARG_ENABLE([tests],
-              AC_HELP_STRING([--enable-tests],
-                             [enable tests run with 'make check' (default=no)]),
-              [case "${enableval}" in
-                   yes) tests=true ;;
-                   no)  tests=false ;;
-                   *) AC_MSG_ERROR([bad value '${enableval}' for --enable-tests]) ;;
-               esac],
-               [tests=false])
-AM_CONDITIONAL([TESTS], [test x$tests = xtrue])
+AC_ARG_WITH([check],
+            AC_HELP_STRING([--with-check],
+                           [enable Check tests run with 'make check' (default=no)]),
+                           [case "${withval}" in
+                              yes) with_check=true ;;
+                              no)  with_check=false ;;
+                              *) AC_MSG_ERROR([bad value '${withval}' for --with-check]) ;;
+                            esac], [with_check=false])
+AM_CONDITIONAL([WITH_CHECK], [test x$with_check = xtrue])
+
+if test x$with_check = xtrue; then
+    PKG_CHECK_MODULES([Check], [check >= 0.9.5],,
+                      AC_MSG_ERROR([cannot find Check (required by --with-check)]))
+fi
+
+AC_PROG_LIBTOOL
 
 AC_CONFIG_FILES([Makefile
                  libmemo/Makefile
@@ -46,3 +52,5 @@ AC_CONFIG_FILES([Makefile
                  memo
                  Doxyfile])
 AC_OUTPUT
+
+# vim:ts=4:sw=4:et
