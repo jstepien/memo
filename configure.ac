@@ -29,9 +29,20 @@ AX_LIB_SQLITE3
 LDFLAGS="$LDFLAGS $SQLITE3_LDFLAGS"
 AC_PROG_LIBTOOL
 
+AC_ARG_ENABLE([tests],
+              AC_HELP_STRING([--enable-tests],
+                             [enable tests run with 'make check' (default=no)]),
+              [case "${enableval}" in
+                   yes) tests=true ;;
+                   no)  tests=false ;;
+                   *) AC_MSG_ERROR([bad value '${enableval}' for --enable-tests]) ;;
+               esac],
+               [tests=false])
+AM_CONDITIONAL([TESTS], [test x$tests = xtrue])
+
 AC_CONFIG_FILES([Makefile
-		 libmemo/Makefile
-		 test/Makefile
-		 memo
-		 Doxyfile])
+                 libmemo/Makefile
+                 test/Makefile
+                 memo
+                 Doxyfile])
 AC_OUTPUT

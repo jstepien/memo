@@ -1,3 +1,9 @@
+2008-11-29  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* Makefile.am, configure.ac: Tests are now optional, indent clean up.
+	Pass --enable-tests to configure in order to enable tests in test
+	subdirectory.
+
 2008-11-28  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* libmemo/libmemo.h: Added a database closing function to the header.
