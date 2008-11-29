@@ -16,6 +16,17 @@ memo_database_close(memo_database db) {
 	return 0;
 }
 
+int
+memo_database_add_word(memo_database db, const char *key, const char *value) {
+	return -1;
+}
+
+int
+memo_database_check_translation(memo_database db, const char *key,
+		const char *value) {
+	return -1;
+}
+
 /*
  * vim:ts=4:noet:tw=78
  */

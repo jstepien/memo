@@ -1,5 +1,11 @@
 2008-11-29  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/database.c, libmemo/libmemo.h: Added new database functions,
+	memo_database_add_word and memo_database_check_translation.
+	* test/tests.c: Added respective tests and modified the existing one.
+
+2008-11-29  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* test/Makefile.am, test/basic_database_test.c, test/tests.c: Added
 	the first Check test.
 

@@ -48,6 +48,22 @@ int
 memo_database_close(memo_database db);
 
 /**
+ * Adds a new word to the database.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_database_add_word(memo_database db, const char *key, const char *value);
+
+/**
+ * Checks whether the given translation exists in the database.
+ * @return 0 if the translation in correct, 1 if it is not, negative values
+ * in case of errors.
+ */
+int
+memo_database_check_translation(memo_database db, const char *key,
+		const char *value);
+
+/**
  * @}
  */
 
