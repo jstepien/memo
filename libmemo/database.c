@@ -1,4 +1,6 @@
 #include <libmemo.h>
+#include <stdlib.h>
+#include <string.h>
 
 int
 memo_database_load(memo_database *db, const char *filename) {
@@ -31,11 +33,10 @@ memo_database_execute(memo_database db, const char *query) {
 int
 memo_database_init(memo_database db) {
 	const char *words_query = "CREATE TABLE words (id integer, word text, "\
-			"positive_answers integer, negative_answers integer, "\
-			"PRIMARY KEY (id), UNIQUE (id, word) );";
+			"positive_answers integer DEFAULT 0, negative_answers integer "\
+			"DEFAULT 0, PRIMARY KEY (id), UNIQUE (word) );";
 	const char *translations_query = "CREATE TABLE translations (id integer, "\
-			"word_id integer, translation_id integer, PRIMARY KEY (id), "\
-			"UNIQUE (id) );";
+			"word_id integer, translation_id integer, PRIMARY KEY (id) ); ";
 	if ( memo_database_execute(db, words_query) ||
 			memo_database_execute(db, translations_query) )
 		return 1;
@@ -50,7 +51,21 @@ memo_database_close(memo_database db) {
 
 int
 memo_database_add_word(memo_database db, const char *key, const char *value) {
-	return -1;
+	const char *words_ins_templ = "INSERT INTO words (word) VALUES (\"%s\");";
+	const char *words_sel_templ = "SELECT (id) from words where word == \"%s\");";
+	char *query;
+	int longer_length, key_len, value_len;
+
+	key_len = strlen(key);
+	value_len = strlen(value_len);
+	longer_length = (key_len > value_len) ? key_len : value_len;
+	query = malloc(sizeof(char) * (strlen(words_sel_templ)-2+longer_length+1));
+
+	sprintf(query, words_ins_templ, key);
+	memo_database_execute(db, query);
+	sprintf(query, words_ins_templ, value);
+	memo_database_execute(db, query);
+	return 0;
 }
 
 int
