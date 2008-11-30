@@ -2,6 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MEMO_NULL 0
+#define MEMO_TEXT 1
+#define MEMO_INT  2
+
+typedef struct _memo_database_result_row {
+	struct _memo_database_result_row *next_row;
+	struct _memo_database_result_row *prev_row;
+	void **data;
+} memo_database_result_row;
+
 int
 memo_database_load(memo_database *db, const char *filename) {
 	if ( sqlite3_open(filename, db) ) {
@@ -13,15 +23,24 @@ memo_database_load(memo_database *db, const char *filename) {
 }
 
 int
-memo_database_execute(memo_database db, const char *query) {
+memo_database_execute(memo_database db, const char *query,
+		memo_database_result_row **ret) {
 	sqlite3_stmt *stmt;
+	int rc;
 	if ( sqlite3_prepare_v2(db, query, -1, &stmt, NULL) ) {
 		fprintf(stderr, "Error parsing SQL query: %s\n", sqlite3_errmsg(db));
 		return 1;
 	}
-	if ( sqlite3_step(stmt) != SQLITE_DONE ) {
-		fprintf(stderr, "Error executing statement: %s\n", sqlite3_errmsg(db));
-		return 1;
+	while (1) {
+		rc = sqlite3_step(stmt);
+		if ( rc == SQLITE_DONE )
+			break;
+		if ( rc == SQLITE_ROW && ret ) {
+			/* Prepare the results */
+		} else {
+			fprintf(stderr, "Error executing statement: %s\n", sqlite3_errmsg(db));
+			return 1;
+		}
 	}
 	if ( sqlite3_finalize(stmt) ) {
 		fprintf(stderr, "Error finalising statement: %s\n", sqlite3_errmsg(db));
@@ -37,8 +56,8 @@ memo_database_init(memo_database db) {
 			"DEFAULT 0, PRIMARY KEY (id), UNIQUE (word) );";
 	const char *translations_query = "CREATE TABLE translations (id integer, "\
 			"word_id integer, translation_id integer, PRIMARY KEY (id) ); ";
-	if ( memo_database_execute(db, words_query) ||
-			memo_database_execute(db, translations_query) )
+	if ( memo_database_execute(db, words_query, NULL) ||
+			memo_database_execute(db, translations_query, NULL) )
 		return 1;
 	return 0;
 }
@@ -57,14 +76,14 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	int longer_length, key_len, value_len;
 
 	key_len = strlen(key);
-	value_len = strlen(value_len);
+	value_len = strlen(value);
 	longer_length = (key_len > value_len) ? key_len : value_len;
 	query = malloc(sizeof(char) * (strlen(words_sel_templ)-2+longer_length+1));
 
 	sprintf(query, words_ins_templ, key);
-	memo_database_execute(db, query);
+	memo_database_execute(db, query, NULL);
 	sprintf(query, words_ins_templ, value);
-	memo_database_execute(db, query);
+	memo_database_execute(db, query, NULL);
 	return 0;
 }
 
