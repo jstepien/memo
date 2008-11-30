@@ -2,15 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MEMO_NULL 0
-#define MEMO_TEXT 1
-#define MEMO_INT  2
-
-typedef struct _memo_database_result_row {
-	struct _memo_database_result_row *next_row;
-	struct _memo_database_result_row *prev_row;
-	void **data;
-} memo_database_result_row;
+typedef struct _memo_database_data {
+	int rows;
+	int cols;
+	void ***data;
+} memo_database_data;
 
 int
 memo_database_load(memo_database *db, const char *filename) {
@@ -24,7 +20,7 @@ memo_database_load(memo_database *db, const char *filename) {
 
 int
 memo_database_execute(memo_database db, const char *query,
-		memo_database_result_row **ret) {
+		memo_database_data *ret) {
 	sqlite3_stmt *stmt;
 	int rc;
 	if ( sqlite3_prepare_v2(db, query, -1, &stmt, NULL) ) {

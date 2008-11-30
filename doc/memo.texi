@@ -41,26 +41,56 @@ Few words of a brief description.
 
 The database consists of following tables.
 
-@enumerate
+@example
+@verbatim
+CREATE TABLE words (
+	id integer,
+	word text,
+	positive_answers integer DEFAULT 0,
+	negative_answers integer DEFAULT 0,
+	PRIMARY KEY (id),
+	UNIQUE (word)
+);
 
-@item @strong{words}
+CREATE TABLE translations (
+	id integer,
+	word_id integer,
+	translation_id integer,
+	PRIMARY KEY (id)
+);
+@end verbatim
+@end example
 
-@table @asis
-@item int @strong{id}
-@item string @strong{word}
-@item int @strong{positive_answers}
-@item int @strong{negative_answers}
-@end table
+@subsection Retrieving data
 
-@item @strong{translations}
+The data retrieving database functions return the data using the
+@code{memo_database_data} structure.
 
-@table @asis
-@item int @strong{id}
-@item int @strong{word_id}
-@item int @strong{translation_id}
-@end table
+@example
+@verbatim
+typedef struct _memo_database_data {
+	int rows;
+	int cols;
+	void ***data;
+} memo_database_data;
+@end verbatim
+@end example
 
-@end enumerate
+@code{data} is a table of rows of pointers. @code{rows} and @code{cols}
+describe it's size. Values of the table's fields may be either @code{int}
+casted to @code{void*} or addresses of @code{const char*} strings.
+
+@subsection Internal communication
+
+The function used for the internal communication with the database is
+
+@example
+@verbatim
+int
+memo_database_execute(memo_database db, const char *query,
+	memo_database_data *ret);
+@end verbatim
+@end example
 
 @node Copyrights
 @appendix Copyrights
