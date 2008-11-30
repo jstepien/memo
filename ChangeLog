@@ -1,3 +1,8 @@
+2008-11-30  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* doc/memo.texi: Added a Texinfo documentation file. Currently there's
+	only a draft of the database structure.
+
 2008-11-29  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* libmemo/database.c, libmemo/libmemo.h: Added new database functions,

@@ -1,0 +1,80 @@
+\input texinfo
+@setfilename memo.info
+@settitle Memo
+@documentencoding UTF-8
+
+@titlepage
+@title Memo
+@subtitle Memo Enables Memory Optimisation
+@author Jan Stępień
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Memo
+
+This is the documentation for Memo.
+
+@menu
+* User guide::
+* Behind the scenes::
+* Copyrights::
+@end menu
+
+@end ifnottex
+
+@node User guide
+@chapter User guide
+
+@section About
+
+Few words of a brief description.
+
+@node Behind the scenes
+@chapter Behind the scenes
+
+@section Database
+
+@subsection Database structure
+
+The database consists of following tables.
+
+@enumerate
+
+@item @strong{words}
+
+@table @asis
+@item int @strong{id}
+@item string @strong{word}
+@item int @strong{positive_answers}
+@item int @strong{negative_answers}
+@end table
+
+@item @strong{translations}
+
+@table @asis
+@item int @strong{id}
+@item int @strong{word_id}
+@item int @strong{translation_id}
+@end table
+
+@end enumerate
+
+@node Copyrights
+@appendix Copyrights
+
+Copyright @copyright{} @ 2008 Jan Stępień.
+
+Permission is granted to copy, distribute and/or modify this document under
+the terms of the GNU Free Documentation License, Version 1.3 or any later
+version published by the Free Software Foundation; with no Invariant Sections,
+no Front-Cover Texts, and no Back-Cover Texts.
+
+The copy of the GNU Free Documentation License can be obtained at
+@url{http://www.gnu.org/licenses/}.
+
+@c TODO: include the documentation.
+
+@bye
