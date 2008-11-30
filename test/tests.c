@@ -1,6 +1,8 @@
 #include <libmemo.h>
 #include <check.h>
 #include <assert.h>
+#include <unistd.h>
+#include <errno.h>
 
 #define DBNAME "./tmpdb"
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
@@ -10,9 +12,15 @@
 memo_database db;
 
 void
+database_remove() {
+	/* Remove the database file. It's fine if it does not exist. */
+	assert(unlink(DBNAME) == 0 && errno != ENOENT);
+}
+
+void
 database_setup() {
+	database_remove();
 	assert(memo_database_load(&db, DBNAME) == 0);
-	/* TODO: truncate the database. */
 }
 
 void
