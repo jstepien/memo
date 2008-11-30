@@ -28,11 +28,51 @@ memo_database_execute(memo_database db, const char *query,
 		return 1;
 	}
 	while (1) {
+		/* Execute the query. */
 		rc = sqlite3_step(stmt);
+		/* If everything's fine we can leave the loop. */
 		if ( rc == SQLITE_DONE )
 			break;
+		/* TODO: allocate it more sensibly when refactoring. */
+		if (ret) {
+			int i;
+			ret->data = malloc(sizeof(void**)*10);
+			for(  i = 0; i < 10; i += 1) {
+				ret->data[i] = malloc(sizeof(void*)*10);
+			}
+		}
+		/* If the database has returned some data and the user provided a
+		 * place to store it. */
 		if ( rc == SQLITE_ROW && ret ) {
-			/* Prepare the results */
+			int i, type, cols;
+			/* If column count isn't defined yet, it should be counted from
+			 * zero. */
+			if ( ret->cols == 0 )
+				cols = 0;
+			i = 0;
+			/* While there are columns. */
+			while ( ( type = sqlite3_column_type(stmt, i)) != SQLITE_NULL ) {
+				if ( ret->cols == 0 )
+					cols++;
+				switch (type) {
+					case SQLITE_INTEGER:
+						ret->data[ret->rows][i] = (void*) sqlite3_column_int(stmt, i);
+						break;
+					case SQLITE_TEXT:
+						/* TODO: copy the string and add it's address to
+						 * ret->data. */
+						break;
+					default:
+						/* TODO: maybe an error message...? */
+						return 1;
+				}
+				i++;
+			}
+			/* Define the column count unless it's already defined. */
+			if ( ret->cols == 0 )
+				ret->cols = cols;
+			/* A row has been added. */
+			ret->rows++;
 		} else {
 			fprintf(stderr, "Error executing statement: %s\n", sqlite3_errmsg(db));
 			return 1;
@@ -67,19 +107,40 @@ memo_database_close(memo_database db) {
 int
 memo_database_add_word(memo_database db, const char *key, const char *value) {
 	const char *words_ins_templ = "INSERT INTO words (word) VALUES (\"%s\");";
-	const char *words_sel_templ = "SELECT (id) from words where word == \"%s\");";
+	const char *words_sel_templ = "SELECT (id) from words where word == \"%s\";";
+	const char *trans_ins_templ = "INSERT INTO translations "\
+			"(word_id, translation_id) VALUES (\"%i\", \"%i\");";
 	char *query;
-	int longer_length, key_len, value_len;
+	int longer_length, key_len, value_len, key_id, value_id;
+	memo_database_data *results;
 
 	key_len = strlen(key);
 	value_len = strlen(value);
 	longer_length = (key_len > value_len) ? key_len : value_len;
-	query = malloc(sizeof(char) * (strlen(words_sel_templ)-2+longer_length+1));
+	query = malloc(sizeof(char) * (strlen(trans_ins_templ)-2+longer_length+1));
 
 	sprintf(query, words_ins_templ, key);
 	memo_database_execute(db, query, NULL);
 	sprintf(query, words_ins_templ, value);
 	memo_database_execute(db, query, NULL);
+
+	results = calloc(1, sizeof(memo_database_data));
+
+	sprintf(query, words_sel_templ, key);
+	memo_database_execute(db, query, results);
+	key_id = (int) results->data[0][0];
+
+	free(results);
+	results = calloc(1, sizeof(memo_database_data));
+
+	sprintf(query, words_sel_templ, value);
+	memo_database_execute(db, query, results);
+	value_id = (int) results->data[0][0];
+
+	sprintf(query, trans_ins_templ, key_id, value_id);
+	memo_database_execute(db, query, NULL);
+
+	free(results);
 	return 0;
 }
 
