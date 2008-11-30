@@ -117,6 +117,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	key_len = strlen(key);
 	value_len = strlen(value);
 	longer_length = (key_len > value_len) ? key_len : value_len;
+	/* strlen(trans_ins_templ) because it's the longest template. */
 	query = malloc(sizeof(char) * (strlen(trans_ins_templ)-2+longer_length+1));
 
 	sprintf(query, words_ins_templ, key);
@@ -124,12 +125,14 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	sprintf(query, words_ins_templ, value);
 	memo_database_execute(db, query, NULL);
 
+	/* TODO: There should be an initialising function */
 	results = calloc(1, sizeof(memo_database_data));
 
 	sprintf(query, words_sel_templ, key);
 	memo_database_execute(db, query, results);
 	key_id = (int) results->data[0][0];
 
+	/* TODO: That's not the best solution. */
 	free(results);
 	results = calloc(1, sizeof(memo_database_data));
 
@@ -140,6 +143,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	sprintf(query, trans_ins_templ, key_id, value_id);
 	memo_database_execute(db, query, NULL);
 
+	/* TODO: There should be a freeing function */
 	free(results);
 	return 0;
 }

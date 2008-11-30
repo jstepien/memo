@@ -1,5 +1,15 @@
 2008-11-30  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/database.c: Added memo_database_data structure,
+	memo_database_execute nad memo_database_init functions, started to
+	implement memo_database_add_word. They're all far from being
+	functional.
+	* libmemo/libmemo.h: Added memo_database_init header.
+	* test/tests.c: Added memo_database_init in database_setup.
+	* doc/memo.texi: Developing the database related drafts.
+
+2008-11-30  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* doc/memo.texi: Added a Texinfo documentation file. Currently there's
 	only a draft of the database structure.
 
