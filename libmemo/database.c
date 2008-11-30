@@ -11,6 +11,11 @@ memo_database_load(memo_database *db, const char *filename) {
 }
 
 int
+memo_database_init(memo_database db) {
+	return 0;
+}
+
+int
 memo_database_close(memo_database db) {
 	sqlite3_close(db);
 	return 0;

@@ -48,6 +48,13 @@ int
 memo_database_close(memo_database db);
 
 /**
+ * Initialise the database.
+ * Create the structure of tables, unless they already exist.
+ */
+int
+memo_database_init(memo_database db);
+
+/**
  * Adds a new word to the database.
  * @return 0 in case of success, negative values in case of errors.
  */
