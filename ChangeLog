@@ -1,3 +1,8 @@
+2008-12-05  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c: Insert/select translation functions pass the
+	test.
+
 2008-11-30  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* libmemo/database.c: Added memo_database_data structure,

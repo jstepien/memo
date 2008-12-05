@@ -114,12 +114,16 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	int longer_length, key_len, value_len, key_id, value_id;
 	memo_database_data *results;
 
+	/* check return values! */
+
 	key_len = strlen(key);
 	value_len = strlen(value);
 	longer_length = (key_len > value_len) ? key_len : value_len;
 	/* strlen(trans_ins_templ) because it's the longest template. */
 	query = malloc(sizeof(char) * (strlen(trans_ins_templ)-2+longer_length+1));
 
+	/* Check whether a word already exists in the database before
+	 * inserting. */
 	sprintf(query, words_ins_templ, key);
 	memo_database_execute(db, query, NULL);
 	sprintf(query, words_ins_templ, value);
@@ -151,7 +155,55 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 int
 memo_database_check_translation(memo_database db, const char *key,
 		const char *value) {
-	return -1;
+	const char *words_sel_templ = "SELECT (id) from words where word == \"%s\";";
+	const char *trans_sel_templ = "SELECT (id) from translations where "\
+			"word_id == \"%i\" AND translation_id == \"%i\";";
+	char *query;
+	int longer_length, key_len, value_len, key_id, value_id;
+	memo_database_data *results;
+
+	/* check return values! */
+
+	key_len = strlen(key);
+	value_len = strlen(value);
+	longer_length = (key_len > value_len) ? key_len : value_len;
+	/* strlen(trans_sel_templ) because it's the longest template. */
+	query = malloc(sizeof(char) * (strlen(trans_sel_templ)-2+longer_length+1));
+
+	/* TODO: There should be an initialising function */
+	results = calloc(1, sizeof(memo_database_data));
+
+	sprintf(query, words_sel_templ, key);
+	memo_database_execute(db, query, results);
+	if ( results->rows < 1 ) {
+		printf("no key\n");
+		return 1;
+	}
+	key_id = (int) results->data[0][0];
+
+	free(results);
+	results = calloc(1, sizeof(memo_database_data));
+
+	sprintf(query, words_sel_templ, value);
+	memo_database_execute(db, query, results);
+	if ( results->rows < 1 ) {
+		printf("no trans\n");
+		return 1;
+	}
+	value_id = (int) results->data[0][0];
+
+	free(results);
+	results = calloc(1, sizeof(memo_database_data));
+
+	sprintf(query, trans_sel_templ, key_id, value_id);
+	memo_database_execute(db, query, results);
+	if ( results->rows < 1 ) {
+		printf("no match\n");
+		return 1;
+	}
+	printf("match\n");
+	free(results);
+	return 0;
 }
 
 /*
