@@ -42,6 +42,8 @@ START_TEST (database_basic_io_add_get)
 	fail_if(memo_database_add_word(db, "Test", "tset") != 0, ERR_ADDING);
 	fail_if(memo_database_check_translation(db, "Test", "doesn't exist") != 1,
 		   "Found an item which does not exist in the database");
+	fail_if(memo_database_check_translation(db, "foobar", "tset") != 1,
+		   "Found an item which does not exist in the database");
 	fail_if(memo_database_check_translation(db, "Test", "tset") != 0,
 		   "Cannot find a word which exists in the database.");
 }
