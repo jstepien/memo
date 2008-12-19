@@ -27,6 +27,20 @@ typedef struct _memo_database_data {
 	void ***data;
 } memo_database_data;
 
+memo_database_data *
+memo_database_data_init() {
+	return calloc(1, sizeof(memo_database_data));
+}
+
+void
+memo_database_data_free(memo_database_data * data) {
+	int i;
+	/* TODO: free a string, if a column contains strings */
+	for (i = 0; i < data->rows; i++)
+		free(data->data[i]);
+	free(data);
+}
+
 int
 memo_database_load(memo_database *db, const char *filename) {
 	if ( sqlite3_open(filename, db) ) {
@@ -52,13 +66,16 @@ memo_database_execute(memo_database db, const char *query,
 		/* If everything's fine we can leave the loop. */
 		if ( rc == SQLITE_DONE )
 			break;
-		/* TODO: allocate it more sensibly when refactoring. */
+		/* Reallocate the returned data table, as we need memory for a pointer
+		 * to the next row. */
 		if (ret) {
-			int i;
-			ret->data = malloc(sizeof(void**)*10);
-			for(  i = 0; i < 10; i += 1) {
-				ret->data[i] = malloc(sizeof(void*)*10);
-			}
+			ret->data = realloc(ret->data, sizeof(void**)*(ret->rows+1));
+			/* If we know the number of columns (i.e. it's not the first row)
+			 * allocate memory for a new row. */
+			if (ret->rows > 0)
+				ret->data[ret->rows] = malloc(sizeof(void*)*ret->cols);
+			else
+				ret->data[0] = NULL;
 		}
 		/* If the database has returned some data and the user provided a
 		 * place to store it. */
@@ -71,8 +88,13 @@ memo_database_execute(memo_database db, const char *query,
 			i = 0;
 			/* While there are columns. */
 			while ( ( type = sqlite3_column_type(stmt, i)) != SQLITE_NULL ) {
-				if ( ret->cols == 0 )
-					cols++;
+				/* If we don't know the column count yet (i.e. it's the first row
+				 * of results) count columns and reallocate memory for each
+				 * column we discover. */
+				if ( ret->cols == 0 ) {
+					ret->data[ret->rows] = realloc(ret->data[ret->rows],
+							sizeof(void*)*(++cols));
+				}
 				switch (type) {
 					case SQLITE_INTEGER:
 						ret->data[ret->rows][i] = (void*) sqlite3_column_int(stmt, i);
@@ -140,6 +162,8 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	longer_length = (key_len > value_len) ? key_len : value_len;
 	/* strlen(trans_ins_templ) because it's the longest template. */
 	query = malloc(sizeof(char) * (strlen(trans_ins_templ)-2+longer_length+1));
+	if (!query)
+		return -1;
 
 	/* Check whether a word already exists in the database before
 	 * inserting. */
@@ -148,16 +172,18 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	sprintf(query, words_ins_templ, value);
 	memo_database_execute(db, query, NULL);
 
-	/* TODO: There should be an initialising function */
-	results = calloc(1, sizeof(memo_database_data));
+	results = memo_database_data_init();
+	if (!results)
+		return -1;
 
 	sprintf(query, words_sel_templ, key);
 	memo_database_execute(db, query, results);
 	key_id = (int) results->data[0][0];
 
-	/* TODO: That's not the best solution. */
-	free(results);
-	results = calloc(1, sizeof(memo_database_data));
+	memo_database_data_free(results);
+	results = memo_database_data_init();
+	if (!results)
+		return -1;
 
 	sprintf(query, words_sel_templ, value);
 	memo_database_execute(db, query, results);
@@ -166,8 +192,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	sprintf(query, trans_ins_templ, key_id, value_id);
 	memo_database_execute(db, query, NULL);
 
-	/* TODO: There should be a freeing function */
-	free(results);
+	memo_database_data_free(results);
 	return 0;
 }
 
@@ -189,8 +214,9 @@ memo_database_check_translation(memo_database db, const char *key,
 	/* strlen(trans_sel_templ) because it's the longest template. */
 	query = malloc(sizeof(char) * (strlen(trans_sel_templ)-2+longer_length+1));
 
-	/* TODO: There should be an initialising function */
-	results = calloc(1, sizeof(memo_database_data));
+	results = memo_database_data_init();
+	if (!results)
+		return -1;
 
 	sprintf(query, words_sel_templ, key);
 	memo_database_execute(db, query, results);
@@ -200,8 +226,10 @@ memo_database_check_translation(memo_database db, const char *key,
 	}
 	key_id = (int) results->data[0][0];
 
-	free(results);
-	results = calloc(1, sizeof(memo_database_data));
+	memo_database_data_free(results);
+	results = memo_database_data_init();
+	if (!results)
+		return -1;
 
 	sprintf(query, words_sel_templ, value);
 	memo_database_execute(db, query, results);
@@ -221,7 +249,8 @@ memo_database_check_translation(memo_database db, const char *key,
 		return 1;
 	}
 	printf("match\n");
-	free(results);
+
+	memo_database_data_free(results);
 	return 0;
 }
 
