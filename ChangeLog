@@ -1,3 +1,10 @@
+2008-12-19  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c: A little bit of refactoring in database.c. New
+	functions: memo_database_data_{init,free} prepare and destroy
+	memo_database_data structure. Memory is allocated more sensibly.
+	* test/tests.c: Added a test trying to find a non-existing item.
+
 2008-12-05  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* libmemo/database.c: Insert/select translation functions pass the
