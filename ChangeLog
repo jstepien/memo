@@ -1,3 +1,10 @@
+2008-12-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/libmemo.h, libmemo/database.c: Return values cleaned up, removed
+	useless output. Added some comments. Did some minor fixes. Created
+	memo_database_get_word_id function. And tried to use it in order to
+	follow the DRY rule.
+
 2008-12-19  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* libmemo/database.c: A little bit of refactoring in database.c. New
