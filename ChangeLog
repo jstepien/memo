@@ -1,5 +1,9 @@
 2008-12-21  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* test/tests.c: Added a swapped (key, value) database test.
+
+2008-12-21  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* libmemo/libmemo.h, libmemo/database.c: Return values cleaned up, removed
 	useless output. Added some comments. Did some minor fixes. Created
 	memo_database_get_word_id function. And tried to use it in order to

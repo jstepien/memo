@@ -46,6 +46,9 @@ START_TEST (database_basic_io_add_get)
 		   "Found an item which does not exist in the database");
 	fail_if(memo_database_check_translation(db, "Test", "tset") != 0,
 		   "Cannot find a word which exists in the database.");
+	fail_if(memo_database_check_translation(db, "tset", "Test") != 0,
+		   "Cannot find a pair which exists in the database "\
+		   "(in reverse order).");
 }
 END_TEST
 
