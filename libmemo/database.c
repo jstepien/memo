@@ -155,7 +155,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	int longer_length, key_len, value_len, key_id, value_id;
 	memo_database_data *results;
 
-	/* check return values! */
+	/* TODO: check return values! */
 
 	key_len = strlen(key);
 	value_len = strlen(value);
@@ -165,8 +165,11 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	if (!query)
 		return -1;
 
-	/* Check whether a word already exists in the database before
-	 * inserting. */
+	/* TODO: Check whether key or value already exists in the database
+	 * before inserting. If one of them is in the words table, insert only the
+	 * one which is missing and update the translations table. */
+
+	/* Insert a new word and it's translation to the database. */
 	sprintf(query, words_ins_templ, key);
 	if (memo_database_execute(db, query, NULL) < 0)
 		return -1;
@@ -174,6 +177,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	if (memo_database_execute(db, query, NULL) < 0)
 		return -1;
 
+	/* Get newly inserted words' keys from the database. */
 	results = memo_database_data_init();
 	if (!results)
 		return -1;
@@ -193,6 +197,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 		return -1;
 	value_id = (int) results->data[0][0];
 
+	/* Insert the key pair to the translations table. */
 	sprintf(query, trans_ins_templ, key_id, value_id);
 	if (memo_database_execute(db, query, NULL) < 0)
 		return -1;
@@ -211,7 +216,7 @@ memo_database_check_translation(memo_database db, const char *key,
 	int longer_length, key_len, value_len, key_id, value_id;
 	memo_database_data *results;
 
-	/* check return values! */
+	/* TODO: check return values! */
 
 	key_len = strlen(key);
 	value_len = strlen(value);
@@ -223,6 +228,7 @@ memo_database_check_translation(memo_database db, const char *key,
 	if (!results)
 		return -1;
 
+	/* Get key's and value's IDs from the database. */
 	sprintf(query, words_sel_templ, key);
 	memo_database_execute(db, query, results);
 	if ( results->rows < 1 )
@@ -240,9 +246,13 @@ memo_database_check_translation(memo_database db, const char *key,
 		return 1;
 	value_id = (int) results->data[0][0];
 
-	free(results);
-	results = calloc(1, sizeof(memo_database_data));
+	memo_database_data_free(results);
+	results = memo_database_data_init();
+	if (!results)
+		return -1;
 
+	/* Check whether the ID pair exists in the database. */
+	/* TODO: check both combinations, (key, value) and (value, key). */
 	sprintf(query, trans_sel_templ, key_id, value_id);
 	memo_database_execute(db, query, results);
 	if ( results->rows < 1 )
