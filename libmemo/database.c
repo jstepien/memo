@@ -145,6 +145,36 @@ memo_database_close(memo_database db) {
 	return 0;
 }
 
+/**
+ * @return 0 if the word doesn't exist in the database, negative values in
+ * case of errors, positive value equal to the ID of a word if the word exists
+ * in the database.
+ */
+int
+memo_database_get_word_id(memo_database db, const char *word) {
+	int retval;
+	memo_database_data *results;
+	const char *word_sel_templ = "SELECT (id) from words where word == \"%s\";";
+	char *query;
+	query = malloc(sizeof(char) * (strlen(word_sel_templ)+strlen(word)-1));
+	results = memo_database_data_init();
+	if (!query || !results)
+		return -1;
+	sprintf(query, word_sel_templ, word);
+	if (memo_database_execute(db, query, results) < 0)
+		return -1;
+	/*
+	 * KEEP IN MIND, that it works fine only if IDs are greater then 0.
+	 */
+	if ( results->rows < 1 )
+		retval = 0;
+	else
+		retval = (int) results->data[0][0];
+	free(query);
+	memo_database_data_free(results);
+	return retval;
+}
+
 int
 memo_database_add_word(memo_database db, const char *key, const char *value) {
 	const char *words_ins_templ = "INSERT INTO words (word) VALUES (\"%s\");";
@@ -209,7 +239,6 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 int
 memo_database_check_translation(memo_database db, const char *key,
 		const char *value) {
-	const char *words_sel_templ = "SELECT (id) from words where word == \"%s\";";
 	const char *trans_sel_templ = "SELECT (id) from translations where "\
 			"word_id == \"%i\" AND translation_id == \"%i\";";
 	char *query;
@@ -224,35 +253,22 @@ memo_database_check_translation(memo_database db, const char *key,
 	/* strlen(trans_sel_templ) because it's the longest template. */
 	query = malloc(sizeof(char) * (strlen(trans_sel_templ)-2+longer_length+1));
 
-	results = memo_database_data_init();
-	if (!results)
-		return -1;
-
 	/* Get key's and value's IDs from the database. */
-	sprintf(query, words_sel_templ, key);
-	memo_database_execute(db, query, results);
-	if ( results->rows < 1 )
+	if ((key_id = memo_database_get_word_id(db, key)) == 0)
 		return 1;
-	key_id = (int) results->data[0][0];
-
-	memo_database_data_free(results);
-	results = memo_database_data_init();
-	if (!results)
+	else if (key_id < 0)
 		return -1;
-
-	sprintf(query, words_sel_templ, value);
-	memo_database_execute(db, query, results);
-	if ( results->rows < 1 )
+	if ( (value_id = memo_database_get_word_id(db, value)) == 0)
 		return 1;
-	value_id = (int) results->data[0][0];
-
-	memo_database_data_free(results);
-	results = memo_database_data_init();
-	if (!results)
+	else if (value_id < 0)
 		return -1;
 
 	/* Check whether the ID pair exists in the database. */
 	/* TODO: check both combinations, (key, value) and (value, key). */
+	results = memo_database_data_init();
+	if (!results)
+		return -1;
+
 	sprintf(query, trans_sel_templ, key_id, value_id);
 	memo_database_execute(db, query, results);
 	if ( results->rows < 1 )
