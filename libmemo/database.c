@@ -46,7 +46,7 @@ memo_database_load(memo_database *db, const char *filename) {
 	if ( sqlite3_open(filename, db) ) {
 		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
 		sqlite3_close(*db);
-		return 1;
+		return -1;
 	}
 	return 0;
 }
@@ -58,7 +58,7 @@ memo_database_execute(memo_database db, const char *query,
 	int rc;
 	if ( sqlite3_prepare_v2(db, query, -1, &stmt, NULL) ) {
 		fprintf(stderr, "Error parsing SQL query: %s\n", sqlite3_errmsg(db));
-		return 1;
+		return -1;
 	}
 	while (1) {
 		/* Execute the query. */
@@ -105,7 +105,7 @@ memo_database_execute(memo_database db, const char *query,
 						break;
 					default:
 						/* TODO: maybe an error message...? */
-						return 1;
+						return -1;
 				}
 				i++;
 			}
@@ -116,12 +116,12 @@ memo_database_execute(memo_database db, const char *query,
 			ret->rows++;
 		} else {
 			fprintf(stderr, "Error executing statement: %s\n", sqlite3_errmsg(db));
-			return 1;
+			return -1;
 		}
 	}
 	if ( sqlite3_finalize(stmt) ) {
 		fprintf(stderr, "Error finalising statement: %s\n", sqlite3_errmsg(db));
-		return 1;
+		return -1;
 	}
 	return 0;
 }
@@ -133,9 +133,9 @@ memo_database_init(memo_database db) {
 			"DEFAULT 0, PRIMARY KEY (id), UNIQUE (word) );";
 	const char *translations_query = "CREATE TABLE translations (id integer, "\
 			"word_id integer, translation_id integer, PRIMARY KEY (id) ); ";
-	if ( memo_database_execute(db, words_query, NULL) ||
-			memo_database_execute(db, translations_query, NULL) )
-		return 1;
+	if ( memo_database_execute(db, words_query, NULL) < 0 ||
+			memo_database_execute(db, translations_query, NULL) < 0 )
+		return -1;
 	return 0;
 }
 
@@ -168,16 +168,19 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	/* Check whether a word already exists in the database before
 	 * inserting. */
 	sprintf(query, words_ins_templ, key);
-	memo_database_execute(db, query, NULL);
+	if (memo_database_execute(db, query, NULL) < 0)
+		return -1;
 	sprintf(query, words_ins_templ, value);
-	memo_database_execute(db, query, NULL);
+	if (memo_database_execute(db, query, NULL) < 0)
+		return -1;
 
 	results = memo_database_data_init();
 	if (!results)
 		return -1;
 
 	sprintf(query, words_sel_templ, key);
-	memo_database_execute(db, query, results);
+	if (memo_database_execute(db, query, results) < 0)
+		return -1;
 	key_id = (int) results->data[0][0];
 
 	memo_database_data_free(results);
@@ -186,11 +189,13 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 		return -1;
 
 	sprintf(query, words_sel_templ, value);
-	memo_database_execute(db, query, results);
+	if (memo_database_execute(db, query, results) < 0)
+		return -1;
 	value_id = (int) results->data[0][0];
 
 	sprintf(query, trans_ins_templ, key_id, value_id);
-	memo_database_execute(db, query, NULL);
+	if (memo_database_execute(db, query, NULL) < 0)
+		return -1;
 
 	memo_database_data_free(results);
 	return 0;
@@ -220,10 +225,8 @@ memo_database_check_translation(memo_database db, const char *key,
 
 	sprintf(query, words_sel_templ, key);
 	memo_database_execute(db, query, results);
-	if ( results->rows < 1 ) {
-		printf("no key\n");
+	if ( results->rows < 1 )
 		return 1;
-	}
 	key_id = (int) results->data[0][0];
 
 	memo_database_data_free(results);
@@ -233,10 +236,8 @@ memo_database_check_translation(memo_database db, const char *key,
 
 	sprintf(query, words_sel_templ, value);
 	memo_database_execute(db, query, results);
-	if ( results->rows < 1 ) {
-		printf("no trans\n");
+	if ( results->rows < 1 )
 		return 1;
-	}
 	value_id = (int) results->data[0][0];
 
 	free(results);
@@ -244,11 +245,8 @@ memo_database_check_translation(memo_database db, const char *key,
 
 	sprintf(query, trans_sel_templ, key_id, value_id);
 	memo_database_execute(db, query, results);
-	if ( results->rows < 1 ) {
-		printf("no match\n");
+	if ( results->rows < 1 )
 		return 1;
-	}
-	printf("match\n");
 
 	memo_database_data_free(results);
 	return 0;

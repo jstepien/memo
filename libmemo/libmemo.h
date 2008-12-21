@@ -37,12 +37,14 @@ typedef sqlite3* memo_database;
  * Prepares a @ref memo_database.
  * @param db A database to be loaded.
  * @param filename A filename of a file with a database.
+ * @return 0 in case of success, negative values in case of errors.
  */
 int
 memo_database_load(memo_database *db, const char *filename);
 
 /**
  * Closes the database.
+ * @return 0.
  */
 int
 memo_database_close(memo_database db);
@@ -50,6 +52,7 @@ memo_database_close(memo_database db);
 /**
  * Initialise the database.
  * Create the structure of tables, unless they already exist.
+ * @return 0 in case of success, negative values in case of errors.
  */
 int
 memo_database_init(memo_database db);
