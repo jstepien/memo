@@ -44,6 +44,18 @@ START_TEST (database_insertion)
 }
 END_TEST
 
+START_TEST (database_insertion_duplicate)
+{
+	fail_if(memo_database_add_word(db, "one", "two") != 0, ERR_ADDING);
+	fail_if(memo_database_add_word(db, "two", "three") != 0, ERR_ADDING);
+	fail_if(memo_database_add_word(db, "one", "four") != 0, ERR_ADDING);
+	fail_if(memo_database_add_word(db, "one", "four") == 0, "Successfully "\
+			"added a translation already existing in the database.");
+	fail_if(memo_database_add_word(db, "three", "two") == 0, "Successfully "\
+			"added a translation already existing in the database.");
+}
+END_TEST
+
 START_TEST (database_checking_translations)
 {
 	fail_if(memo_database_add_word(db, "Test", "tset") != 0, ERR_ADDING);
@@ -72,6 +84,7 @@ database_suite (void) {
 
 	tc_basic_io = tcase_create("Basic I/O");
 	tcase_add_test(tc_basic_io, database_insertion);
+	tcase_add_test(tc_basic_io, database_insertion_duplicate);
 	tcase_add_test(tc_basic_io, database_checking_translations);
 	tcase_add_checked_fixture (tc_basic_io, database_setup, database_teardown);
 	suite_add_tcase(s, tc_basic_io);
