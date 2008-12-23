@@ -1,5 +1,10 @@
 2008-12-23  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/database.c: memo_database_add_word passes the test listed in the
+	entry below.
+
+2008-12-23  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* test/tests.c: Reorganised tests slightly. Created a test adding to the
 	database keys which has been already added.
 

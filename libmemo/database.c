@@ -178,14 +178,18 @@ memo_database_get_word_id(memo_database db, const char *word) {
 int
 memo_database_add_word(memo_database db, const char *key, const char *value) {
 	const char *words_ins_templ = "INSERT INTO words (word) VALUES (\"%s\");";
-	const char *words_sel_templ = "SELECT (id) from words where word == \"%s\";";
 	const char *trans_ins_templ = "INSERT INTO translations "\
 			"(word_id, translation_id) VALUES (\"%i\", \"%i\");";
 	char *query;
 	int longer_length, key_len, value_len, key_id, value_id;
-	memo_database_data *results;
 
-	/* TODO: check return values! */
+	/* TODO: Database queries in the body of this function duplicate the ones
+	 * in memo_database_check_translation function. There's no need to perform
+	 * them twice. Some kind of cache would be welcome. */
+
+	/* Check whether the pair we're adding isn't in the database already. */
+	if (memo_database_check_translation(db, key, value) == 0)
+		return -1;
 
 	key_len = strlen(key);
 	value_len = strlen(value);
@@ -195,44 +199,34 @@ memo_database_add_word(memo_database db, const char *key, const char *value) {
 	if (!query)
 		return -1;
 
-	/* TODO: Check whether key or value already exists in the database
-	 * before inserting. If one of them is in the words table, insert only the
-	 * one which is missing and update the translations table. */
+	/* Insert a new word and it's translation to the database unless they
+	 * already are there. If one of them is in the words table, insert only
+	 * the one which is missing and update the translations table. */
 
-	/* Insert a new word and it's translation to the database. */
-	sprintf(query, words_ins_templ, key);
-	if (memo_database_execute(db, query, NULL) < 0)
-		return -1;
-	sprintf(query, words_ins_templ, value);
-	if (memo_database_execute(db, query, NULL) < 0)
-		return -1;
+	if ((key_id = memo_database_get_word_id(db, key)) == 0) {
+		/* Insert the word. */
+		sprintf(query, words_ins_templ, key);
+		if (memo_database_execute(db, query, NULL) < 0)
+			return -1;
 
-	/* Get newly inserted words' keys from the database. */
-	results = memo_database_data_init();
-	if (!results)
-		return -1;
+		/* Get newly inserted word's ID. */
+		key_id = memo_database_get_word_id(db, key);
+	}
+	if ((value_id = memo_database_get_word_id(db, value)) == 0) {
+		/* Insert the translation. */
+		sprintf(query, words_ins_templ, value);
+		if (memo_database_execute(db, query, NULL) < 0)
+			return -1;
 
-	sprintf(query, words_sel_templ, key);
-	if (memo_database_execute(db, query, results) < 0)
-		return -1;
-	key_id = (int) results->data[0][0];
-
-	memo_database_data_free(results);
-	results = memo_database_data_init();
-	if (!results)
-		return -1;
-
-	sprintf(query, words_sel_templ, value);
-	if (memo_database_execute(db, query, results) < 0)
-		return -1;
-	value_id = (int) results->data[0][0];
+		/* Get newly inserted translation's ID. */
+		value_id = memo_database_get_word_id(db, value);
+	}
 
 	/* Insert the key pair to the translations table. */
 	sprintf(query, trans_ins_templ, key_id, value_id);
 	if (memo_database_execute(db, query, NULL) < 0)
 		return -1;
 
-	memo_database_data_free(results);
 	return 0;
 }
 
