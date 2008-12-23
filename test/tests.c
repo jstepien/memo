@@ -37,7 +37,14 @@ START_TEST (database_openclose)
 }
 END_TEST
 
-START_TEST (database_basic_io_add_get)
+START_TEST (database_insertion)
+{
+	fail_if(memo_database_add_word(db, "Test", "tset") != 0, ERR_ADDING);
+	/* Should check whether the pair is really there. */
+}
+END_TEST
+
+START_TEST (database_checking_translations)
 {
 	fail_if(memo_database_add_word(db, "Test", "tset") != 0, ERR_ADDING);
 	fail_if(memo_database_check_translation(db, "Test", "doesn't exist") != 1,
@@ -64,7 +71,8 @@ database_suite (void) {
 	suite_add_tcase(s, tc_openclose);
 
 	tc_basic_io = tcase_create("Basic I/O");
-	tcase_add_test(tc_basic_io, database_basic_io_add_get);
+	tcase_add_test(tc_basic_io, database_insertion);
+	tcase_add_test(tc_basic_io, database_checking_translations);
 	tcase_add_checked_fixture (tc_basic_io, database_setup, database_teardown);
 	suite_add_tcase(s, tc_basic_io);
 
