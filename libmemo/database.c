@@ -264,15 +264,23 @@ memo_database_check_translation(memo_database db, const char *key,
 		return -1;
 
 	/* Check whether the ID pair exists in the database. */
-	/* TODO: check both combinations, (key, value) and (value, key). */
 	results = memo_database_data_init();
 	if (!results)
 		return -1;
 
 	sprintf(query, trans_sel_templ, key_id, value_id);
 	memo_database_execute(db, query, results);
-	if ( results->rows < 1 )
-		return 1;
+	if ( results->rows < 1 ) {
+		/* Swap the pair and check again. */
+		memo_database_data_free(results);
+		results = memo_database_data_init();
+		if (!results)
+			return -1;
+		sprintf(query, trans_sel_templ, value_id, key_id);
+		memo_database_execute(db, query, results);
+		if ( results->rows < 1 )
+			return 1;
+	}
 
 	memo_database_data_free(results);
 	return 0;

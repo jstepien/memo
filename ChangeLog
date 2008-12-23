@@ -1,3 +1,8 @@
+2008-12-23  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c: Checking (word, translation) pairs in both
+	combinations.
+
 2008-12-21  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* test/tests.c: Added a swapped (key, value) database test.
