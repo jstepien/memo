@@ -58,11 +58,105 @@ int
 memo_database_init(memo_database db);
 
 /**
- * Adds a new word to the database.
+ * @}
+ */
+
+/**
+ * @defgroup memo_word memo_word
+ * Word related structures and functions.
+ * @{
+ */
+
+/**
+ * A node in a translations' list.
+ * If next is @c NULL the given node is the last translation.
+ */
+typedef struct _memo_translation {
+	/**
+	 * Translation's unique key.
+	 */
+	int key;
+	/**
+	 * Pointer to a next translation.
+	 */
+	_memo_translation *next;
+} memo_translation;
+
+/**
+ * Represents a word.
+ * Follows an active record pattern.
+ */
+typedef struct {
+	/**
+	 * A database which contains the word.
+	 */
+	memo_database db;
+	/**
+	 * Word's value.
+	 */
+	char *value;
+	/**
+	 * Word's unique key.
+	 */
+	int key;
+	/**
+	 * Linked list of translations' keys.
+	 */
+	memo_translation *translations;
+} memo_word;
+
+/**
+ * Create a new, empty word.
+ * @return a pointer to a new word, @c NULL in case of errors.
+ */
+memo_word*
+memo_word_new(memo_database db);
+
+/**
+ * Inserts the given word to the database.
  * @return 0 in case of success, negative values in case of errors.
  */
 int
-memo_database_add_word(memo_database db, const char *key, const char *value);
+memo_word_save(memo_word *word);
+
+/**
+ * Updates given word's row in the database.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_word_update(memo_word *word);
+
+/**
+ * Reloads the given word from the database.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_word_reload(memo_word *word);
+
+/**
+ * Reloads the given word from the database.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_word_reload(memo_word *word);
+
+int
+memo_word_delete(memo_word *word);
+
+int
+memo_word_free(memo_word *word);
+
+const char*
+memo_word_get_value(memo_word *word);
+
+int
+memo_word_set_value(memo_word *word, const char* value);
+
+int
+memo_word_add_translation(memo_word *w1, memo_word *w2);
+
+int
+memo_word_delete_translation(memo_word *w1, memo_word *w2);
 
 /**
  * Checks whether the given translation exists in the database.
@@ -70,8 +164,7 @@ memo_database_add_word(memo_database db, const char *key, const char *value);
  * in case of errors.
  */
 int
-memo_database_check_translation(memo_database db, const char *key,
-		const char *value);
+memo_word_check_translation(memo_word *w1, memo_word *w2);
 
 /**
  * @}

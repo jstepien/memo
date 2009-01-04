@@ -37,14 +37,39 @@ START_TEST (database_openclose)
 }
 END_TEST
 
-START_TEST (database_insertion)
+START_TEST (database_word_manipulation)
 {
-	fail_if(memo_database_add_word(db, "Test", "tset") != 0, ERR_ADDING);
-	/* Should check whether the pair is really there. */
+	memo_word *word;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "Can't create a new word.")
+	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
+	fail_if(memo_word_reload(word) != 0, "Failed to reload a saved word.");
+	fail_if(memo_word_delete(word) != 0, "Failed to delete a saved word.");
+	fail_if(memo_word_reload(word) == 0, "Reloaded a deleted word.");
+	memo_word_free(word);
 }
 END_TEST
 
-START_TEST (database_insertion_duplicate)
+START_TEST (database_translation_creation)
+{
+	memo_word *w1, *w2;
+	w1 = memo_word_new(db);
+	w2 = memo_word_new(db);
+	memo_word_set_value(w1, "Test");
+	memo_word_set_value(w2, "tset");
+	memo_word_save(w1);
+	memo_word_save(w2);
+	/* All functions used above should have been checked by now in a previous
+	 * test. */
+	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING);
+	memo_word_free(w1);
+	memo_word_free(w2);
+	/* TODO: Should check whether the pair is really there. */
+}
+END_TEST
+
+START_TEST (database_inserting_duplicate_translation)
 {
 	fail_if(memo_database_add_word(db, "one", "two") != 0, ERR_ADDING);
 	fail_if(memo_database_add_word(db, "two", "three") != 0, ERR_ADDING);
@@ -82,9 +107,10 @@ database_suite (void) {
 	tcase_add_test(tc_openclose, database_openclose);
 	suite_add_tcase(s, tc_openclose);
 
-	tc_basic_io = tcase_create("Basic I/O");
-	tcase_add_test(tc_basic_io, database_insertion);
-	tcase_add_test(tc_basic_io, database_insertion_duplicate);
+	tc_basic_io = tcase_create("Word I/O");
+	tcase_add_test(tc_basic_io, database_word_manipulation);
+	tcase_add_test(tc_basic_io, database_translation_creation);
+	tcase_add_test(tc_basic_io, database_inserting_duplicate_translation);
 	tcase_add_test(tc_basic_io, database_checking_translations);
 	tcase_add_checked_fixture (tc_basic_io, database_setup, database_teardown);
 	suite_add_tcase(s, tc_basic_io);
