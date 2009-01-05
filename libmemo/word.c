@@ -24,6 +24,8 @@
  */
 
 #include <libmemo.h>
+#include <stdlib.h>
+#include <string.h>
 #include "database.h"
 
 int
