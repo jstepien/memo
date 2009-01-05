@@ -18,6 +18,7 @@
  */
 
 #include <libmemo.h>
+#include <string.h>
 #include <stdlib.h>
 #include "database.h"
 
@@ -97,7 +98,7 @@ memo_database_execute(memo_database db, const char *query,
 						{
 							char *tmp;
 							int len;
-							tmp = sqlite3_column_text(stmt, i);
+							tmp = (char*) sqlite3_column_text(stmt, i);
 							len = strlen(tmp);
 							ret->data[ret->rows][i] = malloc((len+1)*sizeof(char));
 							strcpy(ret->data[ret->rows][i], tmp);

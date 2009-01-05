@@ -9,6 +9,7 @@
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
 #define ERR_CLOSE "Cannot close an opened database."
 #define ERR_ADDING "Cannot add a word to the database."
+#define ERR_ADDING_TR "Cannot add a translation to the database."
 
 memo_database db;
 
@@ -116,7 +117,7 @@ START_TEST (database_translation_creation)
 	memo_word_save(w2);
 	/* All functions used above should have been checked by now in a previous
 	 * test. */
-	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING);
+	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING_TR);
 	memo_word_free(w1);
 	memo_word_free(w2);
 	/* TODO: Should check whether the pair is really there. */
@@ -135,9 +136,9 @@ START_TEST (database_inserting_duplicate_translation)
 	memo_word_set_value(w[3], "four");
 	for (i = 0; i < 4; i++)
 		memo_word_save(w[i]);
-	fail_if(memo_word_add_translation(w[0], w[1]) != 0, ERR_ADDING);
-	fail_if(memo_word_add_translation(w[1], w[2]) != 0, ERR_ADDING);
-	fail_if(memo_word_add_translation(w[0], w[3]) != 0, ERR_ADDING);
+	fail_if(memo_word_add_translation(w[0], w[1]) != 0, ERR_ADDING_TR);
+	fail_if(memo_word_add_translation(w[1], w[2]) != 0, ERR_ADDING_TR);
+	fail_if(memo_word_add_translation(w[0], w[3]) != 0, ERR_ADDING_TR);
 	fail_if(memo_word_add_translation(w[0], w[3]) == 0, "Successfully "\
 			"added a translation already existing in the database.");
 	fail_if(memo_word_add_translation(w[3], w[2]) == 0, "Successfully "\
@@ -162,7 +163,7 @@ START_TEST (database_checking_translations)
 	memo_word_save(w2);
 	memo_word_save(w_exists);
 
-	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING);
+	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING_TR);
 
 	fail_if(memo_word_check_translation(w1, w_exists) != 1,
 		   "Found an pair which does not exist in the database");
