@@ -135,6 +135,9 @@ memo_word_update(memo_word *word);
 int
 memo_word_reload(memo_word *word);
 
+int
+memo_word_reload_by_value(memo_word *word);
+
 /**
  * Reloads the given word from the database.
  * @return 0 in case of success, negative values in case of errors.

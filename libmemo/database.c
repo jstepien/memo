@@ -94,8 +94,14 @@ memo_database_execute(memo_database db, const char *query,
 						ret->data[ret->rows][i] = (void*) sqlite3_column_int(stmt, i);
 						break;
 					case SQLITE_TEXT:
-						/* TODO: copy the string and add it's address to
-						 * ret->data. */
+						{
+							char *tmp;
+							int len;
+							tmp = sqlite3_column_text(stmt, i);
+							len = strlen(tmp);
+							ret->data[ret->rows][i] = malloc((len+1)*sizeof(char));
+							strcpy(ret->data[ret->rows][i], tmp);
+						}
 						break;
 					default:
 						/* TODO: maybe an error message...? */

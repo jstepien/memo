@@ -199,6 +199,8 @@ memo_word_save(memo_word *word) {
 
 	free(query);
 
+	memo_word_reload_by_value(word);
+
 	return 0;
 }
 
@@ -208,8 +210,25 @@ memo_word_update(memo_word *word) {
 }
 
 int
+memo_word_reload_by_value(memo_word *word) {
+	memo_word *tmp;
+	tmp = memo_word_find_by_value(word->db, word->value);
+	if (!tmp)
+		return -1;
+	memcpy(word, tmp, sizeof(memo_word));
+	memo_word_free(tmp);
+	return 0;
+}
+
+int
 memo_word_reload(memo_word *word) {
-	return -1;
+	memo_word *tmp;
+	tmp = memo_word_find(word->db, word->key);
+	if (!tmp)
+		return -1;
+	memcpy(word, tmp, sizeof(memo_word));
+	memo_word_free(tmp);
+	return 0;
 }
 
 int
@@ -250,11 +269,17 @@ memo_word_get_db(memo_word *word) {
 	return word->db;
 }
 
+/*
+ * memo_word_find_by_value and memo_word_find have got much in common. Their
+ * contents should be extracted to a third function used by both of them.
+ * It isn't DRY now.
+ */
+
 memo_word*
 memo_word_find_by_value(memo_database db, const char* value) {
 	memo_word *word;
 	memo_database_data *results;
-	const char *word_sel_templ = "SELECT (id) from words where word == \"%s\";";
+	const char *word_sel_templ = "SELECT id, word FROM words WHERE word == \"%s\";";
 	char *query;
 
 	query = malloc(sizeof(char) * (strlen(word_sel_templ)+strlen(value)-1));
@@ -267,14 +292,18 @@ memo_word_find_by_value(memo_database db, const char* value) {
 	if (memo_database_execute(db, query, results) < 0)
 		return NULL;
 
-	/*
-	 * KEEP IN MIND, that it works fine only if IDs are greater then 0.
-	 */
 	if ( results->rows == 1 ) {
+		char *tmp;
+		int len;
 		word = memo_word_new(db);
 		if (!word)
 			return NULL;
 		word->key = (int) results->data[0][0];
+		len = strlen(results->data[0][1]);
+		if (word->value)
+			free(word->value);
+		word->value = malloc((len+1)*sizeof(char));
+		strcpy(word->value, results->data[0][1]);
 		word->db = db;
 	} else
 		word = NULL;
@@ -285,7 +314,42 @@ memo_word_find_by_value(memo_database db, const char* value) {
 
 memo_word*
 memo_word_find(memo_database db, int id) {
-	return NULL;
+	memo_word *word;
+	memo_database_data *results;
+	const char *word_sel_templ = "SELECT id, word FROM words WHERE id == %i;";
+	char *query;
+
+	/* In the following malloc call we're hoping that log10(id) < 16 .
+	 * It can be verified by counting the actual logarithm, although it seems
+	 * to expensive, doesn't it? */
+	query = malloc(sizeof(char) * (strlen(word_sel_templ)+16));
+	results = memo_database_data_init();
+
+	if (!query || !results)
+		return NULL;
+
+	sprintf(query, word_sel_templ, id);
+	if (memo_database_execute(db, query, results) < 0)
+		return NULL;
+
+	if ( results->rows == 1 ) {
+		char *tmp;
+		int len;
+		word = memo_word_new(db);
+		if (!word)
+			return NULL;
+		word->key = (int) results->data[0][0];
+		len = strlen(results->data[0][1]);
+		if (word->value)
+			free(word->value);
+		word->value = malloc((len+1)*sizeof(char));
+		strcpy(word->value, results->data[0][1]);
+		word->db = db;
+	} else
+		word = NULL;
+	free(query);
+	memo_database_data_free(results);
+	return word;
 }
 
 int
