@@ -233,7 +233,22 @@ memo_word_reload(memo_word *word) {
 
 int
 memo_word_delete(memo_word *word) {
-	return -1;
+	const char *query_template = "DELETE FROM words WHERE id == %i;";
+	char *query;
+	memo_word *tmp_word;
+
+	query = malloc(sizeof(char) * (strlen(query_template)+16));
+
+	if (!query || memo_word_get_key(word) < 0)
+		return -1;
+
+	sprintf(query, query_template, memo_word_get_key(word));
+	if (memo_database_execute(memo_word_get_db(word), query, NULL) < 0)
+		return -1;
+
+	free(query);
+
+	return 0;
 }
 
 int
@@ -245,7 +260,7 @@ memo_word_free(memo_word *word) {
 
 int
 memo_word_get_key(memo_word *word) {
-	return -1;
+	return word->key;
 }
 
 const char*
