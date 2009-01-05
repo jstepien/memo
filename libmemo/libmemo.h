@@ -79,7 +79,7 @@ typedef struct _memo_translation {
 	/**
 	 * Pointer to a next translation.
 	 */
-	_memo_translation *next;
+	struct _memo_translation *next;
 } memo_translation;
 
 /**
@@ -146,11 +146,20 @@ memo_word_delete(memo_word *word);
 int
 memo_word_free(memo_word *word);
 
+int
+memo_word_get_key(memo_word *word);
+
 const char*
 memo_word_get_value(memo_word *word);
 
 int
 memo_word_set_value(memo_word *word, const char* value);
+
+memo_word*
+memo_word_find_by_value(const char* value);
+
+memo_word*
+memo_word_find(int id);
 
 int
 memo_word_add_translation(memo_word *w1, memo_word *w2);

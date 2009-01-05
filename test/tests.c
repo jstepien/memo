@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
 #define DBNAME "./tmpdb"
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
@@ -37,14 +38,67 @@ START_TEST (database_openclose)
 }
 END_TEST
 
-START_TEST (database_word_manipulation)
+START_TEST (database_word_inserting)
 {
 	memo_word *word;
 	word = memo_word_new(db);
-	fail_if(word == NULL, "Can't create a new word.")
+	fail_if(word == NULL, "Can't create a new word.");
+	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
+	/* TODO: Should check whether the word has been saved. */
+	memo_word_free(word);
+}
+END_TEST
+
+START_TEST (database_word_find_by_key)
+{
+	memo_word *w1, *w2;
+	w1 = memo_word_new(db);
+	fail_if(w1 == NULL, "Can't create a new word.");
+	fail_if(memo_word_set_value(w1, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
+	w2 = memo_word_find(memo_word_get_key(w1));
+	fail_if(w2 == NULL ||
+			strcmp(memo_word_get_value(w1), memo_word_get_value(w2)) != 0,
+			"Failed to find the inserted word.");
+	memo_word_free(w1);
+	memo_word_free(w2);
+}
+END_TEST
+
+START_TEST (database_word_find_by_value)
+{
+	memo_word *word;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "Can't create a new word.");
+	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
+	memo_word_free(word);
+	word = memo_word_find_by_value("Test");
+	fail_if(word == NULL, "Failed to find the inserted word.");
+	memo_word_free(word);
+}
+END_TEST
+
+START_TEST (database_word_reload)
+{
+	memo_word *word;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	fail_if(memo_word_reload(word) != 0, "Failed to reload a saved word.");
+	memo_word_free(word);
+}
+END_TEST
+
+START_TEST (database_word_delete)
+{
+	memo_word *word;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "Can't create a new word.");
+	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	fail_if(memo_word_delete(word) != 0, "Failed to delete a saved word.");
 	fail_if(memo_word_reload(word) == 0, "Reloaded a deleted word.");
 	memo_word_free(word);
@@ -108,7 +162,10 @@ database_suite (void) {
 	suite_add_tcase(s, tc_openclose);
 
 	tc_basic_io = tcase_create("Word I/O");
-	tcase_add_test(tc_basic_io, database_word_manipulation);
+	tcase_add_test(tc_basic_io, database_word_inserting);
+	tcase_add_test(tc_basic_io, database_word_find_by_value);
+	tcase_add_test(tc_basic_io, database_word_reload);
+	tcase_add_test(tc_basic_io, database_word_delete);
 	tcase_add_test(tc_basic_io, database_translation_creation);
 	tcase_add_test(tc_basic_io, database_inserting_duplicate_translation);
 	tcase_add_test(tc_basic_io, database_checking_translations);
