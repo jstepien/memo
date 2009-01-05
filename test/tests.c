@@ -125,28 +125,58 @@ END_TEST
 
 START_TEST (database_inserting_duplicate_translation)
 {
-	fail_if(memo_database_add_word(db, "one", "two") != 0, ERR_ADDING);
-	fail_if(memo_database_add_word(db, "two", "three") != 0, ERR_ADDING);
-	fail_if(memo_database_add_word(db, "one", "four") != 0, ERR_ADDING);
-	fail_if(memo_database_add_word(db, "one", "four") == 0, "Successfully "\
+	memo_word *w[4];
+	int i;
+	for (i = 0; i < 4; i++)
+		w[i] = memo_word_new(db);
+	memo_word_set_value(w[0], "one");
+	memo_word_set_value(w[1], "two");
+	memo_word_set_value(w[2], "three");
+	memo_word_set_value(w[3], "four");
+	for (i = 0; i < 4; i++)
+		memo_word_save(w[i]);
+	fail_if(memo_word_add_translation(w[0], w[1]) != 0, ERR_ADDING);
+	fail_if(memo_word_add_translation(w[1], w[2]) != 0, ERR_ADDING);
+	fail_if(memo_word_add_translation(w[0], w[3]) != 0, ERR_ADDING);
+	fail_if(memo_word_add_translation(w[0], w[3]) == 0, "Successfully "\
 			"added a translation already existing in the database.");
-	fail_if(memo_database_add_word(db, "three", "two") == 0, "Successfully "\
+	fail_if(memo_word_add_translation(w[3], w[2]) == 0, "Successfully "\
 			"added a translation already existing in the database.");
+	for (i = 0; i < 4; i++)
+		memo_word_free(w[i]);
 }
 END_TEST
 
 START_TEST (database_checking_translations)
 {
-	fail_if(memo_database_add_word(db, "Test", "tset") != 0, ERR_ADDING);
-	fail_if(memo_database_check_translation(db, "Test", "doesn't exist") != 1,
+	memo_word *w1, *w2, *w_exists, *w_doesnt_exist;
+	w1 = memo_word_new(db);
+	w2 = memo_word_new(db);
+	w_doesnt_exist = memo_word_new(db);
+	w_exists = memo_word_new(db);
+	memo_word_set_value(w1, "Test");
+	memo_word_set_value(w2, "tset");
+	memo_word_set_value(w_exists, "Exists in the database.");
+	memo_word_set_value(w_doesnt_exist, "Does not exist in the db.");
+	memo_word_save(w1);
+	memo_word_save(w2);
+	memo_word_save(w_exists);
+
+	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING);
+
+	fail_if(memo_word_check_translation(w1, w_exists) != 1,
+		   "Found an pair which does not exist in the database");
+	fail_if(memo_word_check_translation(w1, w_doesnt_exist) != 1,
 		   "Found an item which does not exist in the database");
-	fail_if(memo_database_check_translation(db, "foobar", "tset") != 1,
-		   "Found an item which does not exist in the database");
-	fail_if(memo_database_check_translation(db, "Test", "tset") != 0,
+
+	fail_if(memo_word_check_translation(w1, w2) != 0,
 		   "Cannot find a word which exists in the database.");
-	fail_if(memo_database_check_translation(db, "tset", "Test") != 0,
+	fail_if(memo_word_check_translation(w2, w1) != 0,
 		   "Cannot find a pair which exists in the database "\
 		   "(in reverse order).");
+
+	memo_word_free(w1);
+	memo_word_free(w2);
 }
 END_TEST
 
