@@ -57,7 +57,7 @@ START_TEST (database_word_find_by_key)
 	fail_if(w1 == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(w1, "Test") != 0, "Failed to set word's value.");
 	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
-	w2 = memo_word_find(memo_word_get_key(w1));
+	w2 = memo_word_find(db, memo_word_get_key(w1));
 	fail_if(w2 == NULL ||
 			strcmp(memo_word_get_value(w1), memo_word_get_value(w2)) != 0,
 			"Failed to find the inserted word.");
@@ -74,7 +74,7 @@ START_TEST (database_word_find_by_value)
 	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	memo_word_free(word);
-	word = memo_word_find_by_value("Test");
+	word = memo_word_find_by_value(db, "Test");
 	fail_if(word == NULL, "Failed to find the inserted word.");
 	memo_word_free(word);
 }

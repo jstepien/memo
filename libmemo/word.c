@@ -160,12 +160,46 @@ memo_database_check_translation(memo_database db, const char *key,
 
 memo_word*
 memo_word_new(memo_database db) {
-	return NULL;
+	memo_word *w;
+	w = malloc(sizeof(memo_word));
+	if (!w)
+		return NULL;
+	w->value = 0;
+	w->db = db;
+	return w;
 }
 
 int
 memo_word_save(memo_word *word) {
-	return -1;
+	const char *query_template = "INSERT INTO words (word) VALUES (\"%s\");";
+	char *query;
+	memo_word *tmp_word;
+	int word_length;
+
+	word_length = strlen(memo_word_get_value(word));
+	if (word_length < 1)
+		return -1;
+
+	/* Check if the word already exist. */
+
+	tmp_word = memo_word_find_by_value(word->db, memo_word_get_value(word));
+	if ( tmp_word != NULL ) {
+		memo_word_free(tmp_word);
+		return -1;
+	}
+
+	query = malloc(sizeof(char) * (strlen(query_template)+word_length-1));
+
+	if (!query)
+		return -1;
+
+	sprintf(query, query_template, memo_word_get_value(word));
+	if (memo_database_execute(memo_word_get_db(word), query, NULL) < 0)
+		return -1;
+
+	free(query);
+
+	return 0;
 }
 
 int
@@ -185,7 +219,9 @@ memo_word_delete(memo_word *word) {
 
 int
 memo_word_free(memo_word *word) {
-	return -1;
+	/* TODO: Free translations' list. */
+	free(word);
+	return 0;
 }
 
 int
@@ -195,21 +231,60 @@ memo_word_get_key(memo_word *word) {
 
 const char*
 memo_word_get_value(memo_word *word) {
-	return NULL;
+	return word->value;
 }
 
 int
 memo_word_set_value(memo_word *word, const char* value) {
-	return -1;
+	if (word->value)
+		free(word->value);
+	word->value = malloc(strlen(value));
+	if (!word->value)
+		return -1;
+	strcpy(word->value, value);
+	return 0;
+}
+
+memo_database
+memo_word_get_db(memo_word *word) {
+	return word->db;
 }
 
 memo_word*
-memo_word_find_by_value(const char* value) {
-	return NULL;
+memo_word_find_by_value(memo_database db, const char* value) {
+	memo_word *word;
+	memo_database_data *results;
+	const char *word_sel_templ = "SELECT (id) from words where word == \"%s\";";
+	char *query;
+
+	query = malloc(sizeof(char) * (strlen(word_sel_templ)+strlen(value)-1));
+	results = memo_database_data_init();
+
+	if (!query || !results)
+		return NULL;
+
+	sprintf(query, word_sel_templ, value);
+	if (memo_database_execute(db, query, results) < 0)
+		return NULL;
+
+	/*
+	 * KEEP IN MIND, that it works fine only if IDs are greater then 0.
+	 */
+	if ( results->rows == 1 ) {
+		word = memo_word_new(db);
+		if (!word)
+			return NULL;
+		word->key = (int) results->data[0][0];
+		word->db = db;
+	} else
+		word = NULL;
+	free(query);
+	memo_database_data_free(results);
+	return word;
 }
 
 memo_word*
-memo_word_find(int id) {
+memo_word_find(memo_database db, int id) {
 	return NULL;
 }
 

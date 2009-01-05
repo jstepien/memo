@@ -99,6 +99,8 @@ typedef struct {
 	 * Word's unique key.
 	 */
 	int key;
+	unsigned positive_answers;
+	unsigned negative_answers;
 	/**
 	 * Linked list of translations' keys.
 	 */
@@ -155,11 +157,14 @@ memo_word_get_value(memo_word *word);
 int
 memo_word_set_value(memo_word *word, const char* value);
 
-memo_word*
-memo_word_find_by_value(const char* value);
+memo_database
+memo_word_get_db(memo_word *word);
 
 memo_word*
-memo_word_find(int id);
+memo_word_find_by_value(memo_database db, const char* value);
+
+memo_word*
+memo_word_find(memo_database db, int id);
 
 int
 memo_word_add_translation(memo_word *w1, memo_word *w2);
