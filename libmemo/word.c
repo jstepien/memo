@@ -22,13 +22,12 @@
 #include <string.h>
 #include "database.h"
 #include "macros.h"
+#include "xmalloc.h"
 
 memo_word*
 memo_word_new(memo_database db) {
 	memo_word *w;
-	w = calloc(1, sizeof(memo_word));
-	if (!w)
-		return NULL;
+	w = xcalloc(1, sizeof(memo_word));
 	w->key = -1;
 	w->db = db;
 	return w;
@@ -53,10 +52,7 @@ memo_word_save(memo_word *word) {
 		return -1;
 	}
 
-	query = malloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length-1));
-
-	if (!query)
-		return -1;
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length-1));
 
 	sprintf(query, query_template, memo_word_get_value(word));
 	if (memo_database_execute(memo_word_get_db(word), query, NULL) < 0)
@@ -102,9 +98,9 @@ memo_word_delete(memo_word *word) {
 	char *query;
 	memo_word *tmp_word;
 
-	query = malloc(sizeof(char) * (ARRAY_SIZE(query_template)+16));
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+16));
 
-	if (!query || memo_word_get_key(word) < 0)
+	if (memo_word_get_key(word) < 0)
 		return -1;
 
 	sprintf(query, query_template, memo_word_get_key(word));
@@ -122,7 +118,7 @@ memo_word_copy(memo_word *dest, memo_word *src) {
 					 *src_tr = src->translations;
 	memcpy(dest, src, sizeof(memo_word));
 	while (src_tr) {
-		*dest_tr = malloc(sizeof(memo_translation));
+		*dest_tr = xmalloc(sizeof(memo_translation));
 		(*dest_tr)->key = src_tr->key;
 		dest_tr = &(*dest_tr)->next;
 		src_tr = src_tr->next;
@@ -157,9 +153,7 @@ int
 memo_word_set_value(memo_word *word, const char* value) {
 	if (word->value)
 		free(word->value);
-	word->value = malloc((strlen(value)+1)*sizeof(char));
-	if (!word->value)
-		return -1;
+	word->value = xmalloc((strlen(value)+1)*sizeof(char));
 	strcpy(word->value, value);
 	return 0;
 }
@@ -186,9 +180,9 @@ memo_word_load_from_database_data(memo_database db,
 		memo_word_set_value(word, data->data[0][1]);
 		word->db = db;
 
-		query = malloc(sizeof(char) * (ARRAY_SIZE(trans_sel_templ)+32));
+		query = xmalloc(sizeof(char) * (ARRAY_SIZE(trans_sel_templ)+32));
 		data = memo_database_data_init();
-		if (!query || !data)
+		if (!data)
 			return NULL;
 
 		sprintf(query, trans_sel_templ, memo_word_get_key(word),
@@ -203,7 +197,7 @@ memo_word_load_from_database_data(memo_database db,
 			last = &word->translations;
 			for (i = 0; i < data->rows; i++) {
 				memo_translation *t;
-				t = calloc(1, sizeof(memo_translation));
+				t = xcalloc(1, sizeof(memo_translation));
 				*last = t;
 				if (memo_word_get_key(word) == (int) data->data[i][0])
 					t->key = (int) data->data[i][1];
@@ -227,10 +221,10 @@ memo_word_find_by_value(memo_database db, const char* value) {
 			"word == \"%s\";";
 	char *query;
 
-	query = malloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+strlen(value)-1));
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+strlen(value)-1));
 	results = memo_database_data_init();
 
-	if (!query || !results)
+	if (!results)
 		return NULL;
 
 	sprintf(query, word_sel_templ, value);
@@ -253,10 +247,10 @@ memo_word_find(memo_database db, int id) {
 	/* In the following malloc call we're hoping that log10(id) < 16 .
 	 * It can be verified by counting the actual logarithm, although it seems
 	 * to expensive, doesn't it? */
-	query = malloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+16));
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+16));
 	results = memo_database_data_init();
 
-	if (!query || !results)
+	if (!results)
 		return NULL;
 
 	sprintf(query, word_sel_templ, id);
@@ -279,7 +273,7 @@ memo_word_add_translation(memo_word *w1, memo_word *w2) {
 	if (memo_word_check_translation(w1, w2) == 0)
 		return -1;
 
-	query = malloc(sizeof(char) * (ARRAY_SIZE(query_template)+32));
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+32));
 
 	/* Insert the key pair to the translations table. */
 	sprintf(query, query_template, memo_word_get_key(w1),

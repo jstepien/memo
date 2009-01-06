@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "database.h"
+#include "xmalloc.h"
 
 memo_database_data *
 memo_database_data_init() {
@@ -64,11 +65,11 @@ memo_database_execute(memo_database db, const char *query,
 		/* Reallocate the returned data table, as we need memory for a pointer
 		 * to the next row. */
 		if (ret) {
-			ret->data = realloc(ret->data, sizeof(void**)*(ret->rows+1));
+			ret->data = xrealloc(ret->data, sizeof(void**)*(ret->rows+1));
 			/* If we know the number of columns (i.e. it's not the first row)
 			 * allocate memory for a new row. */
 			if (ret->rows > 0)
-				ret->data[ret->rows] = malloc(sizeof(void*)*ret->cols);
+				ret->data[ret->rows] = xmalloc(sizeof(void*)*ret->cols);
 			else
 				ret->data[0] = NULL;
 		}
@@ -87,7 +88,7 @@ memo_database_execute(memo_database db, const char *query,
 				 * of results) count columns and reallocate memory for each
 				 * column we discover. */
 				if ( ret->cols == 0 ) {
-					ret->data[ret->rows] = realloc(ret->data[ret->rows],
+					ret->data[ret->rows] = xrealloc(ret->data[ret->rows],
 							sizeof(void*)*(++cols));
 				}
 				switch (type) {
@@ -100,7 +101,7 @@ memo_database_execute(memo_database db, const char *query,
 							int len;
 							tmp = (char*) sqlite3_column_text(stmt, i);
 							len = strlen(tmp);
-							ret->data[ret->rows][i] = malloc((len+1)*sizeof(char));
+							ret->data[ret->rows][i] = xmalloc((len+1)*sizeof(char));
 							strcpy(ret->data[ret->rows][i], tmp);
 						}
 						break;

@@ -1,5 +1,12 @@
 2009-01-06  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* libmemo/Makefile.am, libmemo/database.c, libmemo/word.c,
+	libmemo/xmalloc.c, libmemo/xmalloc.h: Created x{m,re,c}alloc error
+	checking memory allocation functions and replaced existing {m,re,c}alloc
+	with respective alternatives.
+
+2009-01-06  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* libmemo/word.c: memo_word_free frees everything it ought to, including
 	the list of word's translations.
 
