@@ -80,7 +80,7 @@ memo_word_reload_by_value(memo_word *word) {
 	tmp = memo_word_find_by_value(word->db, word->value);
 	if (!tmp)
 		return -1;
-	memcpy(word, tmp, sizeof(memo_word));
+	memo_word_copy(word, tmp);
 	memo_word_free(tmp);
 	return 0;
 }
@@ -91,7 +91,7 @@ memo_word_reload(memo_word *word) {
 	tmp = memo_word_find(word->db, word->key);
 	if (!tmp)
 		return -1;
-	memcpy(word, tmp, sizeof(memo_word));
+	memo_word_copy(word, tmp);
 	memo_word_free(tmp);
 	return 0;
 }
@@ -117,8 +117,28 @@ memo_word_delete(memo_word *word) {
 }
 
 int
+memo_word_copy(memo_word *dest, memo_word *src) {
+	memo_translation **dest_tr = &dest->translations,
+					 *src_tr = src->translations;
+	memcpy(dest, src, sizeof(memo_word));
+	while (src_tr) {
+		*dest_tr = malloc(sizeof(memo_translation));
+		(*dest_tr)->key = src_tr->key;
+		dest_tr = &(*dest_tr)->next;
+		src_tr = src_tr->next;
+	}
+	*dest_tr = NULL;
+	return 0;
+}
+
+int
 memo_word_free(memo_word *word) {
-	/* TODO: Free translations' list. */
+	memo_translation *prev, *cur = word->translations;
+	while (cur) {
+		prev = cur;
+		cur = cur->next;
+		free(prev);
+	}
 	free(word);
 	return 0;
 }
