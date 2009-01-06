@@ -17,31 +17,26 @@
  * along with Memo.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * @return 0 if the word doesn't exist in the database, negative values in
- * case of errors, positive value equal to the ID of a word if the word exists
- * in the database.
- */
-
 #include <libmemo.h>
 #include <stdlib.h>
 #include <string.h>
 #include "database.h"
+#include "macros.h"
 
 memo_word*
 memo_word_new(memo_database db) {
 	memo_word *w;
-	w = malloc(sizeof(memo_word));
+	w = calloc(1, sizeof(memo_word));
 	if (!w)
 		return NULL;
-	w->value = 0;
+	w->key = -1;
 	w->db = db;
 	return w;
 }
 
 int
 memo_word_save(memo_word *word) {
-	const char *query_template = "INSERT INTO words (word) VALUES (\"%s\");";
+	const char query_template[] = "INSERT INTO words (word) VALUES (\"%s\");";
 	char *query;
 	memo_word *tmp_word;
 	int word_length;
@@ -58,7 +53,7 @@ memo_word_save(memo_word *word) {
 		return -1;
 	}
 
-	query = malloc(sizeof(char) * (strlen(query_template)+word_length-1));
+	query = malloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length-1));
 
 	if (!query)
 		return -1;
@@ -103,11 +98,11 @@ memo_word_reload(memo_word *word) {
 
 int
 memo_word_delete(memo_word *word) {
-	const char *query_template = "DELETE FROM words WHERE id == %i;";
+	const char query_template[] = "DELETE FROM words WHERE id == %i;";
 	char *query;
 	memo_word *tmp_word;
 
-	query = malloc(sizeof(char) * (strlen(query_template)+16));
+	query = malloc(sizeof(char) * (ARRAY_SIZE(query_template)+16));
 
 	if (!query || memo_word_get_key(word) < 0)
 		return -1;
@@ -142,7 +137,7 @@ int
 memo_word_set_value(memo_word *word, const char* value) {
 	if (word->value)
 		free(word->value);
-	word->value = malloc(strlen(value));
+	word->value = malloc((strlen(value)+1)*sizeof(char));
 	if (!word->value)
 		return -1;
 	strcpy(word->value, value);
@@ -154,22 +149,65 @@ memo_word_get_db(memo_word *word) {
 	return word->db;
 }
 
-/*
- * memo_word_find_by_value and memo_word_find have got much in common. Their
- * contents should be extracted to a third function used by both of them.
- * It isn't DRY now.
- */
+memo_word*
+memo_word_load_from_database_data(memo_database db,
+		memo_database_data *data) {
+	const char trans_sel_templ[] = "SELECT word_id, translation_id from " \
+			"translations where word_id == %i OR translation_id == %i;";
+	char *query;
+	memo_word *word;
+	memo_database_data *results;
+	if ( data->rows == 1 ) {
+		char *tmp;
+		word = memo_word_new(db);
+		if (!word)
+			return NULL;
+		word->key = (int) data->data[0][0];
+		memo_word_set_value(word, data->data[0][1]);
+		word->db = db;
+
+		query = malloc(sizeof(char) * (ARRAY_SIZE(trans_sel_templ)+32));
+		data = memo_database_data_init();
+		if (!query || !data)
+			return NULL;
+
+		sprintf(query, trans_sel_templ, memo_word_get_key(word),
+				memo_word_get_key(word));
+		if (memo_database_execute(db, query, data) < 0)
+			return NULL;
+		else if	(data->rows == 0)
+			word->translations = NULL;
+		else {
+			int i;
+			memo_translation **last;
+			last = &word->translations;
+			for (i = 0; i < data->rows; i++) {
+				memo_translation *t;
+				t = calloc(1, sizeof(memo_translation));
+				*last = t;
+				if (memo_word_get_key(word) == (int) data->data[i][0])
+					t->key = (int) data->data[i][1];
+				else
+					t->key = (int) data->data[i][0];
+				last = &t->next;
+			}
+		}
+		memo_database_data_free(data);
+		free(query);
+	} else
+		return NULL;
+	return word;
+}
 
 memo_word*
 memo_word_find_by_value(memo_database db, const char* value) {
 	memo_word *word;
 	memo_database_data *results;
-	const char *word_sel_templ = "SELECT id, word FROM words WHERE word == \"%s\";";
-	const char *trans_sel_templ = "SELECT word_id, translation_id from " \
-			"translations where word_id == %i OR translation_id == %i;";
+	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
+			"word == \"%s\";";
 	char *query;
 
-	query = malloc(sizeof(char) * (strlen(word_sel_templ)+strlen(value)-1));
+	query = malloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+strlen(value)-1));
 	results = memo_database_data_init();
 
 	if (!query || !results)
@@ -178,52 +216,7 @@ memo_word_find_by_value(memo_database db, const char* value) {
 	sprintf(query, word_sel_templ, value);
 	if (memo_database_execute(db, query, results) < 0)
 		return NULL;
-
-	if ( results->rows == 1 ) {
-		char *tmp;
-		int len;
-		word = memo_word_new(db);
-		if (!word)
-			return NULL;
-		word->key = (int) results->data[0][0];
-		len = strlen(results->data[0][1]);
-		if (word->value)
-			free(word->value);
-		word->value = malloc((len+1)*sizeof(char));
-		strcpy(word->value, results->data[0][1]);
-		word->db = db;
-
-		free(query);
-		memo_database_data_free(results);
-		query = malloc(sizeof(char) * (strlen(trans_sel_templ)+32));
-		results = memo_database_data_init();
-		if (!query || !results)
-			return NULL;
-
-		sprintf(query, trans_sel_templ, memo_word_get_key(word),
-				memo_word_get_key(word));
-		if (memo_database_execute(db, query, results) < 0)
-			return NULL;
-		else if	(results->rows == 0)
-			word->translations = NULL;
-		else {
-			int i;
-			memo_translation **last;
-			last = &word->translations;
-			for (i = 0; i < results->rows; i++) {
-				memo_translation *t;
-				t = calloc(1, sizeof(memo_translation));
-				*last = t;
-				if (memo_word_get_key(word) == (int) results->data[i][0])
-					t->key = (int) results->data[i][1];
-				else
-					t->key = (int) results->data[i][0];
-				last = &t->next;
-			}
-		}
-
-	} else
-		word = NULL;
+	word = memo_word_load_from_database_data(db, results);
 	free(query);
 	memo_database_data_free(results);
 	return word;
@@ -233,15 +226,14 @@ memo_word*
 memo_word_find(memo_database db, int id) {
 	memo_word *word;
 	memo_database_data *results;
-	const char *word_sel_templ = "SELECT id, word FROM words WHERE id == %i;";
-	const char *trans_sel_templ = "SELECT (id) from translations where "\
-			"word_id == %i OR translation_id == %i;";
+	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
+			"id == %i;";
 	char *query;
 
 	/* In the following malloc call we're hoping that log10(id) < 16 .
 	 * It can be verified by counting the actual logarithm, although it seems
 	 * to expensive, doesn't it? */
-	query = malloc(sizeof(char) * (strlen(word_sel_templ)+16));
+	query = malloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+16));
 	results = memo_database_data_init();
 
 	if (!query || !results)
@@ -250,48 +242,7 @@ memo_word_find(memo_database db, int id) {
 	sprintf(query, word_sel_templ, id);
 	if (memo_database_execute(db, query, results) < 0)
 		return NULL;
-
-	if ( results->rows == 1 ) {
-		char *tmp;
-		int len;
-		word = memo_word_new(db);
-		if (!word)
-			return NULL;
-		word->key = (int) results->data[0][0];
-		len = strlen(results->data[0][1]);
-		if (word->value)
-			free(word->value);
-		word->value = malloc((len+1)*sizeof(char));
-		strcpy(word->value, results->data[0][1]);
-		word->db = db;
-
-		free(query);
-		memo_database_data_free(results);
-		query = malloc(sizeof(char) * (strlen(trans_sel_templ)+32));
-		results = memo_database_data_init();
-		if (!query || !results)
-			return NULL;
-
-		sprintf(query, trans_sel_templ, memo_word_get_key(word),
-				memo_word_get_key(word));
-		if (memo_database_execute(db, query, results) < 0)
-			return NULL;
-		else if	(results->rows == 0)
-			word->translations = NULL;
-		else {
-			int i;
-			memo_translation **last;
-			last = &word->translations;
-			for (i = 0; i < results->rows; i++) {
-				memo_translation *t;
-				t = calloc(1, sizeof(memo_translation));
-				*last = t;
-				t->key = (int) results->data[i][0];
-				last = &t->next;
-			}
-		}
-	} else
-		word = NULL;
+	word = memo_word_load_from_database_data(db, results);
 	free(query);
 	memo_database_data_free(results);
 	return word;
@@ -299,7 +250,7 @@ memo_word_find(memo_database db, int id) {
 
 int
 memo_word_add_translation(memo_word *w1, memo_word *w2) {
-	const char *query_template = "INSERT INTO translations "\
+	const char query_template[] = "INSERT INTO translations "\
 			"(word_id, translation_id) VALUES (\"%i\", \"%i\");";
 	char *query;
 	int retval;
@@ -308,7 +259,7 @@ memo_word_add_translation(memo_word *w1, memo_word *w2) {
 	if (memo_word_check_translation(w1, w2) == 0)
 		return -1;
 
-	query = malloc(sizeof(char) * (strlen(query_template)+32));
+	query = malloc(sizeof(char) * (ARRAY_SIZE(query_template)+32));
 
 	/* Insert the key pair to the translations table. */
 	sprintf(query, query_template, memo_word_get_key(w1),

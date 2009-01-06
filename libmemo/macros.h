@@ -17,26 +17,14 @@
  * along with Memo.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef LIBMEMO_DATABASE_H_
-#define LIBMEMO_DATABASE_H_
+#ifndef LIBMEMO_MACROS_H_
+#define LIBMEMO_MACROS_H_
 
-typedef struct {
-	int rows;
-	int cols;
-	void ***data;
-} memo_database_data;
+#ifndef ARRAY_SIZE
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
+#endif /* ARRAY_SIZE */
 
-memo_database_data *
-memo_database_data_init();
-
-void
-memo_database_data_free(memo_database_data * data);
-
-int
-memo_database_execute(memo_database db, const char *query,
-		memo_database_data *ret);
-
-#endif /* LIBMEMO_DATABASE_H_ */
+#endif /* LIBMEMO_MACROS_H_ */
 
 /*
  * vim:ts=4:noet:tw=78

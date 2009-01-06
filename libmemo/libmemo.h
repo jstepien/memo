@@ -17,6 +17,9 @@
  * along with Memo.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef LIBMEMO_LIBMEMO_H_
+#define LIBMEMO_LIBMEMO_H_
+
 #include <stdio.h>
 #include <sqlite3.h>
 
@@ -176,6 +179,9 @@ memo_word*
 memo_word_find(memo_database db, int id);
 
 int
+memo_word_copy(memo_word *dest, memo_word *src);
+
+int
 memo_word_add_translation(memo_word *w1, memo_word *w2);
 
 int
@@ -231,6 +237,8 @@ memo_message_reply_parse(const memo_message *msg, memo_database db, memo_message
 /**
  * @}
  */
+
+#endif /* LIBMEMO_LIBMEMO_H_ */
 
 /*
  * vim:ts=4:noet:tw=78
