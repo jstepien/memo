@@ -55,6 +55,7 @@ AC_PROG_LIBTOOL
 
 AC_CONFIG_FILES([Makefile
                  libmemo/Makefile
+                 src/Makefile
                  test/Makefile
                  memo
                  Doxyfile])
