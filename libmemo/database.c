@@ -30,10 +30,23 @@ memo_database_data_init() {
 
 void
 memo_database_data_free(memo_database_data * data) {
-	int i;
-	/* TODO: free a string, if a column contains strings */
+	int i, j;
+	/*
+	 * Check which columns contain strings and free their fields.
+	 */
+	for (j = 0; j < data->cols; j++)
+		if (data->data_types[j] == STRING)
+			for (i = 0; i < data->rows; i++)
+				free(data->data[i][j]);
+	/*
+	 * Free all rows.
+	 */
 	for (i = 0; i < data->rows; i++)
 		free(data->data[i]);
+	/*
+	 * Free data types array and the whole structure.
+	 */
+	free(data->data_types);
 	free(data);
 }
 
@@ -70,8 +83,14 @@ memo_database_execute(memo_database db, const char *query,
 			 * allocate memory for a new row. */
 			if (ret->rows > 0)
 				ret->data[ret->rows] = xmalloc(sizeof(void*)*ret->cols);
-			else
+			else {
+				/* Otherwise prepare it for realloc by zeroing it. */
 				ret->data[0] = NULL;
+				/* If it's the first row (i.e. ret->rows == 0) prepare
+				 * ret->data_types pointer for realloc. We're going to store
+				 * columns' data types in an array it will point to. */
+				ret->data_types = NULL;
+			}
 		}
 		/* If the database has returned some data and the user provided a
 		 * place to store it. */
@@ -86,14 +105,21 @@ memo_database_execute(memo_database db, const char *query,
 			while ( ( type = sqlite3_column_type(stmt, i)) != SQLITE_NULL ) {
 				/* If we don't know the column count yet (i.e. it's the first row
 				 * of results) count columns and reallocate memory for each
-				 * column we discover. */
+				 * column we discover. Additionally enlarge the array in which
+				 * columns' data types are stored. */
 				if ( ret->cols == 0 ) {
+					++cols;
 					ret->data[ret->rows] = xrealloc(ret->data[ret->rows],
-							sizeof(void*)*(++cols));
+							sizeof(void*)*cols);
+					ret->data_types = xrealloc(ret->data_types,
+							sizeof(int)*cols);
 				}
 				switch (type) {
 					case SQLITE_INTEGER:
-						ret->data[ret->rows][i] = (void*) sqlite3_column_int(stmt, i);
+						ret->data[ret->rows][i] =
+							(void*) sqlite3_column_int(stmt, i);
+						if (!ret->cols)
+							ret->data_types[i] = INTEGER;
 						break;
 					case SQLITE_TEXT:
 						{
@@ -104,6 +130,8 @@ memo_database_execute(memo_database db, const char *query,
 							ret->data[ret->rows][i] = xmalloc((len+1)*sizeof(char));
 							strcpy(ret->data[ret->rows][i], tmp);
 						}
+						if (!ret->cols)
+							ret->data_types[i] = STRING;
 						break;
 					default:
 						/* TODO: maybe an error message...? */

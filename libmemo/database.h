@@ -20,10 +20,16 @@
 #ifndef LIBMEMO_DATABASE_H_
 #define LIBMEMO_DATABASE_H_
 
+enum {
+	INTEGER,
+	STRING
+};
+
 typedef struct {
 	int rows;
 	int cols;
 	void ***data;
+	int *data_types;
 } memo_database_data;
 
 memo_database_data *
