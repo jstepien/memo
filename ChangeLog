@@ -1,5 +1,17 @@
 2009-01-06  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* Makefile.am, configure.ac, src/Makefile.am, src/main.c: Prepared
+	some automake boilerplate for memo C implementation.
+
+2009-01-06  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/Makefile.am: Added required files to libmemo_la_SOURCES.
+	* configure.ac: Added new macros to configure.ac following autoscan's advice.
+	* libmemo/database.h, libmemo/xmalloc.h: Some comments and minor
+	changes.
+
+2009-01-06  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* libmemo/database.c, libmemo/database.h: Strings stored in
 	memo_database_data are freed by memo_database_data_free function.
 
