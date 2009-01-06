@@ -20,14 +20,26 @@
 #ifndef LIBMEMO_XMALLOC_H_
 #define LIBMEMO_XMALLOC_H_
 
+/**
+ * Error checking malloc.
+ * In case of errors it calls exit(1).
+ */
 void*
-xmalloc(size_t s);
+xmalloc(size_t size);
 
+/**
+ * Error checking calloc.
+ * In case of errors it calls exit(1).
+ */
 void*
-xcalloc(int n, size_t s);
+xcalloc(int nmemb, size_t size);
 
+/**
+ * Error checking realloc.
+ * In case of errors it calls exit(1).
+ */
 void*
-xrealloc(void *p, size_t s);
+xrealloc(void *ptr, size_t size);
 
 #endif /* LIBMEMO_XMALLOC_H_ */
 

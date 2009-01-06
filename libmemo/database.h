@@ -20,27 +20,71 @@
 #ifndef LIBMEMO_DATABASE_H_
 #define LIBMEMO_DATABASE_H_
 
-enum {
+/**
+ * @defgroup memo_database memo_database
+ * @{
+ */
+
+enum memo_database_data_types {
 	INTEGER,
 	STRING
 };
 
+/**
+ * Used to retrieve data from the database.
+ * It represents a table.
+ */
 typedef struct {
+	/**
+	 * Number of rows.
+	 */
 	int rows;
+	/**
+	 * Number of columns.
+	 */
 	int cols;
+	/**
+	 * A two dimensional array with the data.
+	 * It contains either integers or char* converted to void*.
+	 */
 	void ***data;
+	/**
+	 * An array containing information about columns' data types.
+	 * It's values belong to @ref memo_database_data_types. Each field of this
+	 * array tells what kind of data is stored in the respective column of
+	 * @ref data table.
+	 */
 	int *data_types;
 } memo_database_data;
 
+/**
+ * Prepares a new memo_database_data structure.
+ */
 memo_database_data *
 memo_database_data_init();
 
+
+/**
+ * Frees a memo_database_data structure.
+ */
 void
 memo_database_data_free(memo_database_data * data);
 
+/**
+ * Executes a given SQL query.
+ * @param db the database to which the query will be sent.
+ * @param query the query.
+ * @param ret pointer to a structure where the results will be stored. If it's
+ * @c NULL the results will not be saved.
+ * @return 0 in case of success, negative values in case of errors.
+ */
 int
 memo_database_execute(memo_database db, const char *query,
 		memo_database_data *ret);
+
+/**
+ * @}
+ */
 
 #endif /* LIBMEMO_DATABASE_H_ */
 
