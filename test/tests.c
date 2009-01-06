@@ -141,7 +141,7 @@ START_TEST (database_inserting_duplicate_translation)
 	fail_if(memo_word_add_translation(w[0], w[3]) != 0, ERR_ADDING_TR);
 	fail_if(memo_word_add_translation(w[0], w[3]) == 0, "Successfully "\
 			"added a translation already existing in the database.");
-	fail_if(memo_word_add_translation(w[3], w[2]) == 0, "Successfully "\
+	fail_if(memo_word_add_translation(w[2], w[1]) == 0, "Successfully "\
 			"added a translation already existing in the database.");
 	for (i = 0; i < 4; i++)
 		memo_word_free(w[i]);
