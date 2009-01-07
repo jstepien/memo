@@ -54,6 +54,7 @@ fi
 AC_PROG_LIBTOOL
 
 AC_CONFIG_FILES([Makefile
+                 common/Makefile
                  libmemo/Makefile
                  src/Makefile
                  test/Makefile

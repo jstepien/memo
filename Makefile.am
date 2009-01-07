@@ -1,4 +1,4 @@
-SUBDIRS=libmemo src
+SUBDIRS=common libmemo src
 if WITH_CHECK
     SUBDIRS+=test
 endif
