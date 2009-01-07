@@ -1,3 +1,25 @@
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/main.c: Created a simple arguments parser.
+
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c: Database's tables are automatically created after
+	opening the database unless they already exist.
+
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* test/Makefile.am: Tests are built only by make check rule.
+
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/main.c: Memo opens the default database file and nothing more.
+
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
+	Moved macros.h and xmalloc.[ch] to their own directory in project's
+	top directory.
+
 2009-01-06  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* Makefile.am, configure.ac, src/Makefile.am, src/main.c: Prepared
