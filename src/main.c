@@ -18,12 +18,35 @@
  */
 
 #include <libmemo.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+#include "macros.h"
+#include "xmalloc.h"
+
+int
+open_database(memo_database *db) {
+	char *filename, memo_db_file[] = "/.memo/db", *homedir;
+	int homedir_len;
+	homedir = getenv("HOME");
+	homedir_len = strlen(homedir);
+	filename = xmalloc(sizeof(char)*(homedir_len+ARRAY_SIZE(memo_db_file)));
+	strcat(filename, homedir);
+	strcat(filename + homedir_len, memo_db_file);
+	if (access(filename, R_OK | W_OK) == -1 && errno != ENOENT) {
+		perror("Failed to open db file for r/w");
+		exit(1);
+	}
+	if (memo_database_load(db, filename) < 0)
+		exit(1);
+	return 0;
+}
 
 int
 main (int argc, char const* argv[]) {
 	memo_database db;
-	memo_database_load(&db, "just_kidding");
-	memo_database_init(db);
+	open_database(&db);
 	memo_database_close(db);
 	return 0;
 }
