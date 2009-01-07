@@ -58,6 +58,7 @@ AC_CONFIG_FILES([Makefile
                  libmemo/Makefile
                  src/Makefile
                  test/Makefile
+                 doc/Makefile
                  memo
                  Doxyfile])
 AC_OUTPUT
