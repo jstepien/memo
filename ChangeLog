@@ -1,5 +1,14 @@
 2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* Makefile.am, configure.ac, doc/Makefile.am, doc/texinfo.tex: Added
+	doc directory to Makefile.am, added texinfo.tex.
+
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
+	Added year 2009 to copyright lines.
+
+2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* src/main.c: Created a simple arguments parser.
 
 2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
