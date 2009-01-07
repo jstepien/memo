@@ -1,4 +1,4 @@
-# Copyright (C) 2008 Jan Stępień
+# Copyright (C) 2008, 2009 Jan Stępień
 #
 # This file is part of Memo.
 #
