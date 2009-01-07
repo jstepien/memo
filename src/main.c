@@ -25,6 +25,17 @@
 #include "macros.h"
 #include "xmalloc.h"
 
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#else
+#error "Error: config.h is required, but HAVE_CONFIG_H isn't defined."
+#endif
+
+char *program_name;
+const char usage[] = "usage: %s [COMMAND [ARGS]]\n";
+
+typedef void (*arg_parsing_func)(int, const char*[]);
+
 int
 open_database(memo_database *db) {
 	char *filename, memo_db_file[] = "/.memo/db", *homedir;
@@ -43,10 +54,68 @@ open_database(memo_database *db) {
 	return 0;
 }
 
+void
+print_usage() {
+	printf(usage, program_name);
+	exit(0);
+}
+
+void
+print_help() {
+	const char help_message[] = \
+		"Possible commands are:\n"\
+		"  --help       Prints this message\n"\
+		"  --usage      Displays brief usage information\n"\
+		"  --version    Displays version information"\
+		"\n";
+	printf(usage, program_name);
+	printf(help_message);
+	exit(0);
+}
+
+void
+print_version() {
+	const char version[] = PACKAGE_NAME" version "PACKAGE_VERSION"\n"\
+		"Copyright (C) 2008, 2009 Jan Stępień\n";
+	printf(version, program_name);
+	exit(0);
+}
+
 int
-main (int argc, char const* argv[]) {
+parse_args(int argc, const char *argv[], const char *options[],
+		arg_parsing_func actions[]) {
+	int i;
+	for (i = 0; options[i] != NULL; i++) {
+		if (strcmp(argv[0], options[i]) == 0) {
+			actions[i](argc-1, argv+1);
+		}
+	}
+}
+
+int
+parse_main_args(int argc, const char *argv[]) {
+	const char *main_args[] = {
+		"--help",
+		"--usage",
+		"--version",
+		NULL
+	};
+	arg_parsing_func actions[] = {
+		&print_help,
+		&print_usage,
+		&print_version
+	};
+	program_name = (char*) argv[0];
+	if (argc == 1)
+		print_usage();
+	parse_args(argc-1, argv+1, main_args, actions);
+}
+
+int
+main (int argc, const char *argv[]) {
 	memo_database db;
 	open_database(&db);
+	parse_main_args(argc, argv);
 	memo_database_close(db);
 	return 0;
 }
