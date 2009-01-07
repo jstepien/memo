@@ -57,6 +57,12 @@ memo_database_load(memo_database *db, const char *filename) {
 		sqlite3_close(*db);
 		return -1;
 	}
+	if (memo_database_init(*db)) {
+		fprintf(stderr, "Error initialising database: %s\n",
+				sqlite3_errmsg(*db));
+		sqlite3_close(*db);
+		return -1;
+	}
 	return 0;
 }
 
@@ -158,11 +164,13 @@ memo_database_execute(memo_database db, const char *query,
 
 int
 memo_database_init(memo_database db) {
-	const char *words_query = "CREATE TABLE words (id integer, word text, "\
-			"positive_answers integer DEFAULT 0, negative_answers integer "\
-			"DEFAULT 0, PRIMARY KEY (id), UNIQUE (word) );";
-	const char *translations_query = "CREATE TABLE translations (id integer, "\
-			"word_id integer, translation_id integer, PRIMARY KEY (id) ); ";
+	const char *words_query = "CREATE TABLE IF NOT EXISTS words " \
+			"(id integer, word text, positive_answers integer DEFAULT 0, " \
+			"negative_answers integer DEFAULT 0, PRIMARY KEY (id), " \
+			"UNIQUE (word) );";
+	const char *translations_query = "CREATE TABLE IF NOT EXISTS " \
+			"translations (id integer, word_id integer, translation_id " \
+			"integer, PRIMARY KEY (id) ); ";
 	if ( memo_database_execute(db, words_query, NULL) < 0 ||
 			memo_database_execute(db, translations_query, NULL) < 0 )
 		return -1;
