@@ -1,3 +1,8 @@
+2009-01-08  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* doc/texinfo.tex: Removed unnecessary texinfo.tex, as it's automatically
+	installed by Autotools.
+
 2009-01-07  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* Makefile.am, configure.ac, doc/Makefile.am, doc/texinfo.tex: Added
