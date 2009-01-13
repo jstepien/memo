@@ -34,7 +34,10 @@
 char *program_name;
 const char usage[] = "usage: %s [COMMAND [ARGS]]\n";
 
-typedef void (*arg_parsing_func)(int, const char*[]);
+typedef struct {
+	const char *option_name;
+	void (*action)(int, const char*[]);
+} action;
 
 int
 open_database(memo_database *db) {
@@ -82,33 +85,32 @@ print_version() {
 }
 
 int
-parse_args(int argc, const char *argv[], const char *options[],
-		arg_parsing_func actions[]) {
+parse_args(int argc, const char *argv[], action actions[]) {
 	int i;
-	for (i = 0; options[i] != NULL; i++) {
-		if (strcmp(argv[0], options[i]) == 0) {
-			actions[i](argc-1, argv+1);
+	for (i = 0; actions[i].option_name != NULL; i++) {
+		if (strcmp(argv[0], actions[i].option_name) == 0) {
+			actions[i].action(argc-1, argv+1);
+			return 0;
 		}
 	}
+	return -1;
 }
 
 int
 parse_main_args(int argc, const char *argv[]) {
-	const char *main_args[] = {
-		"--help",
-		"--usage",
-		"--version",
-		NULL
-	};
-	arg_parsing_func actions[] = {
-		&print_help,
-		&print_usage,
-		&print_version
+	action actions[] = {
+		{"--help", &print_help},
+		{"--usage", &print_usage},
+		{"--version", &print_version},
+		{NULL, NULL}
 	};
 	program_name = (char*) argv[0];
 	if (argc == 1)
 		print_usage();
-	parse_args(argc-1, argv+1, main_args, actions);
+	if (parse_args(argc-1, argv+1, actions) == -1) {
+		fprintf(stderr, "Unknown argument: %s\n", argv[1]);
+		exit(1);
+	}
 }
 
 int

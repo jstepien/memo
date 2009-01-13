@@ -1,3 +1,8 @@
+2009-01-13  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/main.c: Changed option -> action assignment in arguments parsing.
+	Now it's a table of struct { const char*, void (*action)(int, char[]) }.
+
 2009-01-08  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* doc/texinfo.tex: Removed unnecessary texinfo.tex, as it's automatically
