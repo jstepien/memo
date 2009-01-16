@@ -129,10 +129,8 @@ parse_main_args(int argc, const char *argv[]) {
 	program_name = (char*) argv[0];
 	if (argc == 1)
 		print_usage();
-	if (parse_args(argc-1, argv+1, actions) == -1) {
-		fprintf(stderr, "Unknown argument: %s\n", argv[1]);
-		exit(1);
-	}
+	if (parse_args(argc-1, argv+1, actions) == -1)
+		die("Unknown argument: %s\n", argv[1]);
 }
 
 int
