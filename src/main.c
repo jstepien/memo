@@ -24,6 +24,7 @@
 #include <errno.h>
 #include "macros.h"
 #include "xmalloc.h"
+#include "messages.h"
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -58,6 +59,25 @@ open_database(memo_database *db) {
 }
 
 void
+add_pair(int argc, const char *argv[]) {
+	memo_database db;
+	memo_word *word[2];
+	int i;
+	if (argc != 2 || strlen(argv[0]) < 1 || strlen(argv[1]) < 1)
+		die("usage: %s --add-pair FIRST_ITEM SECOND_ITEM\n", program_name);
+	open_database(&db);
+	for (i = 0; i < 2; i++)
+		if ((word[i] = memo_word_find_by_value(db, argv[i])) == NULL)
+			if ((word[i] = memo_word_new(db)) == NULL ||
+					memo_word_set_value(word[i], argv[i]) ||
+					memo_word_save(word[i]))
+				die("Cannot create a new word '%s'\n", argv[i]);
+	if (memo_word_add_translation(word[0], word[1]))
+		die("Cannot create the translation\n");
+	memo_database_close(db);
+}
+
+void
 print_usage() {
 	printf(usage, program_name);
 	exit(0);
@@ -69,8 +89,9 @@ print_help() {
 		"Possible commands are:\n"\
 		"  --help       Prints this message\n"\
 		"  --usage      Displays brief usage information\n"\
-		"  --version    Displays version information"\
-		"\n";
+		"  --version    Displays version information\n"\
+		"  --add-pair   Adds a new pair of phrases to the database\n"\
+		"";
 	printf(usage, program_name);
 	printf(help_message);
 	exit(0);
@@ -102,6 +123,7 @@ parse_main_args(int argc, const char *argv[]) {
 		{"--help", &print_help},
 		{"--usage", &print_usage},
 		{"--version", &print_version},
+		{"--add-pair", &add_pair},
 		{NULL, NULL}
 	};
 	program_name = (char*) argv[0];
@@ -115,9 +137,6 @@ parse_main_args(int argc, const char *argv[]) {
 
 int
 main (int argc, const char *argv[]) {
-	memo_database db;
-	open_database(&db);
 	parse_main_args(argc, argv);
-	memo_database_close(db);
 	return 0;
 }
