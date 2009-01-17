@@ -25,7 +25,7 @@
 
 memo_database_data *
 memo_database_data_init() {
-	return calloc(1, sizeof(memo_database_data));
+	return xcalloc(1, sizeof(memo_database_data));
 }
 
 void

@@ -53,14 +53,6 @@ int
 memo_database_close(memo_database db);
 
 /**
- * Initialise the database.
- * Create the structure of tables, unless they already exist.
- * @return 0 in case of success, negative values in case of errors.
- */
-int
-memo_database_init(memo_database db);
-
-/**
  * @}
  */
 
@@ -194,45 +186,6 @@ memo_word_delete_translation(memo_word *w1, memo_word *w2);
  */
 int
 memo_word_check_translation(memo_word *w1, memo_word *w2);
-
-/**
- * @}
- */
-
-/**
- * @defgroup memo_message memo_message
- * @ref memo_message structure and related functions.
- * @{
- */
-
-typedef struct {
-	char **headers;
-	char *message;
-} memo_message;
-
-/**
- * Converts an e-mail to a @ref memo_message.
- */
-int
-memo_message_from_string(memo_message *msg, const char *string);
-
-/**
- * Creates an e-mail from a @ref memo_message.
- */
-int
-memo_message_to_string(const memo_message *msg, char **string);
-
-/**
- * Prepares a new tests.
- */
-int
-memo_message_test_prepare(const memo_message *msg, memo_database db);
-
-/**
- * Parses a reply to a test, optionally prepares a report.
- */
-int
-memo_message_reply_parse(const memo_message *msg, memo_database db, memo_message *report);
 
 /**
  * @}

@@ -83,6 +83,15 @@ memo_database_execute(memo_database db, const char *query,
 		memo_database_data *ret);
 
 /**
+ * Initialise the database.
+ * Create the structure of tables, unless they already exist. Internal use
+ * only.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_database_init(memo_database db);
+
+/**
  * @}
  */
 

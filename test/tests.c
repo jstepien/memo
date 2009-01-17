@@ -23,7 +23,6 @@ void
 database_setup() {
 	database_remove();
 	assert(memo_database_load(&db, DBNAME) == 0);
-	assert(memo_database_init(db) == 0);
 }
 
 void
