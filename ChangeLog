@@ -1,5 +1,13 @@
 2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* test/tests.c: Rewritten database_word_reload test.
+
+2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* test/tests.c: Created word_cmp word comparing function.
+
+2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* test/tests.c: Commented the tests.
 
 2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
