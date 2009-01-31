@@ -19,17 +19,26 @@ database_remove() {
 	assert(unlink(DBNAME) == 0 && errno != ENOENT);
 }
 
+/*
+ * Removes the database file and creates a new one.
+ */
 void
 database_setup() {
 	database_remove();
 	assert(memo_database_load(&db, DBNAME) == 0);
 }
 
+/*
+ * Closes the database.
+ */
 void
 database_teardown() {
 	assert(memo_database_close(db) == 0);
 }
 
+/*
+ * Creates and closes a database file.
+ */
 START_TEST (database_openclose)
 {
 	memo_database db;
@@ -38,6 +47,9 @@ START_TEST (database_openclose)
 }
 END_TEST
 
+/*
+ * Inserts a word to the database.
+ */
 START_TEST (database_word_inserting)
 {
 	memo_word *word;
@@ -50,6 +62,9 @@ START_TEST (database_word_inserting)
 }
 END_TEST
 
+/*
+ * Inserts a word and checks if it can be found by it's key.
+ */
 START_TEST (database_word_find_by_key)
 {
 	memo_word *w1, *w2;
@@ -66,6 +81,10 @@ START_TEST (database_word_find_by_key)
 }
 END_TEST
 
+/*
+ * Inserts a word, retrieves it and checks whether memo_word_get_key works
+ * correctly.
+ */
 START_TEST (database_word_get_key)
 {
 	memo_word *word;
@@ -82,6 +101,10 @@ START_TEST (database_word_get_key)
 }
 END_TEST
 
+/*
+ * Inserts a word, retrieves it and checks whether memo_word_get_db works
+ * correctly.
+ */
 START_TEST (database_word_get_db)
 {
 	memo_word *word;
@@ -99,6 +122,11 @@ START_TEST (database_word_get_db)
 }
 END_TEST
 
+/*
+ * Inserts a word, retrieves it and checks whether
+ * memo_word_get_positive_answers and memo_word_get_negative_answers work
+ * correctly.
+ */
 START_TEST (database_word_get_answers_count)
 {
 	memo_word *word;
@@ -119,6 +147,9 @@ START_TEST (database_word_get_answers_count)
 }
 END_TEST
 
+/*
+ * Inserts a word and checks whether it can be found by it's value.
+ */
 START_TEST (database_word_find_by_value)
 {
 	memo_word *word;
@@ -133,6 +164,9 @@ START_TEST (database_word_find_by_value)
 }
 END_TEST
 
+/*
+ * Inserts a word and checks whether reloading works.
+ */
 START_TEST (database_word_reload)
 {
 	memo_word *word;
@@ -145,6 +179,9 @@ START_TEST (database_word_reload)
 }
 END_TEST
 
+/*
+ * Inserts a word, deletes it and checks whether it can be found or reloaded.
+ */
 START_TEST (database_word_delete)
 {
 	memo_word *word;
@@ -158,6 +195,9 @@ START_TEST (database_word_delete)
 }
 END_TEST
 
+/*
+ * Inserts 2 words and checks whether translation insertion works.
+ */
 START_TEST (database_translation_creation)
 {
 	memo_word *w1, *w2;
@@ -176,6 +216,9 @@ START_TEST (database_translation_creation)
 }
 END_TEST
 
+/*
+ * Inserts 4 words and checks whether translation insertion allows duplicates.
+ */
 START_TEST (database_inserting_duplicate_translation)
 {
 	memo_word *w[4];
@@ -200,6 +243,10 @@ START_TEST (database_inserting_duplicate_translation)
 }
 END_TEST
 
+/*
+ * Inserts 2 words and a translation and checks whether translation checking
+ * words.
+ */
 START_TEST (database_checking_translations)
 {
 	memo_word *w1, *w2, *w_exists, *w_doesnt_exist;
@@ -233,6 +280,9 @@ START_TEST (database_checking_translations)
 }
 END_TEST
 
+/*
+ * Prepares the test suite.
+ */
 Suite *
 database_suite (void) {
 	Suite *s;

@@ -1,5 +1,9 @@
 2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
 
+	* test/tests.c: Commented the tests.
+
+2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
+
 	* libmemo/libmemo.h, libmemo/word.c, test/tests.c: Added answers
 	count retrieval functions and tests.
 
