@@ -1,3 +1,8 @@
+2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/libmemo.h, libmemo/word.c, test/tests.c: Added answers
+	count retrieval functions and tests.
+
 2009-01-17  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* src/main.c: Found another place to use die function.

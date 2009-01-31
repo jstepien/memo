@@ -66,6 +66,59 @@ START_TEST (database_word_find_by_key)
 }
 END_TEST
 
+START_TEST (database_word_get_key)
+{
+	memo_word *word;
+	int id;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "can't create a new word.");
+	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "failed to save a word.");
+	id = memo_word_get_key(word);
+	memo_word_free(word);
+	word = memo_word_find_by_value(db, "test");
+	fail_if(id != memo_word_get_key(word), "Word's key does not match.");
+	memo_word_free(word);
+}
+END_TEST
+
+START_TEST (database_word_get_db)
+{
+	memo_word *word;
+	memo_database d;
+	int positive_answers, negative_answers;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "can't create a new word.");
+	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "failed to save a word.");
+	d = memo_word_get_db(word);
+	memo_word_free(word);
+	word = memo_word_find_by_value(db, "test");
+	fail_if(d != memo_word_get_db(word), "DB does not match.");
+	memo_word_free(word);
+}
+END_TEST
+
+START_TEST (database_word_get_answers_count)
+{
+	memo_word *word;
+	int positive_answers, negative_answers;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "can't create a new word.");
+	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	fail_if(memo_word_save(word) != 0, "failed to save a word.");
+	positive_answers = memo_word_get_positive_answers(word);
+	negative_answers = memo_word_get_negative_answers(word);
+	memo_word_free(word);
+	word = memo_word_find_by_value(db, "test");
+	fail_if(negative_answers != memo_word_get_negative_answers(word),
+			"negative answers count does not match.");
+	fail_if(positive_answers != memo_word_get_positive_answers(word),
+			"positive answers count does not match.");
+	memo_word_free(word);
+}
+END_TEST
+
 START_TEST (database_word_find_by_value)
 {
 	memo_word *word;
@@ -194,6 +247,9 @@ database_suite (void) {
 	tc_basic_io = tcase_create("Word I/O");
 	tcase_add_test(tc_basic_io, database_word_inserting);
 	tcase_add_test(tc_basic_io, database_word_find_by_value);
+	tcase_add_test(tc_basic_io, database_word_get_answers_count);
+	tcase_add_test(tc_basic_io, database_word_get_key);
+	tcase_add_test(tc_basic_io, database_word_get_db);
 	tcase_add_test(tc_basic_io, database_word_reload);
 	tcase_add_test(tc_basic_io, database_word_delete);
 	tcase_add_test(tc_basic_io, database_translation_creation);

@@ -150,6 +150,12 @@ int
 memo_word_delete(memo_word *word);
 
 int
+memo_word_get_positive_answers(memo_word *word);
+
+int
+memo_word_get_negative_answers(memo_word *word);
+
+int
 memo_word_free(memo_word *word);
 
 int
