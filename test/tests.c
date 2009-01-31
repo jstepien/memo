@@ -37,6 +37,26 @@ database_teardown() {
 }
 
 /*
+ * Checks whether two words are identical.
+ * @return 0 if they are identical, 1 otherwise.
+ */
+int
+word_cmp(memo_word *a, memo_word *b) {
+	if (a == b)
+		return 0;
+	/*
+	 * TODO: compare the list of translations.
+	 */
+	if (strcmp(memo_word_get_value(a), memo_word_get_value(b)) == 0
+			&& memo_word_get_key(a) == memo_word_get_key(b)
+			&& memo_word_get_negative_answers(a) == memo_word_get_negative_answers(b)
+			&& memo_word_get_positive_answers(a) == memo_word_get_positive_answers(b)
+			&& memo_word_get_db(a) == memo_word_get_db(b))
+		return 0;
+	return 1;
+}
+
+/*
  * Creates and closes a database file.
  */
 START_TEST (database_openclose)
