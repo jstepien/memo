@@ -189,13 +189,18 @@ END_TEST
  */
 START_TEST (database_word_reload)
 {
-	memo_word *word;
-	word = memo_word_new(db);
-	fail_if(word == NULL, "Can't create a new word.");
-	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
-	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
-	fail_if(memo_word_reload(word) != 0, "Failed to reload a saved word.");
-	memo_word_free(word);
+	memo_word *w1, *w2;
+	w1 = memo_word_new(db);
+	w2 = (memo_word*) xmalloc(sizeof(memo_word));
+	fail_if(!w1 || !w2, "Can't create a new word.");
+	fail_if(memo_word_set_value(w1, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
+	w2->key = memo_word_get_key(w1);
+	w2->db = memo_word_get_db(w1);
+	fail_if(memo_word_reload(w2) != 0, "Failed to reload a saved word.");
+	fail_if(word_cmp(w1, w2) != 0, "Reloaded word isn't similar to the original.");
+	memo_word_free(w1);
+	memo_word_free(w2);
 }
 END_TEST
 
@@ -299,6 +304,10 @@ START_TEST (database_checking_translations)
 	memo_word_free(w2);
 }
 END_TEST
+
+/*
+ * TODO: Test memo_word_copy.
+ */
 
 /*
  * Prepares the test suite.
