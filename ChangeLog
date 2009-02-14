@@ -1,3 +1,8 @@
+2009-02-15  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/Makefile.am, src/Makefile.am, test/tests.c: Small fixes:
+	make distcheck reports no problems now.
+
 2009-01-31  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* test/tests.c: Rewritten database_word_reload test.

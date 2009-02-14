@@ -348,5 +348,8 @@ main (void) {
 	srunner_run_all(sr, CK_NORMAL);
 	failed_count = srunner_ntests_failed(sr);
 	srunner_free(sr);
+	/* Remove the temporary database file if the tests have passed. */
+	if (!failed_count)
+		database_remove();
 	return (failed_count == 0) ? 0 : 1;
 }

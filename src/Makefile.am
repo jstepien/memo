@@ -2,6 +2,6 @@
 # replace the version written in bash.
 noinst_PROGRAMS=memo
 memo_SOURCES=main.c
-AM_CFLAGS=-I$(top_srcdir)/libmemo -I$(top_srcdir)/common/
-AM_LDFLAGS=-L$(top_srcdir)/libmemo -lmemo
-memo_LDADD = $(top_srcdir)/common/libcommon.la
+AM_CFLAGS=-I$(srcdir)/../libmemo -I$(srcdir)/../common/
+AM_LDFLAGS=-L$(builddir)/../libmemo -lmemo
+memo_LDADD = $(builddir)/../common/libcommon.la
