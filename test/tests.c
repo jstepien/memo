@@ -4,12 +4,15 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 
 #define DBNAME "./tmpdb"
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
 #define ERR_CLOSE "Cannot close an opened database."
 #define ERR_ADDING "Cannot add a word to the database."
 #define ERR_ADDING_TR "Cannot add a translation to the database."
+#define ERR_FETCHING_TR "Cannot fetch translations from the database."
+#define ERR_SET_WORD_VAL "Failed to set word's value."
 
 memo_database *db;
 
@@ -75,7 +78,7 @@ START_TEST (word_inserting)
 	memo_word *word;
 	word = memo_word_new(db);
 	fail_if(word == NULL, "Can't create a new word.");
-	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_set_value(word, "Test") != 0, ERR_SET_WORD_VAL);
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	/* TODO: Should check whether the word has been saved. */
 	memo_word_free(word);
@@ -90,7 +93,7 @@ START_TEST (word_find_by_key)
 	memo_word *w1, *w2;
 	w1 = memo_word_new(db);
 	fail_if(w1 == NULL, "Can't create a new word.");
-	fail_if(memo_word_set_value(w1, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_set_value(w1, "Test") != 0, ERR_SET_WORD_VAL);
 	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
 	w2 = memo_database_find_word(db, memo_word_get_key(w1));
 	fail_if(w2 == NULL ||
@@ -175,7 +178,7 @@ START_TEST (word_find_by_value)
 	memo_word *word;
 	word = memo_word_new(db);
 	fail_if(word == NULL, "Can't create a new word.");
-	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_set_value(word, "Test") != 0, ERR_SET_WORD_VAL);
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	memo_word_free(word);
 	word = memo_database_find_word_by_value(db, "Test");
@@ -193,7 +196,7 @@ START_TEST (word_reload)
 	w1 = memo_word_new(db);
 	w2 = (memo_word*) xmalloc(sizeof(memo_word));
 	fail_if(!w1 || !w2, "Can't create a new word.");
-	fail_if(memo_word_set_value(w1, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_set_value(w1, "Test") != 0, ERR_SET_WORD_VAL);
 	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
 	w2->key = memo_word_get_key(w1);
 	w2->db = memo_word_get_db(w1);
@@ -212,7 +215,7 @@ START_TEST (word_delete)
 	memo_word *word;
 	word = memo_word_new(db);
 	fail_if(word == NULL, "Can't create a new word.");
-	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
+	fail_if(memo_word_set_value(word, "Test") != 0, ERR_SET_WORD_VAL);
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	fail_if(memo_word_delete(word) != 0, "Failed to delete a saved word.");
 	fail_if(memo_word_reload(word) == 0, "Reloaded a deleted word.");
@@ -306,6 +309,48 @@ START_TEST (translation_checking)
 END_TEST
 
 /*
+ * Inserts 3 words and a translation and checks whether list of translations
+ * returned by memo_word_get_translations is correct.
+ */
+START_TEST (translation_fetching)
+{
+	memo_word *w1, *w2, *w3, *translations = 0;
+	w1 = memo_word_new(db);
+	w2 = memo_word_new(db);
+	w3 = memo_word_new(db);
+	memo_word_set_value(w1, "foo");
+	memo_word_set_value(w2, "bar");
+	memo_word_set_value(w3, "lol");
+	memo_word_save(w1);
+	memo_word_save(w2);
+	memo_word_save(w3);
+
+	fail_if(memo_word_add_translation(w1, w2) != 0, ERR_ADDING_TR);
+	fail_if(memo_word_add_translation(w2, w3) != 0, ERR_ADDING_TR);
+
+	fail_if(memo_word_get_translations(w2, &translations) != 2,
+		   ERR_FETCHING_TR);
+	fail_unless((!word_cmp(translations, w1) && !word_cmp(translations+1, w3)) ||
+			(!word_cmp(translations+1, w1) && !word_cmp(translations, w3)),
+			ERR_FETCHING_TR);
+
+	if (translations)
+		free(translations);
+
+	fail_if(memo_word_get_translations(w1, &translations) != 1,
+		   ERR_FETCHING_TR);
+	fail_unless(!word_cmp(translations, w2), ERR_FETCHING_TR);
+
+	if (translations)
+		free(translations);
+
+	memo_word_free(w1);
+	memo_word_free(w2);
+	memo_word_free(w3);
+}
+END_TEST
+
+/*
  * TODO: Test memo_word_copy.
  */
 
@@ -338,6 +383,7 @@ database_suite (void) {
 	tcase_add_test(tc_translations, translation_creation);
 	tcase_add_test(tc_translations, translation_inserting_duplicate);
 	tcase_add_test(tc_translations, translation_checking);
+	tcase_add_test(tc_translations, translation_fetching);
 	tcase_add_checked_fixture (tc_translations, database_setup,
 			database_teardown);
 	suite_add_tcase(s, tc_translations);

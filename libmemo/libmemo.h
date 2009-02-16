@@ -187,6 +187,9 @@ memo_word_add_translation(memo_word *w1, memo_word *w2);
 int
 memo_word_delete_translation(memo_word *w1, memo_word *w2);
 
+int
+memo_word_get_translations(memo_word *word, memo_word **translations);
+
 /**
  * Checks whether the given translation exists in the database.
  * @return 0 if the translation in correct, 1 if it is not, negative values

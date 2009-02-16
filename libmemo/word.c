@@ -273,6 +273,11 @@ memo_word_check_translation(memo_word *w1, memo_word *w2) {
 	return 1;
 }
 
+int
+memo_word_get_translations(memo_word *word, memo_word **translations) {
+	return -1;
+}
+
 /*
  * vim:ts=4:noet:tw=78
  */
