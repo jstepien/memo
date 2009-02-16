@@ -21,6 +21,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "database.h"
+#include "macros.h"
 #include "xmalloc.h"
 
 memo_database_data *
@@ -182,6 +183,55 @@ int
 memo_database_close(memo_database *db) {
 	sqlite3_close(db);
 	return 0;
+}
+
+memo_word*
+memo_database_find_word_by_value(memo_database *db, const char* value) {
+	memo_word *word;
+	memo_database_data *results;
+	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
+			"word == \"%s\";";
+	char *query;
+
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+strlen(value)-1));
+	results = memo_database_data_init();
+
+	if (!results)
+		return NULL;
+
+	sprintf(query, word_sel_templ, value);
+	if (memo_database_execute(db, query, results) < 0)
+		return NULL;
+	word = memo_word_load_from_database_data(db, results);
+	free(query);
+	memo_database_data_free(results);
+	return word;
+}
+
+memo_word*
+memo_database_find_word(memo_database *db, int id) {
+	memo_word *word;
+	memo_database_data *results;
+	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
+			"id == %i;";
+	char *query;
+
+	/* In the following malloc call we're hoping that log10(id) < 16 .
+	 * It can be verified by counting the actual logarithm, although it seems
+	 * to expensive, doesn't it? */
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+16));
+	results = memo_database_data_init();
+
+	if (!results)
+		return NULL;
+
+	sprintf(query, word_sel_templ, id);
+	if (memo_database_execute(db, query, results) < 0)
+		return NULL;
+	word = memo_word_load_from_database_data(db, results);
+	free(query);
+	memo_database_data_free(results);
+	return word;
 }
 
 /*

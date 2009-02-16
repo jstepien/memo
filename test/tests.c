@@ -92,7 +92,7 @@ START_TEST (database_word_find_by_key)
 	fail_if(w1 == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(w1, "Test") != 0, "Failed to set word's value.");
 	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
-	w2 = memo_word_find(db, memo_word_get_key(w1));
+	w2 = memo_database_find_word(db, memo_word_get_key(w1));
 	fail_if(w2 == NULL ||
 			strcmp(memo_word_get_value(w1), memo_word_get_value(w2)) != 0,
 			"Failed to find the inserted word.");
@@ -115,7 +115,7 @@ START_TEST (database_word_get_key)
 	fail_if(memo_word_save(word) != 0, "failed to save a word.");
 	id = memo_word_get_key(word);
 	memo_word_free(word);
-	word = memo_word_find_by_value(db, "test");
+	word = memo_database_find_word_by_value(db, "test");
 	fail_if(id != memo_word_get_key(word), "Word's key does not match.");
 	memo_word_free(word);
 }
@@ -136,7 +136,7 @@ START_TEST (database_word_get_db)
 	fail_if(memo_word_save(word) != 0, "failed to save a word.");
 	tmpdb = memo_word_get_db(word);
 	memo_word_free(word);
-	word = memo_word_find_by_value(db, "test");
+	word = memo_database_find_word_by_value(db, "test");
 	fail_if(tmpdb != memo_word_get_db(word), "DB does not match.");
 	memo_word_free(word);
 }
@@ -158,7 +158,7 @@ START_TEST (database_word_get_answers_count)
 	positive_answers = memo_word_get_positive_answers(word);
 	negative_answers = memo_word_get_negative_answers(word);
 	memo_word_free(word);
-	word = memo_word_find_by_value(db, "test");
+	word = memo_database_find_word_by_value(db, "test");
 	fail_if(negative_answers != memo_word_get_negative_answers(word),
 			"negative answers count does not match.");
 	fail_if(positive_answers != memo_word_get_positive_answers(word),
@@ -178,7 +178,7 @@ START_TEST (database_word_find_by_value)
 	fail_if(memo_word_set_value(word, "Test") != 0, "Failed to set word's value.");
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	memo_word_free(word);
-	word = memo_word_find_by_value(db, "Test");
+	word = memo_database_find_word_by_value(db, "Test");
 	fail_if(word == NULL, "Failed to find the inserted word.");
 	memo_word_free(word);
 }

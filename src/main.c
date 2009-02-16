@@ -65,7 +65,7 @@ add_pair(int argc, const char *argv[]) {
 		die("usage: %s --add-pair FIRST_ITEM SECOND_ITEM\n", program_name);
 	db = open_database();
 	for (i = 0; i < 2; i++)
-		if ((word[i] = memo_word_find_by_value(db, argv[i])) == NULL)
+		if ((word[i] = memo_database_find_word_by_value(db, argv[i])) == NULL)
 			if ((word[i] = memo_word_new(db)) == NULL ||
 					memo_word_set_value(word[i], argv[i]) ||
 					memo_word_save(word[i]))

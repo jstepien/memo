@@ -46,7 +46,7 @@ memo_word_save(memo_word *word) {
 
 	/* Check if the word already exist. */
 
-	tmp_word = memo_word_find_by_value(word->db, memo_word_get_value(word));
+	tmp_word = memo_database_find_word_by_value(word->db, memo_word_get_value(word));
 	if ( tmp_word != NULL ) {
 		memo_word_free(tmp_word);
 		return -1;
@@ -71,7 +71,7 @@ memo_word_update(memo_word *word) {
 int
 memo_word_reload_by_value(memo_word *word) {
 	memo_word *tmp;
-	tmp = memo_word_find_by_value(word->db, word->value);
+	tmp = memo_database_find_word_by_value(word->db, word->value);
 	if (!tmp)
 		return -1;
 	memo_word_copy(word, tmp);
@@ -82,7 +82,7 @@ memo_word_reload_by_value(memo_word *word) {
 int
 memo_word_reload(memo_word *word) {
 	memo_word *tmp;
-	tmp = memo_word_find(word->db, word->key);
+	tmp = memo_database_find_word(word->db, word->key);
 	if (!tmp)
 		return -1;
 	memo_word_copy(word, tmp);
@@ -218,55 +218,6 @@ memo_word_load_from_database_data(memo_database *db,
 		free(query);
 	} else
 		return NULL;
-	return word;
-}
-
-memo_word*
-memo_word_find_by_value(memo_database *db, const char* value) {
-	memo_word *word;
-	memo_database_data *results;
-	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
-			"word == \"%s\";";
-	char *query;
-
-	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+strlen(value)-1));
-	results = memo_database_data_init();
-
-	if (!results)
-		return NULL;
-
-	sprintf(query, word_sel_templ, value);
-	if (memo_database_execute(db, query, results) < 0)
-		return NULL;
-	word = memo_word_load_from_database_data(db, results);
-	free(query);
-	memo_database_data_free(results);
-	return word;
-}
-
-memo_word*
-memo_word_find(memo_database *db, int id) {
-	memo_word *word;
-	memo_database_data *results;
-	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
-			"id == %i;";
-	char *query;
-
-	/* In the following malloc call we're hoping that log10(id) < 16 .
-	 * It can be verified by counting the actual logarithm, although it seems
-	 * to expensive, doesn't it? */
-	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+16));
-	results = memo_database_data_init();
-
-	if (!results)
-		return NULL;
-
-	sprintf(query, word_sel_templ, id);
-	if (memo_database_execute(db, query, results) < 0)
-		return NULL;
-	word = memo_word_load_from_database_data(db, results);
-	free(query);
-	memo_database_data_free(results);
 	return word;
 }
 

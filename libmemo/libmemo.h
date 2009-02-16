@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <sqlite3.h>
 
+typedef struct memo_word memo_word;
+
 /**
  * @defgroup memo_database memo_database
  * Database related structures and functions.
@@ -51,6 +53,12 @@ memo_database_open(const char *filename);
  */
 int
 memo_database_close(memo_database *db);
+
+memo_word*
+memo_database_find_word_by_value(memo_database *db, const char* value);
+
+memo_word*
+memo_database_find_word(memo_database *db, int id);
 
 /**
  * @}
@@ -81,7 +89,7 @@ typedef struct _memo_translation {
  * Represents a word.
  * Follows an active record pattern.
  */
-typedef struct {
+struct memo_word {
 	/**
 	 * A database which contains the word.
 	 */
@@ -100,7 +108,7 @@ typedef struct {
 	 * Linked list of translations' keys.
 	 */
 	memo_translation *translations;
-} memo_word;
+};
 
 /**
  * Create a new, empty word.
@@ -169,12 +177,6 @@ memo_word_set_value(memo_word *word, const char* value);
 
 memo_database*
 memo_word_get_db(memo_word *word);
-
-memo_word*
-memo_word_find_by_value(memo_database *db, const char* value);
-
-memo_word*
-memo_word_find(memo_database *db, int id);
 
 int
 memo_word_copy(memo_word *dest, memo_word *src);
