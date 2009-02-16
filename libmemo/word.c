@@ -60,9 +60,7 @@ memo_word_save(memo_word *word) {
 
 	free(query);
 
-	memo_word_reload_by_value(word);
-
-	return 0;
+	return memo_word_reload_by_value(word);
 }
 
 int
