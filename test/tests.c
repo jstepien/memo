@@ -11,7 +11,7 @@
 #define ERR_ADDING "Cannot add a word to the database."
 #define ERR_ADDING_TR "Cannot add a translation to the database."
 
-memo_database db;
+memo_database *db;
 
 void
 database_remove() {
@@ -25,7 +25,7 @@ database_remove() {
 void
 database_setup() {
 	database_remove();
-	assert(memo_database_load(&db, DBNAME) == 0);
+	assert(db = memo_database_open(DBNAME));
 }
 
 /*
@@ -61,8 +61,8 @@ word_cmp(memo_word *a, memo_word *b) {
  */
 START_TEST (database_openclose)
 {
-	memo_database db;
-	fail_if(memo_database_load(&db, DBNAME) != 0, ERR_LOAD);
+	memo_database *db;
+	fail_if(!(db = memo_database_open(DBNAME)), ERR_LOAD);
 	fail_if(memo_database_close(db) != 0, ERR_CLOSE);
 }
 END_TEST
@@ -128,16 +128,16 @@ END_TEST
 START_TEST (database_word_get_db)
 {
 	memo_word *word;
-	memo_database d;
+	memo_database *tmpdb;
 	int positive_answers, negative_answers;
 	word = memo_word_new(db);
 	fail_if(word == NULL, "can't create a new word.");
 	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
 	fail_if(memo_word_save(word) != 0, "failed to save a word.");
-	d = memo_word_get_db(word);
+	tmpdb = memo_word_get_db(word);
 	memo_word_free(word);
 	word = memo_word_find_by_value(db, "test");
-	fail_if(d != memo_word_get_db(word), "DB does not match.");
+	fail_if(tmpdb != memo_word_get_db(word), "DB does not match.");
 	memo_word_free(word);
 }
 END_TEST

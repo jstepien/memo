@@ -31,10 +31,10 @@
 
 /**
  * The database.
- * Currently it's a pointer to an SQLite3 database.
+ * Currently it's an SQLite3 database.
  * @sa http://sqlite.org/
  */
-typedef sqlite3* memo_database;
+typedef sqlite3 memo_database;
 
 /**
  * Prepares a @ref memo_database.
@@ -42,15 +42,15 @@ typedef sqlite3* memo_database;
  * @param filename A filename of a file with a database.
  * @return 0 in case of success, negative values in case of errors.
  */
-int
-memo_database_load(memo_database *db, const char *filename);
+memo_database *
+memo_database_open(const char *filename);
 
 /**
  * Closes the database.
  * @return 0.
  */
 int
-memo_database_close(memo_database db);
+memo_database_close(memo_database *db);
 
 /**
  * @}
@@ -85,7 +85,7 @@ typedef struct {
 	/**
 	 * A database which contains the word.
 	 */
-	memo_database db;
+	memo_database *db;
 	/**
 	 * Word's value.
 	 */
@@ -107,7 +107,7 @@ typedef struct {
  * @return a pointer to a new word, @c NULL in case of errors.
  */
 memo_word*
-memo_word_new(memo_database db);
+memo_word_new(memo_database *db);
 
 /**
  * Inserts the given word to the database.
@@ -167,14 +167,14 @@ memo_word_get_value(memo_word *word);
 int
 memo_word_set_value(memo_word *word, const char* value);
 
-memo_database
+memo_database*
 memo_word_get_db(memo_word *word);
 
 memo_word*
-memo_word_find_by_value(memo_database db, const char* value);
+memo_word_find_by_value(memo_database *db, const char* value);
 
 memo_word*
-memo_word_find(memo_database db, int id);
+memo_word_find(memo_database *db, int id);
 
 int
 memo_word_copy(memo_word *dest, memo_word *src);

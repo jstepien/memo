@@ -25,7 +25,7 @@
 #include "xmalloc.h"
 
 memo_word*
-memo_word_new(memo_database db) {
+memo_word_new(memo_database *db) {
 	memo_word *w;
 	w = xcalloc(1, sizeof(memo_word));
 	w->key = -1;
@@ -168,13 +168,13 @@ memo_word_set_value(memo_word *word, const char* value) {
 	return 0;
 }
 
-memo_database
+memo_database*
 memo_word_get_db(memo_word *word) {
 	return word->db;
 }
 
 memo_word*
-memo_word_load_from_database_data(memo_database db,
+memo_word_load_from_database_data(memo_database *db,
 		memo_database_data *data) {
 	const char trans_sel_templ[] = "SELECT word_id, translation_id from " \
 			"translations where word_id == %i OR translation_id == %i;";
@@ -224,7 +224,7 @@ memo_word_load_from_database_data(memo_database db,
 }
 
 memo_word*
-memo_word_find_by_value(memo_database db, const char* value) {
+memo_word_find_by_value(memo_database *db, const char* value) {
 	memo_word *word;
 	memo_database_data *results;
 	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
@@ -247,7 +247,7 @@ memo_word_find_by_value(memo_database db, const char* value) {
 }
 
 memo_word*
-memo_word_find(memo_database db, int id) {
+memo_word_find(memo_database *db, int id) {
 	memo_word *word;
 	memo_database_data *results;
 	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \

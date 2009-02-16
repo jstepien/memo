@@ -50,24 +50,25 @@ memo_database_data_free(memo_database_data * data) {
 	free(data);
 }
 
-int
-memo_database_load(memo_database *db, const char *filename) {
-	if ( sqlite3_open(filename, db) ) {
-		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(*db));
-		sqlite3_close(*db);
-		return -1;
+memo_database*
+memo_database_open(const char *filename) {
+	memo_database *db = xcalloc(1, sizeof(memo_database_data));
+	if ( sqlite3_open(filename, &db) ) {
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return NULL;
 	}
-	if (memo_database_init(*db)) {
+	if (memo_database_init(db)) {
 		fprintf(stderr, "Error initialising database: %s\n",
-				sqlite3_errmsg(*db));
-		sqlite3_close(*db);
-		return -1;
+				sqlite3_errmsg(db));
+		sqlite3_close(db);
+		return NULL;
 	}
-	return 0;
+	return db;
 }
 
 int
-memo_database_execute(memo_database db, const char *query,
+memo_database_execute(memo_database *db, const char *query,
 		memo_database_data *ret) {
 	sqlite3_stmt *stmt;
 	int rc;
@@ -163,7 +164,7 @@ memo_database_execute(memo_database db, const char *query,
 }
 
 int
-memo_database_init(memo_database db) {
+memo_database_init(memo_database *db) {
 	const char *words_query = "CREATE TABLE IF NOT EXISTS words " \
 			"(id integer, word text, positive_answers integer DEFAULT 0, " \
 			"negative_answers integer DEFAULT 0, PRIMARY KEY (id), " \
@@ -178,7 +179,7 @@ memo_database_init(memo_database db) {
 }
 
 int
-memo_database_close(memo_database db) {
+memo_database_close(memo_database *db) {
 	sqlite3_close(db);
 	return 0;
 }

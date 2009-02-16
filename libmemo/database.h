@@ -79,7 +79,7 @@ memo_database_data_free(memo_database_data * data);
  * @return 0 in case of success, negative values in case of errors.
  */
 int
-memo_database_execute(memo_database db, const char *query,
+memo_database_execute(memo_database *db, const char *query,
 		memo_database_data *ret);
 
 /**
@@ -89,7 +89,7 @@ memo_database_execute(memo_database db, const char *query,
  * @return 0 in case of success, negative values in case of errors.
  */
 int
-memo_database_init(memo_database db);
+memo_database_init(memo_database *db);
 
 /**
  * @}

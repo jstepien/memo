@@ -40,8 +40,8 @@ typedef struct {
 	void (*action)(int, const char*[]);
 } action;
 
-int
-open_database(memo_database *db) {
+memo_database *
+open_database() {
 	char *filename, memo_db_file[] = "/.memo/db", *homedir;
 	int homedir_len;
 	homedir = getenv("HOME");
@@ -53,19 +53,17 @@ open_database(memo_database *db) {
 		perror("Failed to open db file for r/w");
 		exit(1);
 	}
-	if (memo_database_load(db, filename) < 0)
-		exit(1);
-	return 0;
+	return memo_database_open(filename);
 }
 
 void
 add_pair(int argc, const char *argv[]) {
-	memo_database db;
+	memo_database *db;
 	memo_word *word[2];
 	int i;
 	if (argc != 2 || strlen(argv[0]) < 1 || strlen(argv[1]) < 1)
 		die("usage: %s --add-pair FIRST_ITEM SECOND_ITEM\n", program_name);
-	open_database(&db);
+	db = open_database();
 	for (i = 0; i < 2; i++)
 		if ((word[i] = memo_word_find_by_value(db, argv[i])) == NULL)
 			if ((word[i] = memo_word_new(db)) == NULL ||
