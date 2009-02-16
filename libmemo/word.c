@@ -274,8 +274,25 @@ memo_word_check_translation(memo_word *w1, memo_word *w2) {
 }
 
 int
-memo_word_get_translations(memo_word *word, memo_word **translations) {
-	return -1;
+memo_word_get_translations(memo_word *word, memo_word ***translations) {
+	memo_translation *t;
+	int count = 0, pos;
+	if (!word || !translations)
+		return -1;
+	if (!word->translations)
+		return 0;
+	t = word->translations;
+	do
+		++count;
+	while (t = t->next);
+	*translations = xmalloc(count*sizeof(memo_word*));
+	t = word->translations;
+	pos = 0;
+	do {
+		(*translations)[pos++] = memo_database_find_word(memo_word_get_db(word),
+				t->key);
+	} while (t = t->next);
+	return count;
 }
 
 /*

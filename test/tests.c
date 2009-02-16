@@ -314,7 +314,7 @@ END_TEST
  */
 START_TEST (translation_fetching)
 {
-	memo_word *w1, *w2, *w3, *translations = 0;
+	memo_word *w1, *w2, *w3, **translations = 0;
 	w1 = memo_word_new(db);
 	w2 = memo_word_new(db);
 	w3 = memo_word_new(db);
@@ -330,19 +330,20 @@ START_TEST (translation_fetching)
 
 	fail_if(memo_word_get_translations(w2, &translations) != 2,
 		   ERR_FETCHING_TR);
-	fail_unless((!word_cmp(translations, w1) && !word_cmp(translations+1, w3)) ||
-			(!word_cmp(translations+1, w1) && !word_cmp(translations, w3)),
+	fail_unless((!word_cmp(translations[0], w1) && !word_cmp(translations[1], w3)) ||
+			(!word_cmp(translations[1], w1) && !word_cmp(translations[0], w3)),
 			ERR_FETCHING_TR);
 
-	if (translations)
-		free(translations);
+	memo_word_free(translations[0]);
+	memo_word_free(translations[1]);
+	free(translations);
 
 	fail_if(memo_word_get_translations(w1, &translations) != 1,
 		   ERR_FETCHING_TR);
-	fail_unless(!word_cmp(translations, w2), ERR_FETCHING_TR);
+	fail_unless(!word_cmp(translations[0], w2), ERR_FETCHING_TR);
 
-	if (translations)
-		free(translations);
+	memo_word_free(translations[0]);
+	free(translations);
 
 	memo_word_free(w1);
 	memo_word_free(w2);
