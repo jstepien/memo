@@ -70,7 +70,7 @@ END_TEST
 /*
  * Inserts a word to the database.
  */
-START_TEST (database_word_inserting)
+START_TEST (word_inserting)
 {
 	memo_word *word;
 	word = memo_word_new(db);
@@ -85,7 +85,7 @@ END_TEST
 /*
  * Inserts a word and checks if it can be found by it's key.
  */
-START_TEST (database_word_find_by_key)
+START_TEST (word_find_by_key)
 {
 	memo_word *w1, *w2;
 	w1 = memo_word_new(db);
@@ -105,7 +105,7 @@ END_TEST
  * Inserts a word, retrieves it and checks whether memo_word_get_key works
  * correctly.
  */
-START_TEST (database_word_get_key)
+START_TEST (word_get_key)
 {
 	memo_word *word;
 	int id;
@@ -125,7 +125,7 @@ END_TEST
  * Inserts a word, retrieves it and checks whether memo_word_get_db works
  * correctly.
  */
-START_TEST (database_word_get_db)
+START_TEST (word_get_db)
 {
 	memo_word *word;
 	memo_database *tmpdb;
@@ -147,7 +147,7 @@ END_TEST
  * memo_word_get_positive_answers and memo_word_get_negative_answers work
  * correctly.
  */
-START_TEST (database_word_get_answers_count)
+START_TEST (word_get_answers_count)
 {
 	memo_word *word;
 	int positive_answers, negative_answers;
@@ -170,7 +170,7 @@ END_TEST
 /*
  * Inserts a word and checks whether it can be found by it's value.
  */
-START_TEST (database_word_find_by_value)
+START_TEST (word_find_by_value)
 {
 	memo_word *word;
 	word = memo_word_new(db);
@@ -187,7 +187,7 @@ END_TEST
 /*
  * Inserts a word and checks whether reloading works.
  */
-START_TEST (database_word_reload)
+START_TEST (word_reload)
 {
 	memo_word *w1, *w2;
 	w1 = memo_word_new(db);
@@ -207,7 +207,7 @@ END_TEST
 /*
  * Inserts a word, deletes it and checks whether it can be found or reloaded.
  */
-START_TEST (database_word_delete)
+START_TEST (word_delete)
 {
 	memo_word *word;
 	word = memo_word_new(db);
@@ -223,7 +223,7 @@ END_TEST
 /*
  * Inserts 2 words and checks whether translation insertion works.
  */
-START_TEST (database_translation_creation)
+START_TEST (translation_creation)
 {
 	memo_word *w1, *w2;
 	w1 = memo_word_new(db);
@@ -244,7 +244,7 @@ END_TEST
 /*
  * Inserts 4 words and checks whether translation insertion allows duplicates.
  */
-START_TEST (database_inserting_duplicate_translation)
+START_TEST (translation_inserting_duplicate)
 {
 	memo_word *w[4];
 	int i;
@@ -272,7 +272,7 @@ END_TEST
  * Inserts 2 words and a translation and checks whether translation checking
  * words.
  */
-START_TEST (database_checking_translations)
+START_TEST (translation_checking)
 {
 	memo_word *w1, *w2, *w_exists, *w_doesnt_exist;
 	w1 = memo_word_new(db);
@@ -315,27 +315,32 @@ END_TEST
 Suite *
 database_suite (void) {
 	Suite *s;
-	TCase *tc_openclose, *tc_basic_io;
+	TCase *tc_database, *tc_words, *tc_translations;
 
-	s = suite_create("Database");
+	s = suite_create("libmemo");
 
-	tc_openclose = tcase_create("Open/Close");
-	tcase_add_test(tc_openclose, database_openclose);
-	suite_add_tcase(s, tc_openclose);
+	tc_database = tcase_create("Database");
+	tcase_add_test(tc_database, database_openclose);
+	suite_add_tcase(s, tc_database);
 
-	tc_basic_io = tcase_create("Word I/O");
-	tcase_add_test(tc_basic_io, database_word_inserting);
-	tcase_add_test(tc_basic_io, database_word_find_by_value);
-	tcase_add_test(tc_basic_io, database_word_get_answers_count);
-	tcase_add_test(tc_basic_io, database_word_get_key);
-	tcase_add_test(tc_basic_io, database_word_get_db);
-	tcase_add_test(tc_basic_io, database_word_reload);
-	tcase_add_test(tc_basic_io, database_word_delete);
-	tcase_add_test(tc_basic_io, database_translation_creation);
-	tcase_add_test(tc_basic_io, database_inserting_duplicate_translation);
-	tcase_add_test(tc_basic_io, database_checking_translations);
-	tcase_add_checked_fixture (tc_basic_io, database_setup, database_teardown);
-	suite_add_tcase(s, tc_basic_io);
+	tc_words = tcase_create("Words");
+	tcase_add_test(tc_words, word_inserting);
+	tcase_add_test(tc_words, word_find_by_value);
+	tcase_add_test(tc_words, word_get_answers_count);
+	tcase_add_test(tc_words, word_get_key);
+	tcase_add_test(tc_words, word_get_db);
+	tcase_add_test(tc_words, word_reload);
+	tcase_add_test(tc_words, word_delete);
+	tcase_add_checked_fixture (tc_words, database_setup, database_teardown);
+	suite_add_tcase(s, tc_words);
+
+	tc_translations = tcase_create("Translations");
+	tcase_add_test(tc_translations, translation_creation);
+	tcase_add_test(tc_translations, translation_inserting_duplicate);
+	tcase_add_test(tc_translations, translation_checking);
+	tcase_add_checked_fixture (tc_translations, database_setup,
+			database_teardown);
+	suite_add_tcase(s, tc_translations);
 
 	return s;
 }
