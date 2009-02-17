@@ -33,6 +33,16 @@ memo_word_new(memo_database *db) {
 	return w;
 }
 
+/*
+ * Checks whether the database has been updated since the previous check.
+ */
+void
+memo_word_auto_reload(memo_word *word) {
+	if (memo_database_get_last_change(memo_word_get_db(word)) >
+			word->db_last_change)
+		memo_word_reload(word);
+}
+
 int
 memo_word_save(memo_word *word) {
 	const char query_template[] = "INSERT INTO words (word) VALUES (\"%s\");";
@@ -138,21 +148,25 @@ memo_word_free(memo_word *word) {
 
 int
 memo_word_get_negative_answers(memo_word *word) {
+	memo_word_auto_reload(word);
 	return word->negative_answers;
 }
 
 int
 memo_word_get_positive_answers(memo_word *word) {
+	memo_word_auto_reload(word);
 	return word->positive_answers;
 }
 
 int
 memo_word_get_key(memo_word *word) {
+	/* No auto reload here as key should be constant. */
 	return word->key;
 }
 
 const char*
 memo_word_get_value(memo_word *word) {
+	memo_word_auto_reload(word);
 	return word->value;
 }
 
@@ -167,6 +181,7 @@ memo_word_set_value(memo_word *word, const char* value) {
 
 memo_database*
 memo_word_get_db(memo_word *word) {
+	/* No auto reload here as db should be constant. */
 	return word->db;
 }
 
@@ -186,6 +201,7 @@ memo_word_load_from_database_data(memo_database *db,
 		word->key = (int) data->data[0][0];
 		memo_word_set_value(word, data->data[0][1]);
 		word->db = db;
+		word->db_last_change = memo_database_get_last_change(db);
 
 		query = xmalloc(sizeof(char) * (ARRAY_SIZE(trans_sel_templ)+32));
 		data = memo_database_data_init();
@@ -278,6 +294,7 @@ memo_word_get_translations(memo_word *word, memo_word ***translations) {
 	int count = 0, pos;
 	if (!word || !translations)
 		return -1;
+	memo_word_auto_reload(word);
 	if (!word->translations)
 		return 0;
 	t = word->translations;

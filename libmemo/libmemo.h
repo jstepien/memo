@@ -118,6 +118,12 @@ struct memo_word {
 	 */
 	unsigned negative_answers;
 	/**
+	 * Last seen value of @ref memo_database::last_change.
+	 * It gets updated after each call to functions that update the word's row
+	 * in the database.
+	 */
+	unsigned long db_last_change;
+	/**
 	 * Linked list of translations' keys.
 	 */
 	memo_translation *translations;

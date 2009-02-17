@@ -311,6 +311,35 @@ START_TEST (word_copy)
 END_TEST
 
 /*
+ * Inserts 2 words and check whether auto reload works.
+ */
+START_TEST (word_auto_reload)
+{
+	memo_word *w1, *w2;
+	const char str1[] = "correct", str3[] = "incorrect", str2[] = "foobar";
+
+	w1 = memo_word_new(db);
+	memo_word_set_value(w1, str1);
+	memo_word_save(w1);
+	memo_word_set_value(w1, str3);
+	fail_if(strcmp(str3, memo_word_get_value(w1)) != 0);
+
+	w2 = memo_word_new(db);
+	memo_word_set_value(w2, str2);
+	memo_word_save(w2);
+
+	/*
+	 * memo_word_get_value should automatically update w1 as w2 has been
+	 * inserted to the database.
+	 */
+	fail_if(strcmp(str1, memo_word_get_value(w1)) != 0);
+
+	memo_word_free(w1);
+	memo_word_free(w2);
+}
+END_TEST
+
+/*
  * Inserts 2 words and checks whether translation insertion works.
  */
 START_TEST (translation_creation)
@@ -439,6 +468,72 @@ START_TEST (translation_fetching)
 END_TEST
 
 /*
+ * Inserts 3 words and a translation and check whether auto reload works.
+ */
+START_TEST (translation_auto_reload)
+{
+	memo_word *w1, *w2, *w3, *w1_copy, **transl;
+	memo_translation *tr;
+	const char str1[] = "correct", str3[] = "incorrect", str2[] = "foobar",
+		  str4[] = "memo";
+
+	w1 = memo_word_new(db);
+	memo_word_set_value(w1, str1);
+	memo_word_save(w1);
+
+	w2 = memo_word_new(db);
+	memo_word_set_value(w2, str2);
+	memo_word_save(w2);
+
+	/* Ensure that w1->db_last_change is up to date. */
+	memo_word_reload(w1);
+	memo_word_set_value(w1, str4);
+	fail_if(strcmp(str4, memo_word_get_value(w1)) != 0);
+
+	memo_word_add_translation(w1, w2);
+
+	/*
+	 * memo_word_get_value should automatically update w1 as a new translation
+	 * has been inserted to the database.
+	 */
+	fail_if(strcmp(str1, memo_word_get_value(w1)) != 0);
+
+	/*
+	 * Remove all w1 translations from the memory. We expect that the next
+	 * auto reload will get them back.
+	 */
+	w1_copy = memo_word_new(db);
+	memo_word_copy(w1_copy, w1);
+	tr = w1->translations;
+	while (tr) {
+		memo_translation *tmp = tr;
+		tr = tr->next;
+		free(tmp);
+	}
+	w1->translations = NULL;
+
+	w3 = memo_word_new(db);
+	memo_word_set_value(w3, str3);
+	memo_word_save(w3);
+
+	/*
+	 * memo_word_get_translations should automatically update w1 as w3 has
+	 * been inserted to the database.
+	 */
+	fail_if(memo_word_get_translations(w1, &transl) != 1, 0);
+	free(transl);
+	fail_if(word_cmp_transl(w1_copy, w1) != 0, 0);
+	fail_if(word_cmp(w1_copy, w1) != 0, 0);
+
+	memo_word_free(w1);
+	memo_word_free(w2);
+	memo_word_free(w3);
+	memo_word_free(w1_copy);
+}
+END_TEST
+
+
+/*
  * Prepares the test suite.
  */
 Suite *
@@ -461,6 +556,7 @@ database_suite (void) {
 	tcase_add_test(tc_words, word_reload);
 	tcase_add_test(tc_words, word_delete);
 	tcase_add_test(tc_words, word_copy);
+	tcase_add_test(tc_words, word_auto_reload);
 	tcase_add_checked_fixture (tc_words, database_setup, database_teardown);
 	suite_add_tcase(s, tc_words);
 
@@ -469,6 +565,7 @@ database_suite (void) {
 	tcase_add_test(tc_translations, translation_inserting_duplicate);
 	tcase_add_test(tc_translations, translation_checking);
 	tcase_add_test(tc_translations, translation_fetching);
+	tcase_add_test(tc_translations, translation_auto_reload);
 	tcase_add_checked_fixture (tc_translations, database_setup,
 			database_teardown);
 	suite_add_tcase(s, tc_translations);
