@@ -1,6 +1,7 @@
 SUBDIRS=common libmemo src doc
 if WITH_CHECK
     SUBDIRS+=test
+    DISTCHECK_CONFIGURE_FLAGS=--with-check
 endif
 bin_SCRIPTS=memo
 memo_libdir=$(libdir)/memo
