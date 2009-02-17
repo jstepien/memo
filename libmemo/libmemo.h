@@ -284,6 +284,40 @@ memo_word_check_translation(memo_word *w1, memo_word *w2);
  * @}
  */
 
+/**
+ * @defgroup memo_messaging Messaging
+ * Functions preparing tests and reports and parsing replies.
+ * @{
+ */
+
+/**
+ * Checks a reply to a test.
+ * Loads the reply from the given file, updates answers numbers in the
+ * database and prepares an optional report.
+ * @param reply the file with the reply to check.
+ * @param db the database to update.
+ * @param report a pointer to a string where the report will be saved. If it's
+ * @c NULL no report be prepared.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_check_reply(FILE *reply, memo_database *db, char **report);
+
+/**
+ * Sends a test.
+ * Picks words from the database and sends a test to a given e-mail address.
+ * @param db the database.
+ * @param words number of words to include in the test.
+ * @param email the address to send the test to.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_send_test(memo_database *db, unsigned words, const char *email);
+
+/**
+ * @}
+ */
+
 #endif /* LIBMEMO_LIBMEMO_H_ */
 
 /*

@@ -5,6 +5,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include "directory.h"
 
 #define DBNAME "./tmpdb"
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
@@ -532,6 +533,63 @@ START_TEST (translation_auto_reload)
 }
 END_TEST
 
+/*
+ * Checks a test. Firstly it adds 10 words to the database and creates 5
+ * translations. Afterwards it opens a file with a reply to a fictional test
+ * and checks the answers. Eventually we're checking whether words in the
+ * database have been updated properly.
+ */
+START_TEST (messaging_checking_test)
+{
+	const int words = 10;
+	int i, answers[words][2];
+	memo_word *w[words];
+	char value[11];
+	FILE *f;
+
+	for (i = 0; i < words; ++i) {
+		w[i] = memo_word_new(db);
+		sprintf(value, (i < words/2) ? "question%i" : "answer%i",
+				i%(words/2));
+		w[i]->positive_answers = answers[i][0] = i+10;
+		w[i]->negative_answers = answers[i][1] = 20-i;
+		fail_if(memo_word_set_value(w[i], value), 0);
+		fail_if(memo_word_save(w[i]), 0);
+	}
+	for (i = 0; i < words/2; ++i)
+		fail_if(memo_word_add_translation(w[i], w[i+(words/2)]), 0);
+
+	fail_unless(f = fopen(TEST_SRC_DIR"/reply1.eml", "r"));
+	fail_if(memo_check_reply(f, db, 0));
+	fclose(f);
+
+	/* question0..4 */
+	fail_if(memo_word_get_positive_answers(w[0]) != answers[0][0], 0);
+	fail_if(memo_word_get_negative_answers(w[0]) != answers[0][1], 0);
+	fail_if(memo_word_get_positive_answers(w[1]) != answers[1][0]+1, 0);
+	fail_if(memo_word_get_negative_answers(w[1]) != answers[1][1], 0);
+	fail_if(memo_word_get_positive_answers(w[2]) != answers[2][0], 0);
+	fail_if(memo_word_get_negative_answers(w[2]) != answers[2][1]+1, 0);
+	fail_if(memo_word_get_positive_answers(w[3]) != answers[3][0], 0);
+	fail_if(memo_word_get_negative_answers(w[3]) != answers[3][1]+1, 0);
+	fail_if(memo_word_get_positive_answers(w[4]) != answers[4][0], 0);
+	fail_if(memo_word_get_negative_answers(w[4]) != answers[4][1], 0);
+	/* answer0..4 */
+	fail_if(memo_word_get_positive_answers(w[5]) != answers[5][0]+1, 0);
+	fail_if(memo_word_get_negative_answers(w[5]) != answers[5][1], 0);
+	fail_if(memo_word_get_positive_answers(w[6]) != answers[6][0], 0);
+	fail_if(memo_word_get_negative_answers(w[6]) != answers[6][1], 0);
+	fail_if(memo_word_get_positive_answers(w[7]) != answers[7][0], 0);
+	fail_if(memo_word_get_negative_answers(w[7]) != answers[7][1]+1, 0);
+	fail_if(memo_word_get_positive_answers(w[8]) != answers[8][0], 0);
+	fail_if(memo_word_get_negative_answers(w[8]) != answers[8][1], 0);
+	fail_if(memo_word_get_positive_answers(w[9]) != answers[9][0], 0);
+	fail_if(memo_word_get_negative_answers(w[9]) != answers[9][1], 0);
+
+	for (i = 0; i < words; ++i)
+		memo_word_free(w[i]);
+}
+END_TEST
 
 /*
  * Prepares the test suite.
@@ -539,7 +597,7 @@ END_TEST
 Suite *
 database_suite (void) {
 	Suite *s;
-	TCase *tc_database, *tc_words, *tc_translations;
+	TCase *tc_database, *tc_words, *tc_translations, *tc_messaging;
 
 	s = suite_create("libmemo");
 
@@ -569,6 +627,12 @@ database_suite (void) {
 	tcase_add_checked_fixture (tc_translations, database_setup,
 			database_teardown);
 	suite_add_tcase(s, tc_translations);
+
+	tc_messaging = tcase_create("Messaging");
+	tcase_add_test(tc_messaging, messaging_checking_test);
+	tcase_add_checked_fixture (tc_messaging, database_setup,
+			database_teardown);
+	suite_add_tcase(s, tc_messaging);
 
 	return s;
 }

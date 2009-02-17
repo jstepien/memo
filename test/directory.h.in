@@ -1,0 +1,6 @@
+#ifndef TEST/DIRECTORY_H_IN_
+#define TEST/DIRECTORY_H_IN_
+
+#define TEST_SRC_DIR "@top_srcdir@/test"
+
+#endif /* TEST/DIRECTORY_H_IN_ */
