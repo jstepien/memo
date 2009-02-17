@@ -224,6 +224,31 @@ START_TEST (word_delete)
 END_TEST
 
 /*
+ * Inserts a word, copies it and checks whether it has been copied properly.
+ */
+START_TEST (word_copy)
+{
+	memo_word *word, *copy, *tmp_word;
+	word = memo_word_new(db);
+	copy = memo_word_new(db);
+	memo_word_set_value(word, "Test");
+	memo_word_save(word);
+	fail_if(memo_word_copy(copy, word) != 0, 0);
+
+	tmp_word = memo_database_find_word_by_value(db, memo_word_get_value(copy));
+	fail_if(word_cmp(tmp_word, word) != 0, 0);
+	memo_word_free(tmp_word);
+
+	tmp_word = memo_database_find_word(db, memo_word_get_key(copy));
+	fail_if(word_cmp(tmp_word, word) != 0, 0);
+	memo_word_free(tmp_word);
+
+	memo_word_free(word);
+	memo_word_free(copy);
+}
+END_TEST
+
+/*
  * Inserts 2 words and checks whether translation insertion works.
  */
 START_TEST (translation_creation)
@@ -352,10 +377,6 @@ START_TEST (translation_fetching)
 END_TEST
 
 /*
- * TODO: Test memo_word_copy.
- */
-
-/*
  * Prepares the test suite.
  */
 Suite *
@@ -377,6 +398,7 @@ database_suite (void) {
 	tcase_add_test(tc_words, word_get_db);
 	tcase_add_test(tc_words, word_reload);
 	tcase_add_test(tc_words, word_delete);
+	tcase_add_test(tc_words, word_copy);
 	tcase_add_checked_fixture (tc_words, database_setup, database_teardown);
 	suite_add_tcase(s, tc_words);
 
