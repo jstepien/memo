@@ -125,7 +125,7 @@ memo_word_copy(memo_word *dest, memo_word *src) {
 	return 0;
 }
 
-int
+void
 memo_word_free(memo_word *word) {
 	memo_translation *prev, *cur = word->translations;
 	while (cur) {
@@ -134,7 +134,6 @@ memo_word_free(memo_word *word) {
 		free(prev);
 	}
 	free(word);
-	return 0;
 }
 
 int

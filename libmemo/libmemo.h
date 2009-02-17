@@ -40,7 +40,6 @@ typedef sqlite3 memo_database;
 
 /**
  * Prepares a @ref memo_database.
- * @param db A database to be loaded.
  * @param filename A filename of a file with a database.
  * @return 0 in case of success, negative values in case of errors.
  */
@@ -54,11 +53,25 @@ memo_database_open(const char *filename);
 int
 memo_database_close(memo_database *db);
 
+/**
+ * Fetches a word with a given value from the database.
+ * @param db the database to search.
+ * @param value the string we're looking for.
+ * @return pointer to the found word or @c NULL if it wasn't found or errors
+ * have occured.
+ */
 memo_word*
 memo_database_find_word_by_value(memo_database *db, const char* value);
 
+/**
+ * Fetches a word with a given key from the database.
+ * @param db the database to search.
+ * @param key the key we're looking for.
+ * @return pointer to the found word or @c NULL if it wasn't found or errors
+ * have occured.
+ */
 memo_word*
-memo_database_find_word(memo_database *db, int id);
+memo_database_find_word(memo_database *db, int key);
 
 /**
  * @}
@@ -102,7 +115,13 @@ struct memo_word {
 	 * Word's unique key.
 	 */
 	int key;
+	/**
+	 * Positive answers count.
+	 */
 	unsigned positive_answers;
+	/**
+	 * Negative answers count.
+	 */
 	unsigned negative_answers;
 	/**
 	 * Linked list of translations' keys.
@@ -119,6 +138,8 @@ memo_word_new(memo_database *db);
 
 /**
  * Inserts the given word to the database.
+ * This function is not updating an already inserted word - if such behaviour
+ * is necessary use @ref memo_word_update.
  * @return 0 in case of success, negative values in case of errors.
  */
 int
@@ -154,39 +175,100 @@ memo_word_reload_by_value(memo_word *word);
 int
 memo_word_reload(memo_word *word);
 
+/**
+ * Deletes a word from the database.
+ */
 int
 memo_word_delete(memo_word *word);
 
+/**
+ * Fetches positive answers count for a given word.
+ * @return positive answers count.
+ */
 int
 memo_word_get_positive_answers(memo_word *word);
 
+/**
+ * Fetches negative answers count for a given word.
+ * @return negative answers count.
+ */
 int
 memo_word_get_negative_answers(memo_word *word);
 
-int
+/**
+ * Frees the memory occupied by a given @c memo_word.
+ */
+void
 memo_word_free(memo_word *word);
 
+/**
+ * Returns word's database unique key.
+ * @return word's key.
+ */
 int
 memo_word_get_key(memo_word *word);
 
+/**
+ * Returns word's value.
+ * @return word's value.
+ */
 const char*
 memo_word_get_value(memo_word *word);
 
+/**
+ * Sets word's value.
+ * @param word a word.
+ * @param value a string to set the word's value to.
+ * @return 0 in case of success, negative values in case of errors.
+ */
 int
 memo_word_set_value(memo_word *word, const char* value);
 
+/**
+ * Returns a pointer to a database the word's in.
+ * @return the database's address.
+ */
 memo_database*
 memo_word_get_db(memo_word *word);
 
+/**
+ * Copies a word.
+ * The result is just a copy of the @ref memo_word structure. The word cannot
+ * be copied inside of the database due to value's uniqueness.
+ * @param dest the destination (has to be allocated using @ref memo_word_new).
+ * @param src the source word.
+ * @return 0 in case of success, negative values in case of errors.
+ */
 int
 memo_word_copy(memo_word *dest, memo_word *src);
 
+/**
+ * Inserts a new translation to the database.
+ * Adds a (@c w1, @c w2) pair to the translations table.
+ * @return 0 in case of success, negative values in case of errors.
+ */
 int
 memo_word_add_translation(memo_word *w1, memo_word *w2);
 
+/**
+ * Deletes an existing translation from the database.
+ * Finds a (@c w1, @c w2) pair in the translations table and removes it.
+ * @return 0 in case of success, negative values in case of errors.
+ */
 int
 memo_word_delete_translation(memo_word *w1, memo_word *w2);
 
+/**
+ * Returns word's translations.
+ * @param word the word.
+ * @param translations a pointer to an array of pointers to @ref memo_word
+ * structures.
+ * @return non-negative integer equal to the number of the given word's
+ * translations count or negative values in case of errors.
+ *
+ * <strong>Example of usage:</strong>
+ * @include memo_word_get_translations.c
+ */
 int
 memo_word_get_translations(memo_word *word, memo_word ***translations);
 
