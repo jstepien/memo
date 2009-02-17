@@ -21,7 +21,6 @@
 #define LIBMEMO_LIBMEMO_H_
 
 #include <stdio.h>
-#include <sqlite3.h>
 
 typedef struct memo_word memo_word;
 
@@ -31,12 +30,7 @@ typedef struct memo_word memo_word;
  * @{
  */
 
-/**
- * The database.
- * Currently it's an SQLite3 database.
- * @sa http://sqlite.org/
- */
-typedef sqlite3 memo_database;
+typedef struct memo_database memo_database;
 
 /**
  * Prepares a @ref memo_database.

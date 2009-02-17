@@ -20,10 +20,27 @@
 #ifndef LIBMEMO_DATABASE_H_
 #define LIBMEMO_DATABASE_H_
 
+#include <sqlite3.h>
+#include <libmemo.h>
+
 /**
  * @defgroup memo_database memo_database
  * @{
  */
+
+struct memo_database {
+	/**
+	 * Contains the number of INSERT, DELETE and UPDATE queries that have been
+	 * sent to the database.
+	 */
+	unsigned long last_change;
+	/**
+	 * The database.
+	 * Currently it's an SQLite3 database.
+	 * @sa http://sqlite.org/
+	 */
+	sqlite3 *db;
+};
 
 enum memo_database_data_types {
 	INTEGER,
@@ -63,6 +80,19 @@ typedef struct {
 memo_database_data *
 memo_database_data_init();
 
+/**
+ * A callback updating @ref memo_database::last_change.
+ */
+void
+memo_database_update_last_change(void *data, int action, char const *dbname,
+		char const *rowname, sqlite3_int64 rowid);
+
+/**
+ * Returns the ID of the last change to the database.
+ * @return value of @ref memo_database::last_change field.
+ */
+unsigned long
+memo_database_get_last_change(memo_database *db);
 
 /**
  * Frees a memo_database_data structure.

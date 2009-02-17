@@ -53,18 +53,20 @@ memo_database_data_free(memo_database_data * data) {
 
 memo_database*
 memo_database_open(const char *filename) {
-	memo_database *db = xcalloc(1, sizeof(memo_database_data));
-	if ( sqlite3_open(filename, &db) ) {
-		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
-		sqlite3_close(db);
+	memo_database *db = xmalloc(sizeof(memo_database));
+	db->last_change = 0;
+	if ( sqlite3_open(filename, &(db->db)) ) {
+		fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db->db));
+		sqlite3_close(db->db);
 		return NULL;
 	}
 	if (memo_database_init(db)) {
 		fprintf(stderr, "Error initialising database: %s\n",
-				sqlite3_errmsg(db));
-		sqlite3_close(db);
+				sqlite3_errmsg(db->db));
+		sqlite3_close(db->db);
 		return NULL;
 	}
+	sqlite3_update_hook(db->db, &memo_database_update_last_change, db);
 	return db;
 }
 
@@ -73,8 +75,9 @@ memo_database_execute(memo_database *db, const char *query,
 		memo_database_data *ret) {
 	sqlite3_stmt *stmt;
 	int rc;
-	if ( sqlite3_prepare_v2(db, query, -1, &stmt, NULL) ) {
-		fprintf(stderr, "Error parsing SQL query: %s\n", sqlite3_errmsg(db));
+	if (sqlite3_prepare_v2(db->db, query, -1, &stmt, NULL)) {
+		fprintf(stderr, "Error parsing SQL query: %s\n",
+				sqlite3_errmsg(db->db));
 		return -1;
 	}
 	while (1) {
@@ -153,12 +156,14 @@ memo_database_execute(memo_database *db, const char *query,
 			/* A row has been added. */
 			ret->rows++;
 		} else {
-			fprintf(stderr, "Error executing statement: %s\n", sqlite3_errmsg(db));
+			fprintf(stderr, "Error executing statement: %s\n",
+					sqlite3_errmsg(db->db));
 			return -1;
 		}
 	}
 	if ( sqlite3_finalize(stmt) ) {
-		fprintf(stderr, "Error finalising statement: %s\n", sqlite3_errmsg(db));
+		fprintf(stderr, "Error finalising statement: %s\n",
+				sqlite3_errmsg(db->db));
 		return -1;
 	}
 	return 0;
@@ -181,7 +186,7 @@ memo_database_init(memo_database *db) {
 
 int
 memo_database_close(memo_database *db) {
-	sqlite3_close(db);
+	sqlite3_close(db->db);
 	return 0;
 }
 
@@ -232,6 +237,17 @@ memo_database_find_word(memo_database *db, int id) {
 	free(query);
 	memo_database_data_free(results);
 	return word;
+}
+
+void
+memo_database_update_last_change(void *data, int action, char const *dbname,
+		char const *rowname, sqlite3_int64 rowid) {
+	((memo_database*) data)->last_change++;
+}
+
+unsigned long
+memo_database_get_last_change(memo_database *db) {
+	return db->last_change;
 }
 
 /*
