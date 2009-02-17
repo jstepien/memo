@@ -40,6 +40,67 @@ database_teardown() {
 }
 
 /*
+ * Checks whether two words' translations lists contain same keys.
+ * @return 0 if they are identical, 1 otherwise.
+ */
+int
+word_cmp_transl(memo_word *a, memo_word *b) {
+	memo_translation *tr;
+	int counta = 0, countb = 0, *array, i, retval;
+	/*
+	 * Firstly check whether both lists are of equal lenght.
+	 */
+	tr = a->translations;
+	while (tr) {
+		++counta;
+		tr = tr->next;
+	}
+	tr = b->translations;
+	while (tr) {
+		++countb;
+		tr = tr->next;
+	}
+	if (counta != countb)
+		return 1;
+	/*
+	 * We'll fill an array with a's translations' keys and for each b's
+	 * translation's key we'll try to find a field in the array with the same
+	 * value. If found, it will be set to -1. If the table is filled with -1
+	 * and all b's translations' keys have been found, then the translations'
+	 * lists are identical.
+	 *
+	 * The algorithm is terribly slow but on the other hand a quicker test
+	 * based on a balanced BST wouldn't be worth the time spent on
+	 * implementation. Maybe one day I'll come up with something at least
+	 * a bit optimised.
+	 */
+	array = xmalloc(counta*sizeof(int));
+	tr = a->translations;
+	counta = 0;
+	while (tr) {
+		array[counta++] = tr->key;
+		tr = tr->next;
+	}
+	tr = b->translations;
+	while (tr) {
+		for (i = 0; i < counta; ++i)
+			if (array[i] == tr->key) {
+				array[i] = -1;
+				break;
+			}
+		tr = tr->next;
+	}
+	retval = 0;
+	for (i = 0; i < counta; ++i)
+		if (array[i] != -1) {
+			retval = 1;
+			break;
+		}
+	free(array);
+	return retval;
+}
+
+/*
  * Checks whether two words are identical.
  * @return 0 if they are identical, 1 otherwise.
  */
@@ -54,7 +115,8 @@ word_cmp(memo_word *a, memo_word *b) {
 			&& memo_word_get_key(a) == memo_word_get_key(b)
 			&& memo_word_get_negative_answers(a) == memo_word_get_negative_answers(b)
 			&& memo_word_get_positive_answers(a) == memo_word_get_positive_answers(b)
-			&& memo_word_get_db(a) == memo_word_get_db(b))
+			&& memo_word_get_db(a) == memo_word_get_db(b)
+			&& word_cmp_transl(a, b) == 0)
 		return 0;
 	return 1;
 }
