@@ -53,12 +53,14 @@ fi
 
 AC_PROG_LIBTOOL
 
+DEF_CFLAGS='-DTOP_SRCDIR=\""${top_srcdir}\""'
+CFLAGS="$CFLAGS $DEF_CFLAGS"
+
 AC_CONFIG_FILES([Makefile
                  common/Makefile
                  libmemo/Makefile
                  src/Makefile
                  test/Makefile
-                 test/directory.h
                  doc/Makefile
                  memo
                  Doxyfile])

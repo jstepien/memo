@@ -5,7 +5,6 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
-#include "directory.h"
 
 #define DBNAME "./tmpdb"
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
@@ -559,7 +558,7 @@ START_TEST (messaging_checking_test)
 	for (i = 0; i < words/2; ++i)
 		fail_if(memo_word_add_translation(w[i], w[i+(words/2)]), 0);
 
-	fail_unless(f = fopen(TEST_SRC_DIR"/reply1.eml", "r"));
+	fail_unless(f = fopen(TOP_SRCDIR"/test/reply1.eml", "r"));
 	fail_if(memo_check_reply(f, db, 0));
 	fclose(f);
 
