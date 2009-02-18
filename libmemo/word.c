@@ -75,7 +75,29 @@ memo_word_save(memo_word *word) {
 
 int
 memo_word_update(memo_word *word) {
-	return -1;
+	const char query_template[] = "UPDATE words "
+		"SET word=\"%s\", positive_answers=%i, negative_answers=%i "
+		"WHERE id==%i";
+	char *query;
+	int word_length;
+
+	word_length = strlen(memo_word_get_value(word));
+	if (word_length < 1)
+		return -1;
+
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length-1));
+
+	/* memo_word_get_* functions cannot be used here as they would force an
+	 * automatical update and the value we'd want to save in the database
+	 * would get overwritten with the old value from the database. */
+	sprintf(query, query_template, word->value, word->positive_answers,
+			word->negative_answers, word->key);
+	if (memo_database_execute(memo_word_get_db(word), query, NULL) < 0)
+		return -1;
+
+	free(query);
+
+	return 0;
 }
 
 int

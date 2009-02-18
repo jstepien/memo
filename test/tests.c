@@ -286,6 +286,40 @@ START_TEST (word_delete)
 END_TEST
 
 /*
+ * Checks if memo_word_update updates word's row in the database properly.
+ * Another word is created after the first word is saved but before it's updated
+ * so we're also checking if the function handles such cases properly (i.e.
+ * doesn't automatically reload first word's contents as the database's last
+ * change number has changed).
+ */
+START_TEST (word_update)
+{
+	memo_word *w1, *w2;
+	const char str1[] = "qwe", str2[] = "asd", str3[] = "zxc";
+	w1 = memo_word_new(db);
+	memo_word_set_value(w1, str1);
+	memo_word_save(w1);
+
+	w2 = memo_word_new(db);
+	memo_word_set_value(w2, str1);
+
+	memo_word_set_value(w1, str3);
+	fail_if(memo_word_update(w1) != 0);
+
+	memo_word_save(w2);
+
+	fail_if(strcmp(memo_word_get_value(w1), str3) != 0);
+
+	memo_word_free(w1);
+	memo_word_free(w2);
+
+	fail_if((w2 = memo_database_find_word_by_value(db, str3)) == NULL);
+
+	memo_word_free(w2);
+}
+END_TEST
+
+/*
  * Inserts a word, copies it and checks whether it has been copied properly.
  */
 START_TEST (word_copy)
@@ -612,6 +646,7 @@ database_suite (void) {
 	tcase_add_test(tc_words, word_get_db);
 	tcase_add_test(tc_words, word_reload);
 	tcase_add_test(tc_words, word_delete);
+	tcase_add_test(tc_words, word_update);
 	tcase_add_test(tc_words, word_copy);
 	tcase_add_test(tc_words, word_auto_reload);
 	tcase_add_checked_fixture (tc_words, database_setup, database_teardown);
