@@ -644,9 +644,9 @@ START_TEST (messaging_checking_test)
 	fail_if(memo_word_get_positive_answers(w[6]) != answers[6][0], 0);
 	fail_if(memo_word_get_negative_answers(w[6]) != answers[6][1], 0);
 	fail_if(memo_word_get_positive_answers(w[7]) != answers[7][0], 0);
-	fail_if(memo_word_get_negative_answers(w[7]) != answers[7][1]+1, 0);
+	fail_if(memo_word_get_negative_answers(w[7]) != answers[7][1], 0);
 	fail_if(memo_word_get_positive_answers(w[8]) != answers[8][0], 0);
-	fail_if(memo_word_get_negative_answers(w[8]) != answers[8][1], 0);
+	fail_if(memo_word_get_negative_answers(w[8]) != answers[8][1]+1, 0);
 	fail_if(memo_word_get_positive_answers(w[9]) != answers[9][0], 0);
 	fail_if(memo_word_get_negative_answers(w[9]) != answers[9][1], 0);
 

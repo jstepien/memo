@@ -53,7 +53,7 @@ fi
 
 AC_PROG_LIBTOOL
 
-DEF_CFLAGS='-DTOP_SRCDIR=\""${top_srcdir}\""'
+DEF_CFLAGS='-DLIBDIR=\""${libdir}/memo\"" -DTOP_SRCDIR=\""${top_srcdir}\""'
 CFLAGS="$CFLAGS $DEF_CFLAGS"
 
 AC_CONFIG_FILES([Makefile
