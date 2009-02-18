@@ -374,6 +374,37 @@ START_TEST (word_auto_reload)
 END_TEST
 
 /*
+ * Check if pos/neg answers count changing functions work.
+ */
+START_TEST (word_answers_count_changing)
+{
+	const char str[] = "memo";
+	const int pos = 15, neg =  21;
+	memo_word *word;
+	word = memo_word_new(db);
+	memo_word_set_value(word, str);
+	memo_word_set_positive_answers(word, pos);
+	memo_word_set_negative_answers(word, neg);
+	memo_word_save(word);
+	memo_word_free(word);
+
+	word = memo_database_find_word_by_value(db, str);
+	fail_if(memo_word_get_positive_answers(word) != pos);
+	fail_if(memo_word_get_negative_answers(word) != neg);
+	memo_word_inc_positive_answers(word);
+	memo_word_inc_negative_answers(word);
+	memo_word_inc_negative_answers(word);
+	fail_if(memo_word_update(word) != 0);
+	memo_word_free(word);
+
+	word = memo_database_find_word_by_value(db, str);
+	fail_if(memo_word_get_positive_answers(word) != pos+1);
+	fail_if(memo_word_get_negative_answers(word) != neg+2);
+	memo_word_free(word);
+}
+END_TEST
+
+/*
  * Inserts 2 words and checks whether translation insertion works.
  */
 START_TEST (translation_creation)
@@ -649,6 +680,7 @@ database_suite (void) {
 	tcase_add_test(tc_words, word_update);
 	tcase_add_test(tc_words, word_copy);
 	tcase_add_test(tc_words, word_auto_reload);
+	tcase_add_test(tc_words, word_answers_count_changing);
 	tcase_add_checked_fixture (tc_words, database_setup, database_teardown);
 	suite_add_tcase(s, tc_words);
 

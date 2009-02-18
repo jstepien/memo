@@ -30,6 +30,7 @@ memo_word_new(memo_database *db) {
 	w = xcalloc(1, sizeof(memo_word));
 	w->key = -1;
 	w->db = db;
+	w->db_last_change = db->last_change;
 	return w;
 }
 
@@ -45,7 +46,9 @@ memo_word_auto_reload(memo_word *word) {
 
 int
 memo_word_save(memo_word *word) {
-	const char query_template[] = "INSERT INTO words (word) VALUES (\"%s\");";
+	const char query_template[] = ""
+		"INSERT INTO words (word, positive_answers, "
+		"negative_answers) VALUES (\"%s\", \"%i\", \"%i\");";
 	char *query;
 	memo_word *tmp_word;
 	int word_length;
@@ -62,9 +65,12 @@ memo_word_save(memo_word *word) {
 		return -1;
 	}
 
-	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length-1));
+	/* FIXME: no one knows will it really be enough memory. */
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length+10));
 
-	sprintf(query, query_template, memo_word_get_value(word));
+	sprintf(query, query_template, memo_word_get_value(word),
+			memo_word_get_positive_answers(word),
+			memo_word_get_negative_answers(word));
 	if (memo_database_execute(memo_word_get_db(word), query, NULL) < 0)
 		return -1;
 
@@ -180,6 +186,26 @@ memo_word_get_positive_answers(memo_word *word) {
 	return word->positive_answers;
 }
 
+void
+memo_word_set_positive_answers(memo_word *word, unsigned value) {
+	word->positive_answers = value;
+}
+
+void
+memo_word_set_negative_answers(memo_word *word, unsigned value) {
+	word->negative_answers = value;
+}
+
+void
+memo_word_inc_positive_answers(memo_word *word) {
+	++word->positive_answers;
+}
+
+void
+memo_word_inc_negative_answers(memo_word *word) {
+	++word->negative_answers;
+}
+
 int
 memo_word_get_key(memo_word *word) {
 	/* No auto reload here as key should be constant. */
@@ -222,6 +248,8 @@ memo_word_load_from_database_data(memo_database *db,
 			return NULL;
 		word->key = (int) data->data[0][0];
 		memo_word_set_value(word, data->data[0][1]);
+		memo_word_set_positive_answers(word, data->data[0][2]);
+		memo_word_set_negative_answers(word, data->data[0][3]);
 		word->db = db;
 		word->db_last_change = memo_database_get_last_change(db);
 

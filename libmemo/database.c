@@ -194,8 +194,9 @@ memo_word*
 memo_database_find_word_by_value(memo_database *db, const char* value) {
 	memo_word *word;
 	memo_database_data *results;
-	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
-			"word == \"%s\";";
+	const char word_sel_templ[] = ""
+		"SELECT id, word, positive_answers, negative_answers FROM words "
+		"WHERE word == \"%s\";";
 	char *query;
 
 	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+strlen(value)-1));
@@ -217,8 +218,9 @@ memo_word*
 memo_database_find_word(memo_database *db, int id) {
 	memo_word *word;
 	memo_database_data *results;
-	const char word_sel_templ[] = "SELECT id, word FROM words WHERE " \
-			"id == %i;";
+	const char word_sel_templ[] = ""
+		"SELECT id, word, positive_answers, negative_answers FROM words "
+		"WHERE id == %i;";
 	char *query;
 
 	/* In the following malloc call we're hoping that log10(id) < 16 .

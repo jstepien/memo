@@ -196,6 +196,30 @@ int
 memo_word_get_negative_answers(memo_word *word);
 
 /**
+ * Set's words positive answers count to the given value.
+ */
+void
+memo_word_set_positive_answers(memo_word *word, unsigned value);
+
+/**
+ * Set's words negative answers count to the given value.
+ */
+void
+memo_word_set_negative_answers(memo_word *word, unsigned value);
+
+/**
+ * Increments words positive answers count by one.
+ */
+void
+memo_word_inc_positive_answers(memo_word *word);
+
+/**
+ * Increments words negative answers count by one.
+ */
+void
+memo_word_inc_negative_answers(memo_word *word);
+
+/**
  * Frees the memory occupied by a given @c memo_word.
  */
 void
