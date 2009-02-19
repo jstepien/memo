@@ -29,6 +29,8 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 
 AC_FUNC_MALLOC
 AC_FUNC_REALLOC
+AC_FUNC_FORK
+AC_CHECK_FUNCS([dup2], , [AC_MSG_ERROR([cannot find dup2 function])])
 
 AC_TYPE_SIZE_T
 

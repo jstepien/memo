@@ -17,10 +17,13 @@
  * along with Memo.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <stdio.h>
+#include <sys/wait.h>
 #include <libmemo.h>
 #include <errno.h>
 #include <unistd.h>
 #include <errno.h>
+#include "messages.h"
 #include "xmalloc.h"
 #include "macros.h"
 

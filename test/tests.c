@@ -1,10 +1,12 @@
 #include <libmemo.h>
+#include <stdio.h>
 #include <check.h>
 #include <assert.h>
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include "xmalloc.h"
 
 #define DBNAME "./tmpdb"
 #define ERR_LOAD "Cannot load a database in "DBNAME"."
@@ -605,7 +607,7 @@ END_TEST
  */
 START_TEST (messaging_checking_test)
 {
-	const int words = 10;
+#define words 10
 	int i, answers[words][2];
 	memo_word *w[words];
 	char value[11];
@@ -652,6 +654,7 @@ START_TEST (messaging_checking_test)
 
 	for (i = 0; i < words; ++i)
 		memo_word_free(w[i]);
+#undef words
 }
 END_TEST
 
