@@ -76,22 +76,23 @@ add_pair(int argc, const char *argv[]) {
 }
 
 void
-print_usage() {
-	printf(usage, program_name);
-	exit(0);
+check_reply(int argc, const char *argv[]) {
+	memo_database *db = open_database();
+	FILE *f;
+	if (argc == 1) {
+		f = fopen(argv[0], "r");
+		if (!f)
+			die("Can't open '%s'\n", argv[0]);
+	} else
+		f = stdin;
+	if (memo_check_reply(f, db, NULL))
+		die("memo_check_reply failed\n");
+	memo_database_close(db);
 }
 
 void
-print_help() {
-	const char help_message[] = \
-		"Possible commands are:\n"\
-		"  --help       Prints this message\n"\
-		"  --usage      Displays brief usage information\n"\
-		"  --version    Displays version information\n"\
-		"  --add-pair   Adds a new pair of phrases to the database\n"\
-		"";
+print_usage() {
 	printf(usage, program_name);
-	printf(help_message);
 	exit(0);
 }
 
@@ -115,6 +116,22 @@ parse_args(int argc, const char *argv[], action actions[]) {
 	return -1;
 }
 
+void
+print_help() {
+	const char help_message[] = \
+		"Possible commands are:\n"\
+		"  --help                Prints this message\n"
+		"  --usage               Displays brief usage information\n"
+		"  --version             Displays version information\n"
+		"  --add-pair            Adds a new pair of phrases to the database\n"
+		"  --check-reply [file]  Reads a reply to a test from the given file\n"
+		"                        or stdin if no filename is provided.\n"
+		"";
+	printf(usage, program_name);
+	printf(help_message);
+	exit(0);
+}
+
 int
 parse_main_args(int argc, const char *argv[]) {
 	action actions[] = {
@@ -122,6 +139,7 @@ parse_main_args(int argc, const char *argv[]) {
 		{"--usage", &print_usage},
 		{"--version", &print_version},
 		{"--add-pair", &add_pair},
+		{"--check-reply", &check_reply},
 		{NULL, NULL}
 	};
 	program_name = (char*) argv[0];
