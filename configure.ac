@@ -35,6 +35,9 @@ AC_CHECK_FUNCS([dup2], , [AC_MSG_ERROR([cannot find dup2 function])])
 AC_TYPE_SIZE_T
 
 AX_LIB_SQLITE3
+if test x$have_sqlite3 != xtrue; then
+    AC_MSG_ERROR([cannot find SQLite3])
+fi
 LDFLAGS="$LDFLAGS $SQLITE3_LDFLAGS"
 CFLAGS="$CFLAGS $SQLITE3_CFLAGS"
 
