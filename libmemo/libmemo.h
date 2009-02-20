@@ -68,6 +68,21 @@ memo_word*
 memo_database_find_word(memo_database *db, int key);
 
 /**
+ * Chooses a set of words to be sent to the user.
+ *
+ * Currently it chooses words of highest negative to positive answers ratio.
+ * It is hoped that a better algorithm will be implemented in foreseeable
+ * future.
+ *
+ * The result array has to be freed.
+ * @param db a database to take the words from.
+ * @param count number of words to fetch.
+ * @return an array of pointers to chosen words.
+ */
+memo_word**
+memo_database_words_to_test(memo_database *db, int count);
+
+/**
  * @}
  */
 

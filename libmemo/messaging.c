@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <errno.h>
+#include <time.h>
 #include "messages.h"
 #include "xmalloc.h"
 #include "macros.h"
@@ -32,8 +33,25 @@
 #define failed(x) die("%s failed at %s:%i\n", x, __FILE__, __LINE__)
 
 int
-memo_send_test(memo_database *db, unsigned words, const char *email) {
-	return -1;
+memo_send_test(memo_database *db, unsigned count, const char *email) {
+	const char command_templ[] = "mailx \"%s\" -s \"memo [%i]\"";
+	FILE *mailx;
+	char *command;
+	memo_word **words;
+	int i;
+	command = xmalloc(ARRAY_SIZE(command_templ) + strlen(email) + 12);
+	sprintf(command, command_templ, email, time(0));
+	words = memo_database_words_to_test(db, count);
+	mailx = popen(command, "w");
+	for (i = 0; i < count && words[i]; ++i) {
+		fprintf(mailx, "%s = \n", memo_word_get_value(words[i]));
+		memo_word_free(words[i]);
+	}
+	free(words);
+	free(command);
+	if (pclose(mailx) < 0)
+		return -1;
+	return 0;
 }
 
 /*

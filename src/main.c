@@ -91,6 +91,14 @@ check_reply(int argc, const char *argv[]) {
 }
 
 void
+send_test(int argc, const char *argv[]) {
+	memo_database *db = open_database();
+	if (memo_send_test(db, 5, "jstepien@users.sourceforge.net"))
+		die("memo_send_test failed\n");
+	memo_database_close(db);
+}
+
+void
 print_usage() {
 	printf(usage, program_name);
 	exit(0);
@@ -120,12 +128,13 @@ void
 print_help() {
 	const char help_message[] = \
 		"Possible commands are:\n"\
-		"  --help                Prints this message\n"
-		"  --usage               Displays brief usage information\n"
-		"  --version             Displays version information\n"
-		"  --add-pair            Adds a new pair of phrases to the database\n"
-		"  --check-reply [file]  Reads a reply to a test from the given file\n"
-		"                        or stdin if no filename is provided.\n"
+		"  --help            Prints this message\n"
+		"  --usage           Displays brief usage information\n"
+		"  --version         Displays version information\n"
+		"  --add-pair        Adds a new pair of phrases to the database\n"
+		"  --receive [file]  Reads a reply to a test from the given file\n"
+		"                    or stdin if no filename is provided\n"
+		"  --send            Sends a test to the user\n"
 		"";
 	printf(usage, program_name);
 	printf(help_message);
@@ -139,7 +148,8 @@ parse_main_args(int argc, const char *argv[]) {
 		{"--usage", &print_usage},
 		{"--version", &print_version},
 		{"--add-pair", &add_pair},
-		{"--check-reply", &check_reply},
+		{"--receive", &check_reply},
+		{"--send", &send_test},
 		{NULL, NULL}
 	};
 	program_name = (char*) argv[0];

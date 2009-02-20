@@ -278,10 +278,10 @@ memo_database_load_words_from_database_data(memo_database *db,
 		words[i] = memo_word_new(db);
 		if (!words[i])
 			return NULL;
-		words[i]->key = (int) data->data[0][0];
-		memo_word_set_value(words[i], data->data[0][1]);
-		memo_word_set_positive_answers(words[i], (int) data->data[0][2]);
-		memo_word_set_negative_answers(words[i], (int) data->data[0][3]);
+		words[i]->key = (int) data->data[i][0];
+		memo_word_set_value(words[i], data->data[i][1]);
+		memo_word_set_positive_answers(words[i], (int) data->data[i][2]);
+		memo_word_set_negative_answers(words[i], (int) data->data[i][3]);
 		words[i]->db = db;
 		words[i]->db_last_change = memo_database_get_last_change(db);
 
@@ -310,6 +310,30 @@ memo_database_load_words_from_database_data(memo_database *db,
 		}
 		memo_database_data_free(transl_data);
 	}
+	return words;
+}
+
+memo_word**
+memo_database_words_to_test(memo_database *db, int count) {
+	memo_word **words;
+	memo_database_data *results;
+	const char word_sel_templ[] = ""
+		"SELECT id, word, positive_answers, negative_answers FROM words "
+		"ORDER BY (negative_answers / positive_answers) DESC LIMIT %i;";
+	char *query;
+
+	query = xmalloc(sizeof(char) * (ARRAY_SIZE(word_sel_templ)+16));
+	results = memo_database_data_init();
+
+	if (!results)
+		return NULL;
+
+	sprintf(query, word_sel_templ, count);
+	if (memo_database_execute(db, query, results) < 0)
+		return NULL;
+	words = memo_database_load_words_from_database_data(db, results);
+	free(query);
+	memo_database_data_free(results);
 	return words;
 }
 
