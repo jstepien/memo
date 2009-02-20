@@ -1,3 +1,169 @@
+2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/main.c: User's e-mail address is set in MEMO_EMAIL environment
+	variable.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/Makefile.am: Added messaging.h to libmemo_la_SOURCES in
+	libmemo/Makefile.am.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* Makefile.am, configure.ac, general.sh, globals.sh, memo.in, receiving.sh,
+	sending.sh: Removed old shell scripts.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/messaging.c: memo_send_test adds a footer to the e-mail.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/messaging.c, libmemo/parse-reply.pl, src/main.c, test/tests.c:
+	Added license information and Vim formatting line to files lacking them.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c, libmemo/libmemo.h, libmemo/messaging.c, src/main.c:
+	Simple test sending functions are ready. memo_database_words_to_test
+	prepares a set of tests to be sent. Words are collected by memo_send_test
+	which spawns mailx and pipes to it the message body.  The feature described
+	above has been added to Memo CLI. Additionally some fixes has been done in
+	libmemo/database.c.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* configure.ac, m4/ax_lib_sqlite3.m4: Updates in AX_LIB_SQLITE3 m4 macro.
+
+2009-02-20  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c, libmemo/database.h:
+	memo_database_load_words_from_database_data works for multiple words.  It
+	returns an array of pointers to memo_word structs (remember to free it).
+
+2009-02-19  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/messaging.c, libmemo/messaging.h: Refactoring in
+	libmemo/messaging.c.
+
+2009-02-19  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* configure.ac, libmemo/database.c, libmemo/database.h, libmemo/messaging.c,
+	libmemo/word.c, m4/ax_lib_sqlite3.m4, test/Makefile.am, test/tests.c: A
+	bunch of small fixes. Checking for fork(2) and dup2(2) in configure.ac.
+	memo_word_load_from_database_data renamed to
+	memo_database_load_word_from_database_data (therefore moving to the database
+	module) and added it's header and a bit of documentation to
+	libmemo/database.h. Added some includes to libmemo/messaging.c.	Removed
+	AC_LANG_{PUSH,POP}(C++) from AX_LIB_SQLITE macro making the configure run
+	shorter as it doesn't search for a C++ compiler. Added new common to include
+	list in test/Makefile.am. Small fixes in test/test.cc eliminating some GCC
+	warnings.
+
+2009-02-19  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/main.c: Added --check-reply to memo.
+
+2009-02-18  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* configure.ac, libmemo/Makefile.am, libmemo/messaging.c,
+	libmemo/parse-reply.pl, test/tests.c: Test of replies parsing functions has
+	been passed. The memo_check_reply function forks and executes a Perl script
+	which parses the body of an e-mail and extracts question-answer pairs.
+	These are subsequently read by the main process which checks if they match
+	in the database and updates positive or negative answers count.
+	Unfortunately the current implementation does not work before running make
+	install because parse-reply.pl cannot be found in $libdir/memo.
+
+2009-02-18  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c, libmemo/libmemo.h, libmemo/word.c, test/tests.c: Added
+	answers' count modifying functions. This required some other changes, e.g.
+	getting answers' numbers from the database and inserting them in
+	memo_word_save.
+
+2009-02-18  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/word.c, test/tests.c: Implemented and tested memo_word_update.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* configure.ac, test/directory.h.in, test/tests.c: Removed directory.h.in as
+	a better solution has been found.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* configure.ac, libmemo/Makefile.am, libmemo/libmemo.h, libmemo/messaging.c,
+	test/Makefile.am, test/directory.h.in, test/reply1.eml, test/tests.c:
+	Prepared signatures and tests for reply checking functions.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/libmemo.h, libmemo/word.c, test/tests.c: Auto reloading
+	implemented (including tests).
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* test/tests.c: Implemented a comparison of lists of word's translations.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c, libmemo/database.h, libmemo/libmemo.h: Added changes
+	counter to memo_database. Now memo_database is a struct containing a
+	pointer to SQLite database and a long integer representing a changes
+	counter. The counter is incremented each time an INSERT, UPDATE or DELETE
+	query is sent to the database. It will allow memo_word structs to
+	automatically update themselves by checking if the changes counter has been
+	incremented since the last update.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* Doxyfile.in, doc/Makefile.am, doc/memo_word_get_translations.c,
+	libmemo/libmemo.h, libmemo/word.c: Documenting, minor changes in code.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* Makefile.am: If configured with Check, distcheck will also run with Check.
+
+2009-02-17  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* test/tests.c: Added a test for memo_word_copy.
+
+2009-02-16  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/libmemo.h, libmemo/word.c, test/tests.c: get_translations: fixed
+	the test and made the function pass it. Additionally fixed memory freeing in
+	the test.
+
+2009-02-16  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/libmemo.h, libmemo/word.c, test/tests.c: Created signature
+	and test for memo_word_get_translations function.
+
+2009-02-16  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* test/tests.c: Changed naming convention in test/tests.c.
+
+2009-02-16  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/database.c, libmemo/libmemo.h, libmemo/word.c, src/main.c,
+	test/tests.c: Moved word searching functions to database module. It seems
+	more logical, as memo_word_find* functions were operating on a memo_database
+	object and memo_word was only a result of their work. The modifications
+	involve only changes in naming and moving from one file to another.
+
+2009-02-16  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/word.c: Small fix in memo_word_save.
+
+2009-02-16  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/{database.[ch],word.c,libmemo.h}, src/main.c, test/tests.c:
+	memo_database is passed to functions as address. memo_database struct is
+	now an alias for sqlite3 (instead of sqlite3*). This change allowed to
+	modify headers of all functions taking a memo_database as an argument
+	without changing the bodies.
+
 2009-02-15  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* libmemo/Makefile.am, src/Makefile.am, test/tests.c: Small fixes:
