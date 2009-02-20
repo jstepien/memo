@@ -192,7 +192,7 @@ memo_database_close(memo_database *db) {
 
 memo_word*
 memo_database_find_word_by_value(memo_database *db, const char* value) {
-	memo_word *word;
+	memo_word **words, *word;
 	memo_database_data *results;
 	const char word_sel_templ[] = ""
 		"SELECT id, word, positive_answers, negative_answers FROM words "
@@ -208,7 +208,12 @@ memo_database_find_word_by_value(memo_database *db, const char* value) {
 	sprintf(query, word_sel_templ, value);
 	if (memo_database_execute(db, query, results) < 0)
 		return NULL;
-	word = memo_database_load_word_from_database_data(db, results);
+	if (words = memo_database_load_words_from_database_data(db, results)) {
+		word = words[0];
+		free(words);
+	}
+	else
+		word = NULL;
 	free(query);
 	memo_database_data_free(results);
 	return word;
@@ -216,7 +221,7 @@ memo_database_find_word_by_value(memo_database *db, const char* value) {
 
 memo_word*
 memo_database_find_word(memo_database *db, int id) {
-	memo_word *word;
+	memo_word *word, **words;
 	memo_database_data *results;
 	const char word_sel_templ[] = ""
 		"SELECT id, word, positive_answers, negative_answers FROM words "
@@ -235,7 +240,12 @@ memo_database_find_word(memo_database *db, int id) {
 	sprintf(query, word_sel_templ, id);
 	if (memo_database_execute(db, query, results) < 0)
 		return NULL;
-	word = memo_database_load_word_from_database_data(db, results);
+	if (words = memo_database_load_words_from_database_data(db, results)) {
+		word = words[0];
+		free(words);
+	}
+	else
+		word = NULL;
 	free(query);
 	memo_database_data_free(results);
 	return word;
@@ -252,57 +262,55 @@ memo_database_get_last_change(memo_database *db) {
 	return db->last_change;
 }
 
-memo_word*
-memo_database_load_word_from_database_data(memo_database *db,
+memo_word**
+memo_database_load_words_from_database_data(memo_database *db,
 		memo_database_data *data) {
-	const char trans_sel_templ[] = "SELECT word_id, translation_id from " \
-			"translations where word_id == %i OR translation_id == %i;";
-	char *query;
-	memo_word *word;
-	memo_database_data *results;
-	if ( data->rows == 1 ) {
-		char *tmp;
-		word = memo_word_new(db);
-		if (!word)
+	const char trans_sel_templ[] = "SELECT word_id, translation_id from "
+		"translations where word_id == %i OR translation_id == %i;";
+	char query[ARRAY_SIZE(trans_sel_templ)+32];
+	memo_word **words;
+	memo_database_data *transl_data;
+	int i;
+	if (data->rows < 1)
+		return NULL;
+	words = xcalloc(data->rows, sizeof(memo_word*));
+	for (i = 0; i < data->rows; ++i) {
+		words[i] = memo_word_new(db);
+		if (!words[i])
 			return NULL;
-		word->key = (int) data->data[0][0];
-		memo_word_set_value(word, data->data[0][1]);
-		memo_word_set_positive_answers(word, (int) data->data[0][2]);
-		memo_word_set_negative_answers(word, (int) data->data[0][3]);
-		word->db = db;
-		word->db_last_change = memo_database_get_last_change(db);
+		words[i]->key = (int) data->data[0][0];
+		memo_word_set_value(words[i], data->data[0][1]);
+		memo_word_set_positive_answers(words[i], (int) data->data[0][2]);
+		memo_word_set_negative_answers(words[i], (int) data->data[0][3]);
+		words[i]->db = db;
+		words[i]->db_last_change = memo_database_get_last_change(db);
 
-		query = xmalloc(sizeof(char) * (ARRAY_SIZE(trans_sel_templ)+32));
-		data = memo_database_data_init();
-		if (!data)
+		sprintf(query, trans_sel_templ, memo_word_get_key(words[i]),
+				memo_word_get_key(words[i]));
+		transl_data = memo_database_data_init();
+		if (memo_database_execute(db, query, transl_data) < 0)
 			return NULL;
-
-		sprintf(query, trans_sel_templ, memo_word_get_key(word),
-				memo_word_get_key(word));
-		if (memo_database_execute(db, query, data) < 0)
-			return NULL;
-		else if	(data->rows == 0)
-			word->translations = NULL;
+		else if	(transl_data->rows == 0)
+			words[i]->translations = NULL;
 		else {
-			int i;
+			int j;
 			memo_translation **last;
-			last = &word->translations;
-			for (i = 0; i < data->rows; i++) {
+			last = &words[i]->translations;
+			for (j = 0; j < transl_data->rows; j++) {
 				memo_translation *t;
 				t = xcalloc(1, sizeof(memo_translation));
 				*last = t;
-				if (memo_word_get_key(word) == (int) data->data[i][0])
-					t->key = (int) data->data[i][1];
+				if (memo_word_get_key(words[i]) ==
+						(int) transl_data->data[j][0])
+					t->key = (int) transl_data->data[j][1];
 				else
-					t->key = (int) data->data[i][0];
+					t->key = (int) transl_data->data[j][0];
 				last = &t->next;
 			}
 		}
-		memo_database_data_free(data);
-		free(query);
-	} else
-		return NULL;
-	return word;
+		memo_database_data_free(transl_data);
+	}
+	return words;
 }
 
 /*

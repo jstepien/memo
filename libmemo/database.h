@@ -127,8 +127,8 @@ memo_database_init(memo_database *db);
  * @param data data fetched from db to be inserted into the structure.
  * @return a new @ref memo_word structure.
  */
-memo_word*
-memo_database_load_word_from_database_data(memo_database *db,
+memo_word**
+memo_database_load_words_from_database_data(memo_database *db,
 		memo_database_data *data);
 
 /**
