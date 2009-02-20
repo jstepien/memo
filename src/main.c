@@ -93,7 +93,10 @@ check_reply(int argc, const char *argv[]) {
 void
 send_test(int argc, const char *argv[]) {
 	memo_database *db = open_database();
-	if (memo_send_test(db, 5, "jstepien@users.sourceforge.net"))
+	const char *email = getenv("MEMO_EMAIL");
+	if (!email)
+		die("MEMO_EMAIL environment variable is not set.\n");
+	if (memo_send_test(db, 5, ""))
 		die("memo_send_test failed\n");
 	memo_database_close(db);
 }
