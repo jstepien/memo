@@ -23,3 +23,5 @@ while (<STDIN>) {
 		print "$1\n$2\n";
 	}
 }
+
+# vim:ts=4:noet:tw=78

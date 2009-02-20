@@ -164,3 +164,7 @@ main (int argc, const char *argv[]) {
 	parse_main_args(argc, argv);
 	return 0;
 }
+
+/*
+ * vim:ts=4:noet:tw=78
+ */

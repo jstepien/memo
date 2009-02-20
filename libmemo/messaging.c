@@ -139,3 +139,7 @@ read_data_from_checking_script(int fd, memo_database *db) {
 		}
 	}
 }
+
+/*
+ * vim:ts=4:noet:tw=78
+ */
