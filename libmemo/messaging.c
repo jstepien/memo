@@ -41,11 +41,11 @@ memo_send_test(memo_database *db, unsigned count, const char *email) {
 	char *command;
 	memo_word **words;
 	int i;
+	command = xmalloc(ARRAY_SIZE(command_templ) + strlen(email) + 12);
+	sprintf(command, command_templ, email, time(0));
 	mailx = popen(command, "w");
 	if (!mailx)
 		failed("popen");
-	command = xmalloc(ARRAY_SIZE(command_templ) + strlen(email) + 12);
-	sprintf(command, command_templ, email, time(0));
 	words = memo_database_words_to_test(db, count);
 	for (i = 0; i < count && words[i]; ++i) {
 		fprintf(mailx, "%s = \n", memo_word_get_value(words[i]));
