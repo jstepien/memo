@@ -61,12 +61,30 @@ AC_PROG_LIBTOOL
 DEF_CFLAGS='-DLIBDIR=\""${libdir}/memo\"" -DTOP_SRCDIR=\""${top_srcdir}\""'
 CFLAGS="$CFLAGS $DEF_CFLAGS"
 
+AC_ARG_ENABLE([website],
+            AC_HELP_STRING([--enable-website],
+                           [enable website generation (default=no)]),
+                           [case "${enableval}" in
+                              yes) enable_website=true ;;
+                              no)  enable_website=false ;;
+                              *) AC_MSG_ERROR([bad value '${enableval}' for --enable-website]) ;;
+                            esac], [enable_website=false])
+AM_CONDITIONAL([ENABLE_WEBSITE], [test x$enable_website = xtrue])
+
+if test x$enable_website = xtrue; then
+    AC_PATH_PROG([IKIWIKI], [ikiwiki], [failed])
+    if test x$IKIWIKI = xfailed; then
+        AC_MSG_ERROR([cannot find ikiwiki (required by --enable-website)])
+    fi
+fi
+
 AC_CONFIG_FILES([Makefile
                  common/Makefile
                  libmemo/Makefile
                  src/Makefile
                  test/Makefile
                  doc/Makefile
+                 website/Makefile
                  Doxyfile])
 AC_OUTPUT
 

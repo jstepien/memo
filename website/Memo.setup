@@ -1,0 +1,66 @@
+#!/usr/bin/perl
+use IkiWiki::Setup::Standard {
+	wikiname => 'Memo',
+	adminemail => 'jstepien.users.sourceforge.net',
+	srcdir => './',
+	destdir => './dest',
+	url => 'http://www.nongnu.org/memo/',
+	add_plugins => [qw{goodstuff favicon}],
+	disable_plugins => [qw{recentchanges}],
+	templatedir => '/usr/share/ikiwiki/templates',
+	underlaydir => '/usr/share/ikiwiki/basewiki',
+	usedirs => 1,
+	prefix_directives => 1,
+	indexpages => 0,
+	discussion => 0,
+	sslcookie => 0,
+	default_pageext => 'mdwn',
+	htmlext => 'html',
+	timeformat => '%c',
+	locale => 'en_US.UTF-8',
+	userdir => '',
+	numbacklinks => 10,
+	hardlink => 0,
+	ENV => {},
+	wiki_file_chars => '-[:alnum:]+/.:_',
+	# allow symlinks in the path leading to the srcdir (potentially insecure)
+	allow_symlinks_before_srcdir => 0,
+
+	# aggregate plugin
+	# enable aggregation to internal pages?
+	#aggregateinternal => 1,
+	# allow aggregation to be triggered via the web?
+	#aggregate_webtrigger => 0,
+
+	# camelcase plugin
+	# list of words to not turn into links
+	#camelcase_ignore => [],
+
+	# inline plugin
+	# enable rss feeds by default?
+	rss => 1,
+	# enable atom feeds by default?
+	atom => 1,
+	# allow rss feeds to be used?
+	#allowrss => 0,
+	# allow atom feeds to be used?
+	#allowatom => 0,
+	# urls to ping (using XML-RPC) on feed update
+	#pingurl => 'http://rpc.technorati.com/rpc/ping',
+
+	# listdirectives plugin
+	# directory in srcdir that contains directive descriptions
+	#directive_description_dir => 'ikiwiki/directive',
+
+	# mdwn plugin
+	# enable multimarkdown features?
+	#multimarkdown => 0,
+
+	# prettydate plugin
+	# format to use to display date
+	#prettydateformat => '%X, %B %o, %Y',
+
+	# tag plugin
+	# parent page tags are located under
+	#tagbase => 'tag',
+}

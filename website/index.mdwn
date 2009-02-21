@@ -1,0 +1,4 @@
+Memo is a recursive acronym standing for Memo Enables Memory Optimisation.
+
+ * [Manual](manual/)
+ * [Technical documentation](techdoc/)

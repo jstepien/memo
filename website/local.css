@@ -1,0 +1,89 @@
+/*
+	Copyright (C) 2009 Jan Stępień
+	This work is licensed under
+	Creative Commons Attribution-Share Alike 3.0 License.
+	Details and the full license can be acquired at the following address:
+	http://creativecommons.org/licenses/by-sa/3.0/
+*/
+body {
+	background-color: #A2C1DD;
+	padding: 0;
+	font-family: "DejaVu Sans", "Verdana", sans-serif;
+}
+body > div {
+	background-color: #fff;
+	border-left: double black;
+	border-right: double black;
+	margin: 0 auto;
+	padding: 5px 50px 10px 50px;
+}
+a {
+	text-decoration: none;
+	border-bottom: 1px dotted #072D4E;
+	color: #072D4E;
+}
+a:visited {
+	border-bottom: 1px dotted #4D5E6D;
+	color: #4D5E6D;
+}
+a:hover {
+	border-bottom: 1px dotted #000;
+	color: #5E8EBA;
+}
+acronym, abbr {
+	font-size: 90%;
+	border-bottom: 1px dotted #000;
+}
+a acronym, a abbr {
+	border-bottom: 0;
+}
+acronym:hover, abbr:hover {
+	cursor: help;
+}
+a acronym:hover, a abbr:hover {
+	cursor: inherit;
+}
+kbd {
+	margin-left: 50px;
+}
+var {
+	text-decoration: none;
+	font-style: normal;
+	font-family: monospace;
+}
+.pageheader {
+	width: 960px;
+	padding: 0px;
+	border: none;
+}
+.header {
+	margin: 0 auto;
+	width: 854px;
+	padding-top: 40px;
+	padding-left: 50px;
+	font-family: "DejaVu Serif", serif;
+	font-size: 32px;
+	border-top: double black;
+	border-right: double black;
+	border-left: double black;
+}
+h1 {
+	font-size: 24px;
+}
+h2 {
+	font-size: 22px;
+}
+.pageheader .header {
+	width: 904px;
+}
+#content {
+	min-height: 200px;
+	width: 854px;
+	padding-top: 15px;
+}
+#footer {
+	width: 854px;
+	font-size: small;
+	border-bottom: double black;
+	background: #fff;
+}
