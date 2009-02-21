@@ -1,3 +1,36 @@
+2009-02-22  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* ChangeLog, NEWS, configure.ac: Tagged 0.1 release.
+
+2009-02-22  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/messaging.c, src/main.c: Tiny fixes in libmemo/messaging.c and
+	open_database.
+
+2009-02-22  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/main.c: Fixed a memory leak in open_database.
+
+2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* README: Cleaned up README removing duplicate information.
+
+2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* doc/memo.texi: Refreshed the Texinfo documentation.
+
+2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* libmemo/messaging.c: Fixed a bug in memo_send_test.
+
+2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* src/Makefile.am: memo binary is now installed in bindir.
+
+2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
+
+	* website/: Prepared a simple ikiwiki based website.
+
 2009-02-21  Jan Stępień <jstepien@users.sourceforge.net>
 
 	* src/main.c: User's e-mail address is set in MEMO_EMAIL environment

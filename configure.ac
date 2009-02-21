@@ -16,7 +16,7 @@
 # along with Memo.  If not, see <http://www.gnu.org/licenses/>.
 
 AC_PREREQ(2.61)
-AC_INIT(memo, alpha, jstepien@users.sourceforge.net)
+AC_INIT(memo, 0.1, jstepien@users.sourceforge.net)
 AM_INIT_AUTOMAKE([-Wall -Werror gnu])
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADER([config.h])
