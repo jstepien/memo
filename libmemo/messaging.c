@@ -25,6 +25,8 @@
 #include <errno.h>
 #include <time.h>
 #include <config.h>
+#include <string.h>
+#include <stdlib.h>
 #include "messages.h"
 #include "xmalloc.h"
 #include "macros.h"

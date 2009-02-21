@@ -48,7 +48,7 @@ open_database() {
 	homedir = getenv("HOME");
 	homedir_len = strlen(homedir);
 	filename = xmalloc(sizeof(char)*(homedir_len+ARRAY_SIZE(memo_db_file)));
-	strcat(filename, homedir);
+	strcpy(filename, homedir);
 	strcat(filename + homedir_len, memo_db_file);
 	if (access(filename, R_OK | W_OK) == -1 && errno != ENOENT) {
 		perror("Failed to open db file for r/w");
