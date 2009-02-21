@@ -2,6 +2,7 @@
 @setfilename memo.info
 @settitle Memo
 @documentencoding UTF-8
+@firstparagraphindent insert
 
 @titlepage
 @title Memo
@@ -30,7 +31,97 @@ This is the documentation for Memo.
 
 @section About
 
-Few words of a brief description.
+Memo is a recursive acronym standing for Memo Enables Memory Optimisation.
+
+Memo's purpose is enhancing its user's ability to remember foreign words and
+phrases by regular repetition of a properly chosen material. Memo can be used
+to regularly send emails containing packs of words or phrases to be translated
+by the receiver. User replies to the e-mail filling in the answers. Memo
+parses the reply and updates its internal database with user's results. Sets
+of questions for every test are chosen basing on user's performance in
+previous tests -- the words that are most difficult for the user are sent more
+frequently.
+
+@section Requirements
+
+The following software is required to run Memo.
+
+@itemize
+@item
+mailx (@url{http://heirloom.sourceforge.net/mailx.html})
+@item
+procmail (@url{http://www.procmail.org/})
+@item
+SQLite3 (@url{http://sqlite.org/})
+@item
+Perl (@url{http://www.perl.org/})
+@end itemize
+
+Besides, you are going to need a shell account.
+
+@section Installation
+
+Just do
+
+@example
+./configure && make && sudo make install
+@end example
+
+Details are available in the @file{INSTALL} file which can be found in Memo
+releases.
+
+@section Running Memo
+
+Memo's command line options may be displayed executing:
+
+@example
+memo --help
+@end example
+
+@subsection Adding new phrases to the database
+
+In order to add a new word to the database run the following command:
+
+@example
+memo --add-pair "a phrase" "its translation"
+@end example
+
+If the database does not exist it will be automatically created.
+
+@subsection Sending and replying to tests
+
+Having a database filled with pairs of phrases you are ready to send tests.
+Now it's time to configure receiving. Be sure that your incoming mail is
+filtered by procmail. If it is not, find out how to enable it in the
+procmail's documentation.
+
+Add to your @file{~/.procmailrc} the following rule.
+
+@example
+:0:
+* ^Subject: Re: memo \[[0-9]*\]
+| memo --receive
+@end example
+
+Now procmail should forward your replies to Memo's tests to the Memo reply
+parser.
+
+In order to send a test set @env{MEMO_EMAIL} environment variable to you
+e-mail address and run the command shown below.
+
+@example
+memo --send
+@end example
+
+In order to get your tests sent automatically consider adding to your crontab
+the following line after adjusting it to your needs.
+
+@example
+19  12  *   *   *   memo --send
+@end example
+
+Don't forget to inform the authors in case of spotting a bug or any other
+unwanted behavior which doesn't seem to be a feature.
 
 @node Behind the scenes
 @chapter Behind the scenes
@@ -39,7 +130,11 @@ Few words of a brief description.
 
 @subsection Database structure
 
-The database consists of following tables.
+Memo's database located in @file{~/.memo/db} file is an SQLite3 database which
+can be opened and modified using @command{sqlite} command line application or
+any other SQLite management tool.
+
+The structure of the Memo's database is following:
 
 @example
 @verbatim
@@ -51,44 +146,12 @@ CREATE TABLE words (
 	PRIMARY KEY (id),
 	UNIQUE (word)
 );
-
 CREATE TABLE translations (
 	id integer,
 	word_id integer,
 	translation_id integer,
 	PRIMARY KEY (id)
 );
-@end verbatim
-@end example
-
-@subsection Retrieving data
-
-The data retrieving database functions return the data using the
-@code{memo_database_data} structure.
-
-@example
-@verbatim
-typedef struct _memo_database_data {
-	int rows;
-	int cols;
-	void ***data;
-} memo_database_data;
-@end verbatim
-@end example
-
-@code{data} is a table of rows of pointers. @code{rows} and @code{cols}
-describe it's size. Values of the table's fields may be either @code{int}
-casted to @code{void*} or addresses of @code{const char*} strings.
-
-@subsection Internal communication
-
-The function used for the internal communication with the database is
-
-@example
-@verbatim
-int
-memo_database_execute(memo_database db, const char *query,
-	memo_database_data *ret);
 @end verbatim
 @end example
 
@@ -104,7 +167,5 @@ no Front-Cover Texts, and no Back-Cover Texts.
 
 The copy of the GNU Free Documentation License can be obtained at
 @url{http://www.gnu.org/licenses/}.
-
-@c TODO: include the documentation.
 
 @bye
