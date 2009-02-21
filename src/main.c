@@ -44,6 +44,7 @@ memo_database *
 open_database() {
 	char *filename, memo_db_file[] = "/.memo/db", *homedir;
 	int homedir_len;
+	memo_database *db;
 	homedir = getenv("HOME");
 	homedir_len = strlen(homedir);
 	filename = xmalloc(sizeof(char)*(homedir_len+ARRAY_SIZE(memo_db_file)));
@@ -51,9 +52,12 @@ open_database() {
 	strcat(filename + homedir_len, memo_db_file);
 	if (access(filename, R_OK | W_OK) == -1 && errno != ENOENT) {
 		perror("Failed to open db file for r/w");
+		free(filename);
 		exit(1);
 	}
-	return memo_database_open(filename);
+	db = memo_database_open(filename);
+	free(filename);
+	return db;
 }
 
 void
