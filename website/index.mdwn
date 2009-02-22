@@ -1,4 +1,10 @@
 Memo is a recursive acronym standing for Memo Enables Memory Optimisation.
 
- * [Manual](manual/)
- * [Technical documentation](techdoc/)
+  * [Get Memo](get-memo)
+  * [Report bugs][bugs]
+  * [Contribute](contribute)
+  * Documentation
+    * [Manual](manual)
+    * [Technical documentation](techdoc)
+
+[bugs]: https://savannah.nongnu.org/bugs/?group=memo

@@ -6,7 +6,7 @@ use IkiWiki::Setup::Standard {
 	destdir => './dest',
 	url => 'http://www.nongnu.org/memo/',
 	add_plugins => [qw{goodstuff favicon}],
-	disable_plugins => [qw{recentchanges}],
+	disable_plugins => [qw{smiley recentchanges openid}],
 	templatedir => '/usr/share/ikiwiki/templates',
 	underlaydir => '/usr/share/ikiwiki/basewiki',
 	usedirs => 1,

@@ -1,0 +1,22 @@
+[[!meta title="Get Memo"]]
+
+Releases
+========
+
+File releases are available at [Savannah][1].
+
+Source code repository
+======================
+
+Cutting edge sources can be fetched from publicly available Git repository.
+Public clone URLs are
+
+  * `git://git.sv.gnu.org/memo.git`
+  * `git://github.com/jstepien/memo.git`
+
+The repository may be browsed using the following web interfaces:
+
+  * [cgit at Savannah](http://git.savannah.gnu.org/cgit/memo.git)
+  * [GitHub](http://github.com/jstepien/memo/tree/master)
+
+[1]: http://download.savannah.nongnu.org/releases/memo/

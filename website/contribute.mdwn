@@ -1,0 +1,17 @@
+[[!meta title="Contribute"]]
+
+Contributors are always welcome!
+
+  1. [Get the source code](../get-memo) by downloading a release, cloning the
+     repository or making a fork on [GitHub][gh].
+  1. Hack.
+  1. Check whether tests which were passing before you've begun to hack
+     still do.
+  1. Send your work to the Memo's author. There are several possibilities.
+    * Use `git format-patch` and `git send-email`.
+	* Publish your branch and ask me to pull from it.
+	* GitHub offers a ['pull request'][1] feature.
+	* Simply create a patch and send it to me.
+
+[gh]: http://github.com/jstepien/memo
+[1]: http://github.com/guides/pull-requests
