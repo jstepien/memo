@@ -18,6 +18,7 @@
 
 use warnings;
 use strict;
+use encoding 'utf8';
 while (<STDIN>) {
 	if (/^> ([\d\w ]+)\s+=\s+([\d\w ]*)$/) {
 		print "$1\n$2\n";
