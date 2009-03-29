@@ -131,6 +131,9 @@ memo_word**
 memo_database_load_words_from_database_data(memo_database *db,
 		memo_database_data *data);
 
+int
+memo_database_get_language_key(memo_database *db, const char *lang);
+
 /**
  * @}
  */

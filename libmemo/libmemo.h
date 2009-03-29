@@ -142,6 +142,10 @@ struct memo_word {
 	 * Linked list of translations' keys.
 	 */
 	memo_translation *translations;
+	/**
+	 * Word's language name.
+	 */
+	char *language;
 };
 
 /**
@@ -262,6 +266,22 @@ memo_word_get_value(memo_word *word);
  */
 int
 memo_word_set_value(memo_word *word, const char* value);
+
+/**
+ * Returns word's language.
+ * @return word's language name.
+ */
+const char*
+memo_word_get_language(memo_word *word);
+
+/**
+ * Sets word's language name.
+ * @param word a word.
+ * @param value a string to set the word's language to.
+ * @return 0 in case of success, negative values in case of errors.
+ */
+int
+memo_word_set_language(memo_word *word, const char* value);
 
 /**
  * Returns a pointer to a database the word's in.

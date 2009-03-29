@@ -119,9 +119,18 @@ read_data_from_checking_script(int fd, memo_database *db) {
 	while (!feof(parsed)) {
 		/* TODO: That's not a very portable way of reading lines. */
 		int count, match;
-		static int qn = 0, an = 0;
-		static char *question = NULL, *answer = NULL;
+		static int qn = 0, an = 0, qln = 0, aln = 0;
+		static char *question = NULL, *answer = NULL, *qlang = NULL,
+					*alang = NULL;
 		memo_word *question_word, *answer_word;
+		count = getline(&qlang, &qln, parsed);
+		if (count < 1)
+			continue;
+		qlang[count-1] = '\0';
+		count = getline(&alang, &aln, parsed);
+		if (count < 1)
+			continue;
+		alang[count-1] = '\0';
 		count = getline(&question, &qn, parsed);
 		if (count < 1)
 			continue;

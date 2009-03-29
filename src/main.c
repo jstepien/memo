@@ -72,6 +72,7 @@ add_pair(int argc, const char *argv[]) {
 		if ((word[i] = memo_database_find_word_by_value(db, argv[i])) == NULL)
 			if ((word[i] = memo_word_new(db)) == NULL ||
 					memo_word_set_value(word[i], argv[i]) ||
+					memo_word_set_language(word[i], "pl") ||
 					memo_word_save(word[i]))
 				die("Cannot create a new word '%s'\n", argv[i]);
 	if (memo_word_add_translation(word[0], word[1]))

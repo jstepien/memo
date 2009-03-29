@@ -20,8 +20,12 @@ use warnings;
 use strict;
 use encoding 'utf8';
 while (<STDIN>) {
-	if (/^> ([\d\w ]+)\s+=\s+([\d\w ]*)$/) {
-		print "$1\n$2\n";
+	# We are searching for lines matching to the following format:
+	# > [question_lang->answer_lang] question = answer
+	# The output format is
+	# question_lang \n answer_lang \n question \n answer
+	if (/^> \[([\w\d ]+)->([\w\d ]+)\] ([\d\w ]+)\s+=\s+([\d\w ]*)$/) {
+		print "$1\n$2\n$3\n$4\n";
 	}
 }
 

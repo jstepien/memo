@@ -171,16 +171,21 @@ memo_database_execute(memo_database *db, const char *query,
 
 int
 memo_database_init(memo_database *db) {
-	const char *words_query = "CREATE TABLE IF NOT EXISTS words " \
+	const char *queries[] = {
+		"CREATE TABLE IF NOT EXISTS words " \
 			"(id integer, word text, positive_answers integer DEFAULT 0, " \
-			"negative_answers integer DEFAULT 0, PRIMARY KEY (id), " \
-			"UNIQUE (word) );";
-	const char *translations_query = "CREATE TABLE IF NOT EXISTS " \
+			"negative_answers integer DEFAULT 0, language_id integer, " \
+			"PRIMARY KEY (id), UNIQUE (word) );",
+		"CREATE TABLE IF NOT EXISTS " \
 			"translations (id integer, word_id integer, translation_id " \
-			"integer, PRIMARY KEY (id) ); ";
-	if ( memo_database_execute(db, words_query, NULL) < 0 ||
-			memo_database_execute(db, translations_query, NULL) < 0 )
-		return -1;
+			"integer, PRIMARY KEY (id) );",
+		"CREATE TABLE IF NOT EXISTS languages "\
+			"(id integer, name text, PRIMARY KEY (id), UNIQUE (name) );"
+	};
+	int i;
+	for (i = 0; i < ARRAY_SIZE(queries); ++i)
+		if (memo_database_execute(db, queries[i], NULL) < 0 )
+			return -1;
 	return 0;
 }
 
@@ -195,7 +200,8 @@ memo_database_find_word_by_value(memo_database *db, const char* value) {
 	memo_word **words, *word;
 	memo_database_data *results;
 	const char word_sel_templ[] = ""
-		"SELECT id, word, positive_answers, negative_answers FROM words "
+		"SELECT w.id, word, positive_answers, negative_answers, l.name "
+		"FROM words w INNER JOIN languages l ON l.id = w.language_id "
 		"WHERE word == \"%s\";";
 	char *query;
 
@@ -224,8 +230,9 @@ memo_database_find_word(memo_database *db, int id) {
 	memo_word *word, **words;
 	memo_database_data *results;
 	const char word_sel_templ[] = ""
-		"SELECT id, word, positive_answers, negative_answers FROM words "
-		"WHERE id == %i;";
+		"SELECT w.id, word, positive_answers, negative_answers, l.name "
+		"FROM words w INNER JOIN languages l ON l.id = w.language_id "
+		"WHERE w.id == \"%i\";";
 	char *query;
 
 	/* In the following malloc call we're hoping that log10(id) < 16 .
@@ -282,6 +289,7 @@ memo_database_load_words_from_database_data(memo_database *db,
 		memo_word_set_value(words[i], data->data[i][1]);
 		memo_word_set_positive_answers(words[i], (int) data->data[i][2]);
 		memo_word_set_negative_answers(words[i], (int) data->data[i][3]);
+		memo_word_set_language(words[i], data->data[i][4]);
 		words[i]->db = db;
 		words[i]->db_last_change = memo_database_get_last_change(db);
 
@@ -318,7 +326,8 @@ memo_database_words_to_test(memo_database *db, int count) {
 	memo_word **words;
 	memo_database_data *results;
 	const char word_sel_templ[] = ""
-		"SELECT id, word, positive_answers, negative_answers FROM words "
+		"SELECT w.id, word, positive_answers, negative_answers, l.name "
+		"FROM words w INNER JOIN languages l ON l.id = w.language_id "
 		"ORDER BY (negative_answers / positive_answers) DESC LIMIT %i;";
 	char *query;
 
@@ -335,6 +344,54 @@ memo_database_words_to_test(memo_database *db, int count) {
 	free(query);
 	memo_database_data_free(results);
 	return words;
+}
+
+int
+memo_database_get_language_key(memo_database *db, const char *lang) {
+	const char insert_template[] = ""
+		"INSERT INTO languages (name) VALUES (\"%s\");";
+	const char select_template[] = ""
+		"SELECT id FROM languages where name = \"%s\";";
+	char *select_query, *insert_query;
+	memo_database_data *results;
+	int len = strlen(lang), retval;
+
+	results = memo_database_data_init();
+	select_query = xmalloc(sizeof(char) * (ARRAY_SIZE(select_template)+len));
+	sprintf(select_query, select_template, lang);
+	if (memo_database_execute(db, select_query, results) < 0) {
+		memo_database_data_free(results);
+		free(select_query);
+		return -1;
+	} else if (results->rows > 0) {
+		retval = results->data[0][0];
+		memo_database_data_free(results);
+		free(select_query);
+		return retval;
+	}
+
+	/* If there's no such language, insert it. */
+
+	insert_query = xmalloc(sizeof(char) * (ARRAY_SIZE(insert_template)+len));
+	sprintf(insert_query, insert_template, lang);
+	if (memo_database_execute(db, insert_query, NULL) < 0) {
+		memo_database_data_free(results);
+		free(insert_query);
+		free(select_query);
+		return -1;
+	}
+	free(insert_query);
+
+	if (memo_database_execute(db, select_query, results) == 0 &&
+			results->rows > 0) {
+		retval = results->data[0][0];
+		memo_database_data_free(results);
+		free(select_query);
+		return retval;
+	}
+	memo_database_data_free(results);
+	free(select_query);
+	return -1;
 }
 
 /*

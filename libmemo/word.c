@@ -47,11 +47,11 @@ memo_word_auto_reload(memo_word *word) {
 int
 memo_word_save(memo_word *word) {
 	const char query_template[] = ""
-		"INSERT INTO words (word, positive_answers, "
-		"negative_answers) VALUES (\"%s\", \"%i\", \"%i\");";
+		"INSERT INTO words (word, positive_answers, negative_answers, "
+		"language_id) VALUES (\"%s\", \"%i\", \"%i\", \"%i\");";
 	char *query;
 	memo_word *tmp_word;
-	int word_length;
+	int word_length, lang_id;
 
 	word_length = strlen(memo_word_get_value(word));
 	if (word_length < 1)
@@ -60,17 +60,24 @@ memo_word_save(memo_word *word) {
 	/* Check if the word already exist. */
 
 	tmp_word = memo_database_find_word_by_value(word->db, memo_word_get_value(word));
-	if ( tmp_word != NULL ) {
+	if (tmp_word != NULL) {
 		memo_word_free(tmp_word);
 		return -1;
 	}
 
+	if (!memo_word_get_language(word) ||
+			(lang_id = memo_database_get_language_key(memo_word_get_db(word),
+					memo_word_get_language(word))) < 0)
+		return -1;
+
+
 	/* FIXME: no one knows will it really be enough memory. */
-	query = xmalloc(sizeof(char) * (ARRAY_SIZE(query_template)+word_length+10));
+	query = xmalloc(sizeof(char) *
+			(ARRAY_SIZE(query_template)+word_length+15));
 
 	sprintf(query, query_template, memo_word_get_value(word),
 			memo_word_get_positive_answers(word),
-			memo_word_get_negative_answers(word));
+			memo_word_get_negative_answers(word), lang_id);
 	if (memo_database_execute(memo_word_get_db(word), query, NULL) < 0)
 		return -1;
 
@@ -224,6 +231,21 @@ memo_word_set_value(memo_word *word, const char* value) {
 		free(word->value);
 	word->value = xmalloc((strlen(value)+1)*sizeof(char));
 	strcpy(word->value, value);
+	return 0;
+}
+
+const char*
+memo_word_get_language(memo_word *word) {
+	memo_word_auto_reload(word);
+	return word->language;
+}
+
+int
+memo_word_set_language(memo_word *word, const char* value) {
+	if (word->language)
+		free(word->language);
+	word->language = xmalloc((strlen(value)+1)*sizeof(char));
+	strcpy(word->language, value);
 	return 0;
 }
 
