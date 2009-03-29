@@ -34,6 +34,14 @@
 #define ERR_ADDING_TR "Cannot add a translation to the database."
 #define ERR_FETCHING_TR "Cannot fetch translations from the database."
 #define ERR_SET_WORD_VAL "Failed to set word's value."
+#define ERR_SET_WORD_LANG "Failed to set word's language."
+
+#define SET_LANG(w,l) fail_if( \
+		memo_word_set_language(w, l) != 0, ERR_SET_WORD_LANG \
+		)
+
+#define SET_LANG1(w) SET_LANG(w, "L1")
+#define SET_LANG2(w) SET_LANG(w, "L2")
 
 memo_database *db;
 
@@ -137,6 +145,7 @@ word_cmp(memo_word *a, memo_word *b) {
 			&& memo_word_get_negative_answers(a) == memo_word_get_negative_answers(b)
 			&& memo_word_get_positive_answers(a) == memo_word_get_positive_answers(b)
 			&& memo_word_get_db(a) == memo_word_get_db(b)
+			&& strcmp(memo_word_get_language(a), memo_word_get_language(b)) == 0
 			&& word_cmp_transl(a, b) == 0)
 		return 0;
 	return 1;
@@ -162,6 +171,7 @@ START_TEST (word_inserting)
 	word = memo_word_new(db);
 	fail_if(word == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(word, "Test") != 0, ERR_SET_WORD_VAL);
+	SET_LANG1(word);
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	/* TODO: Should check whether the word has been saved. */
 	memo_word_free(word);
@@ -177,6 +187,7 @@ START_TEST (word_find_by_key)
 	w1 = memo_word_new(db);
 	fail_if(w1 == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(w1, "Test") != 0, ERR_SET_WORD_VAL);
+	SET_LANG1(w1);
 	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
 	w2 = memo_database_find_word(db, memo_word_get_key(w1));
 	fail_if(w2 == NULL ||
@@ -198,6 +209,7 @@ START_TEST (word_get_key)
 	word = memo_word_new(db);
 	fail_if(word == NULL, "can't create a new word.");
 	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	SET_LANG1(word);
 	fail_if(memo_word_save(word) != 0, "failed to save a word.");
 	id = memo_word_get_key(word);
 	memo_word_free(word);
@@ -219,6 +231,7 @@ START_TEST (word_get_db)
 	word = memo_word_new(db);
 	fail_if(word == NULL, "can't create a new word.");
 	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	SET_LANG1(word);
 	fail_if(memo_word_save(word) != 0, "failed to save a word.");
 	tmpdb = memo_word_get_db(word);
 	memo_word_free(word);
@@ -240,6 +253,7 @@ START_TEST (word_get_answers_count)
 	word = memo_word_new(db);
 	fail_if(word == NULL, "can't create a new word.");
 	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	SET_LANG1(word);
 	fail_if(memo_word_save(word) != 0, "failed to save a word.");
 	positive_answers = memo_word_get_positive_answers(word);
 	negative_answers = memo_word_get_negative_answers(word);
@@ -262,6 +276,7 @@ START_TEST (word_find_by_value)
 	word = memo_word_new(db);
 	fail_if(word == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(word, "Test") != 0, ERR_SET_WORD_VAL);
+	SET_LANG1(word);
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	memo_word_free(word);
 	word = memo_database_find_word_by_value(db, "Test");
@@ -280,6 +295,7 @@ START_TEST (word_reload)
 	w2 = (memo_word*) xmalloc(sizeof(memo_word));
 	fail_if(!w1 || !w2, "Can't create a new word.");
 	fail_if(memo_word_set_value(w1, "Test") != 0, ERR_SET_WORD_VAL);
+	SET_LANG1(w1);
 	fail_if(memo_word_save(w1) != 0, "Failed to save a word.");
 	w2->key = memo_word_get_key(w1);
 	w2->db = memo_word_get_db(w1);
@@ -299,6 +315,7 @@ START_TEST (word_delete)
 	word = memo_word_new(db);
 	fail_if(word == NULL, "Can't create a new word.");
 	fail_if(memo_word_set_value(word, "Test") != 0, ERR_SET_WORD_VAL);
+	SET_LANG1(word);
 	fail_if(memo_word_save(word) != 0, "Failed to save a word.");
 	fail_if(memo_word_delete(word) != 0, "Failed to delete a saved word.");
 	fail_if(memo_word_reload(word) == 0, "Reloaded a deleted word.");
@@ -319,10 +336,12 @@ START_TEST (word_update)
 	const char str1[] = "qwe", str2[] = "asd", str3[] = "zxc";
 	w1 = memo_word_new(db);
 	memo_word_set_value(w1, str1);
+	SET_LANG1(w1);
 	memo_word_save(w1);
 
 	w2 = memo_word_new(db);
 	memo_word_set_value(w2, str1);
+	SET_LANG1(w2);
 
 	memo_word_set_value(w1, str3);
 	fail_if(memo_word_update(w1) != 0);
@@ -349,6 +368,7 @@ START_TEST (word_copy)
 	word = memo_word_new(db);
 	copy = memo_word_new(db);
 	memo_word_set_value(word, "Test");
+	SET_LANG1(word);
 	memo_word_save(word);
 	fail_if(memo_word_copy(copy, word) != 0, 0);
 
@@ -375,11 +395,13 @@ START_TEST (word_auto_reload)
 
 	w1 = memo_word_new(db);
 	memo_word_set_value(w1, str1);
+	SET_LANG1(w1);
 	memo_word_save(w1);
 	memo_word_set_value(w1, str3);
 	fail_if(strcmp(str3, memo_word_get_value(w1)) != 0);
 
 	w2 = memo_word_new(db);
+	SET_LANG2(w2);
 	memo_word_set_value(w2, str2);
 	memo_word_save(w2);
 
@@ -403,6 +425,7 @@ START_TEST (word_answers_count_changing)
 	const int pos = 15, neg =  21;
 	memo_word *word;
 	word = memo_word_new(db);
+	SET_LANG1(word);
 	memo_word_set_value(word, str);
 	memo_word_set_positive_answers(word, pos);
 	memo_word_set_negative_answers(word, neg);
@@ -459,8 +482,10 @@ START_TEST (translation_inserting_duplicate)
 	memo_word_set_value(w[1], "two");
 	memo_word_set_value(w[2], "three");
 	memo_word_set_value(w[3], "four");
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < 4; i++) {
+		SET_LANG1(w[i]);
 		memo_word_save(w[i]);
+	}
 	fail_if(memo_word_add_translation(w[0], w[1]) != 0, ERR_ADDING_TR);
 	fail_if(memo_word_add_translation(w[1], w[2]) != 0, ERR_ADDING_TR);
 	fail_if(memo_word_add_translation(w[0], w[3]) != 0, ERR_ADDING_TR);
@@ -485,8 +510,11 @@ START_TEST (translation_checking)
 	w_doesnt_exist = memo_word_new(db);
 	w_exists = memo_word_new(db);
 	memo_word_set_value(w1, "Test");
+	SET_LANG1(w1);
 	memo_word_set_value(w2, "tset");
+	SET_LANG2(w2);
 	memo_word_set_value(w_exists, "Exists in the database.");
+	SET_LANG2(w_exists);
 	memo_word_set_value(w_doesnt_exist, "Does not exist in the db.");
 	memo_word_save(w1);
 	memo_word_save(w2);
@@ -523,6 +551,9 @@ START_TEST (translation_fetching)
 	memo_word_set_value(w1, "foo");
 	memo_word_set_value(w2, "bar");
 	memo_word_set_value(w3, "lol");
+	SET_LANG1(w1);
+	SET_LANG2(w2);
+	SET_LANG1(w3);
 	memo_word_save(w1);
 	memo_word_save(w2);
 	memo_word_save(w3);
@@ -565,10 +596,12 @@ START_TEST (translation_auto_reload)
 
 	w1 = memo_word_new(db);
 	memo_word_set_value(w1, str1);
+	SET_LANG1(w1);
 	memo_word_save(w1);
 
 	w2 = memo_word_new(db);
 	memo_word_set_value(w2, str2);
+	SET_LANG1(w2);
 	memo_word_save(w2);
 
 	/* Ensure that w1->db_last_change is up to date. */
@@ -600,6 +633,7 @@ START_TEST (translation_auto_reload)
 
 	w3 = memo_word_new(db);
 	memo_word_set_value(w3, str3);
+	SET_LANG1(w3);
 	memo_word_save(w3);
 
 	/*
@@ -626,7 +660,7 @@ END_TEST
  */
 START_TEST (messaging_checking_test)
 {
-#define words 10
+	const int words = 10;
 	int i, answers[words][2];
 	memo_word *w[words];
 	char value[11];
@@ -639,6 +673,10 @@ START_TEST (messaging_checking_test)
 		w[i]->positive_answers = answers[i][0] = i+10;
 		w[i]->negative_answers = answers[i][1] = 20-i;
 		fail_if(memo_word_set_value(w[i], value), 0);
+		if (i < words/2)
+			SET_LANG1(w[i]);
+		else
+			SET_LANG2(w[i]);
 		fail_if(memo_word_save(w[i]), 0);
 	}
 	for (i = 0; i < words/2; ++i)
@@ -673,7 +711,6 @@ START_TEST (messaging_checking_test)
 
 	for (i = 0; i < words; ++i)
 		memo_word_free(w[i]);
-#undef words
 }
 END_TEST
 
