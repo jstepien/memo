@@ -39,9 +39,10 @@
 #define SET_LANG(w,l) fail_if( \
 		memo_word_set_language(w, l) != 0, ERR_SET_WORD_LANG \
 		)
-
-#define SET_LANG1(w) SET_LANG(w, "L1")
-#define SET_LANG2(w) SET_LANG(w, "L2")
+#define LANG1 ("L1")
+#define LANG2 ("L2")
+#define SET_LANG1(w) SET_LANG(w, LANG1)
+#define SET_LANG2(w) SET_LANG(w, LANG2)
 
 memo_database *db;
 
@@ -215,6 +216,28 @@ START_TEST (word_get_key)
 	memo_word_free(word);
 	word = memo_database_find_word_by_value(db, "test");
 	fail_if(id != memo_word_get_key(word), "Word's key does not match.");
+	memo_word_free(word);
+}
+END_TEST
+
+/*
+ * Inserts a word, retrieves it and checks whether memo_word_get_language
+ * works correctly.
+ */
+START_TEST (word_get_lang)
+{
+	memo_word *word;
+	memo_database *tmpdb;
+	int positive_answers, negative_answers;
+	word = memo_word_new(db);
+	fail_if(word == NULL, "can't create a new word.");
+	fail_if(memo_word_set_value(word, "test") != 0, "failed to set word's value.");
+	SET_LANG1(word);
+	fail_if(memo_word_save(word) != 0, "failed to save a word.");
+	tmpdb = memo_word_get_db(word);
+	memo_word_free(word);
+	word = memo_database_find_word_by_value(db, "test");
+	fail_if(strcmp(memo_word_get_language(word), LANG1) != 0);
 	memo_word_free(word);
 }
 END_TEST
@@ -734,6 +757,7 @@ database_suite (void) {
 	tcase_add_test(tc_words, word_get_answers_count);
 	tcase_add_test(tc_words, word_get_key);
 	tcase_add_test(tc_words, word_get_db);
+	tcase_add_test(tc_words, word_get_lang);
 	tcase_add_test(tc_words, word_reload);
 	tcase_add_test(tc_words, word_delete);
 	tcase_add_test(tc_words, word_update);
