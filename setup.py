@@ -1,5 +1,7 @@
-#!/usr/bin/env perl
-# Copyright (C) 2009 Jan Stępień
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
+
+# Copyright (C) 2008, 2009, 2010 Jan Stępień
 #
 # This file is part of Memo.
 #
@@ -16,12 +18,16 @@
 # You should have received a copy of the GNU General Public License
 # along with Memo.  If not, see <http://www.gnu.org/licenses/>.
 
-use warnings;
-use strict;
-while (<STDIN>) {
-	if (/^> ([\d\w ]+)\s+=\s+([\d\w ]*)$/) {
-		print "$1\n$2\n";
-	}
-}
+from distutils.core import setup
 
-# vim:ts=4:noet:tw=78
+setup(
+		name = 'memo',
+		version = '0.1',
+		description = 'Memo Enables Memory optimisation',
+		author = 'Jan Stępień',
+		author_email = 'jstepien@users.sourceforge.net',
+		url = 'http://www.nongnu.org/memo',
+		package_dir = {'memo': 'src'},
+		packages = ['memo'],
+		scripts = ['src/scripts/memo'],
+		)
