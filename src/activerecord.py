@@ -1,4 +1,5 @@
 from storm.locals import Store, create_database
+import storm.exceptions
 
 class ActiveRecord():
 	'''Provides some methods which implement the Active Record pattern.
@@ -25,3 +26,16 @@ class ActiveRecord():
 	@staticmethod
 	def register_subclass(subclass):
 		ActiveRecord.subclasses.append(subclass)
+
+	@staticmethod
+	def commit():
+		try:
+			ActiveRecord.store.commit()
+		except storm.exceptions.IntegrityError as ex:
+			if str(ex).find('column value is not unique') != -1:
+				raise NonUniqueColumnValueError()
+			else:
+				raise ex
+
+class NonUniqueColumnValueError(Exception):
+	pass

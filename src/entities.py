@@ -13,7 +13,7 @@ class Phrase(object, ActiveRecord):
 	value = Unicode()
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS phrases
-			(id INTEGER PRIMARY KEY, value VARCHAR);'''
+			(id INTEGER PRIMARY KEY, value VARCHAR, UNIQUE (value));'''
 
 	def __init__(self, value):
 		self.value = unicode(value)
@@ -28,7 +28,7 @@ class Language(object, ActiveRecord):
 	name = Unicode()
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS languages
-			(id INTEGER PRIMARY KEY, name VARCHAR);'''
+			(id INTEGER PRIMARY KEY, name VARCHAR, UNIQUE (name));'''
 
 	def __init__(self, name):
 		self.name = unicode(name)
