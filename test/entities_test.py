@@ -1,7 +1,7 @@
 # -*- coding: UTF-8 -*-
 
 from entities import *
-from activerecord import NonUniqueColumnValueError
+from activerecord import *
 
 def connect_to_sqlite_memory_store():
 	connect("sqlite://:memory:")
@@ -23,7 +23,7 @@ class TestPhrase:
 		Phrase(u'źdźbło').save()
 		try:
 			Phrase.commit()
-		except NonUniqueColumnValueError:
+		except NonUniqueColumnError:
 			assert Phrase.find().count() == 1
 		else:
 			assert False, "Inserted a non-unique phrase!"
@@ -45,7 +45,39 @@ class TestLanguage:
 		Phrase(u'slovenščina').save()
 		try:
 			Phrase.commit()
-		except NonUniqueColumnValueError:
+		except NonUniqueColumnError:
 			assert Phrase.find().count() == 1
 		else:
 			assert False, "Inserted a non-unique phrase!"
+
+class TestPair:
+	def setup(self):
+		connect_to_sqlite_memory_store()
+		self.l1 = Language(u'polski')
+		self.l2 = Language(u'español')
+		self.p1 = Phrase(u'wąż')
+		self.p2 = Phrase(u'serpiente')
+		for obj in [self.l1, self.l2, self.p1, self.p2]:
+			obj.save()
+		ActiveRecord.commit()
+
+	def teardown(self):
+		pass
+
+	def test_adding_a_pair(self):
+		Pair(self.p1, self.l1, self.p2, self.l2).save()
+		pair = Pair.find().one()
+		assert pair.first_language is self.l1
+		assert pair.second_language is self.l2
+		assert pair.first_phrase is self.p1
+		assert pair.second_phrase is self.p2
+
+	def test_adding_a_pair_twice(self):
+		Pair(self.p1, self.l1, self.p2, self.l2).save()
+		Pair(self.p1, self.l1, self.p2, self.l2).save()
+		try:
+			Pair.commit()
+		except NonUniqueColumnError:
+			assert Pair.find().count() == 1
+		else:
+			assert False, "Inserted a non-unique pair!"
