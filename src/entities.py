@@ -6,7 +6,7 @@ from storm.locals import *
 def connect(connection_string):
 	ActiveRecord.connect(connection_string)
 
-class Phrase(object, ActiveRecord):
+class Phrase(ActiveRecord):
 	__storm_table__ = 'phrases'
 
 	id = Int(primary=True)
@@ -21,7 +21,7 @@ class Phrase(object, ActiveRecord):
 	def __repr__(self):
 		return "<Phrase('%s')>" % self.value
 
-class Language(object, ActiveRecord):
+class Language(ActiveRecord):
 	__storm_table__ = 'languages'
 
 	id = Int(primary=True)

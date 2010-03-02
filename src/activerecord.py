@@ -1,7 +1,7 @@
 from storm.locals import Store, create_database
 import storm.exceptions
 
-class ActiveRecord():
+class ActiveRecord(object):
 	'''Provides some methods which implement the Active Record pattern.
 	Additionally stores a reference to a Storm store.'''
 	store = None
