@@ -2,31 +2,29 @@
 
 from entities import *
 
-def sqlite_memory_store():
-	return create_store('sqlite:///:memory:')
+def connect_to_sqlite_memory_store():
+	connect("sqlite://:memory:")
 
 class TestPhrase:
 	def setup(self):
-		self.store = sqlite_memory_store()
+		connect_to_sqlite_memory_store()
 
 	def teardown(self):
-		self.store = None
+		pass
 
 	def test_adding_a_unicode_word(self):
-		phrase = Phrase(u'źdźbło')
-		self.store.add(phrase)
-		added_phrase = self.store.find(Phrase).one()
-		assert u'źdźbło' == added_phrase.value
+		Phrase(u'źdźbło').save()
+		phrase = Phrase.find().one()
+		assert u'źdźbło' == phrase.value
 
 class TestLanguage:
 	def setup(self):
-		self.store = sqlite_memory_store()
+		connect_to_sqlite_memory_store()
 
 	def teardown(self):
-		self.store = None
+		pass
 
 	def test_adding_a_unicode_language_name(self):
-		language = Language(u'slovenščina')
-		self.store.add(language)
-		added_language = self.store.find(Language).one()
-		assert u'slovenščina' == added_language.name
+		Language(u'slovenščina').save()
+		language = Language.find().one()
+		assert u'slovenščina' ==language.name

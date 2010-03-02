@@ -1,15 +1,12 @@
 # -*- coding: UTF-8 -*-
 
+from activerecord import ActiveRecord
 from storm.locals import *
 
-def create_store(connection_string):
-	database = create_database(connection_string)
-	store = Store(database)
-	for type in [Phrase, Language]:
-		store.execute(type.table_schema)
-	return store
+def connect(connection_string):
+	ActiveRecord.connect(connection_string)
 
-class Phrase(object):
+class Phrase(object, ActiveRecord):
 	__storm_table__ = 'phrases'
 
 	id = Int(primary=True)
@@ -24,7 +21,7 @@ class Phrase(object):
 	def __repr__(self):
 		return "<Phrase('%s')>" % self.value
 
-class Language(object):
+class Language(object, ActiveRecord):
 	__storm_table__ = 'languages'
 
 	id = Int(primary=True)
@@ -38,3 +35,6 @@ class Language(object):
 
 	def __repr__(self):
 		return "<Language('%s')>" % self.name
+
+for cls in [Phrase, Language]:
+	ActiveRecord.register_subclass(cls)
