@@ -45,6 +45,10 @@ class ActiveRecord(object):
 			else:
 				raise ex
 
+	@staticmethod
+	def execute(statement):
+		return ActiveRecord.store.execute(statement)
+
 class NonUniqueColumnError(Exception):
 	pass
 
