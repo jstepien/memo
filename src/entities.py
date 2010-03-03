@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 
+from datetime import datetime
 from activerecord import ActiveRecord
 from storm.locals import *
 
@@ -69,5 +70,43 @@ class Pair(ActiveRecord):
 		self.second_phrase = phrase2
 		self.second_language = lang2
 
-for cls in [Phrase, Language, Pair]:
+class Test(ActiveRecord):
+	__storm_table__ = 'tests'
+
+	id = Int(primary=True)
+	ctime = DateTime()
+
+	table_schema = '''CREATE TABLE IF NOT EXISTS tests
+			(id INTEGER PRIMARY KEY, ctime DATETIME);'''
+
+	def __init__(self):
+		self.ctime = datetime.now()
+
+	def __repr__(self):
+		return "<Test('%s')>" % self.id
+
+class Question(ActiveRecord):
+	__storm_table__ = 'questions'
+
+	id = Int(primary=True)
+	pair_id = Int()
+	test_id = Int()
+	inverted = Bool()
+
+	pair = Reference(pair_id, Pair.id)
+	test = Reference(test_id, Test.id)
+
+	table_schema = '''CREATE TABLE IF NOT EXISTS questions
+			(id INTEGER PRIMARY KEY, pair_id INTEGER, test_id INTEGER NOT NULL,
+			inverted BOOL, UNIQUE (pair_id, test_id, inverted));'''
+
+	def __init__(self, test, pair, inverted=False):
+		self.test = test
+		self.pair = pair
+		self.inverted = inverted
+
+	def __repr__(self):
+		return "<Language('%s')>" % self.name
+
+for cls in [Phrase, Language, Pair, Test, Question]:
 	ActiveRecord.register_subclass(cls)

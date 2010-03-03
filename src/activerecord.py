@@ -40,8 +40,13 @@ class ActiveRecord(object):
 		except storm.exceptions.IntegrityError as ex:
 			if re.match('columns? [a-zA-Z_, ]+ (is|are) not unique', str(ex)):
 				raise NonUniqueColumnError()
+			elif re.match('^[\.a-zA-Z_, ]+ may not be NULL', str(ex)):
+				raise NullException()
 			else:
 				raise ex
 
 class NonUniqueColumnError(Exception):
+	pass
+
+class NullException(Exception):
 	pass
