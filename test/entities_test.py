@@ -143,11 +143,16 @@ class TestQuestion(SmallDBSetupMixIn):
 		q = Question.find().one()
 		assert q.test is self.tests[0]
 		assert q.pair is self.pairs[0]
-		assert q.answer is None
+		assert q.result is None
+		assert q.question() == self.pairs[0].first_phrase
+		assert q.answer() == self.pairs[0].second_phrase
 
 	def test_adding_a_question_inverted(self):
 		Question(self.tests[0], self.pairs[0], inverted=True)
 		assert Question.find().count() == 1
+		q = Question.find().one()
+		assert q.question() == self.pairs[0].second_phrase
+		assert q.answer() == self.pairs[0].first_phrase
 
 	def test_adding_a_question_multiple_times(self):
 		Question(self.tests[0], self.pairs[0]).save()

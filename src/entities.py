@@ -93,14 +93,14 @@ class Question(ActiveRecord):
 	test_id = Int()
 	inverted = Bool()
 	# True = correct, False = incorrect, None = not yet given.
-	answer = Bool()
+	result = Bool()
 
 	pair = Reference(pair_id, Pair.id)
 	test = Reference(test_id, Test.id)
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS questions
 			(id INTEGER PRIMARY KEY, pair_id INTEGER, test_id INTEGER NOT NULL,
-			inverted BOOL NOT NULL, answer BOOL,
+			inverted BOOL NOT NULL, result BOOL,
 			UNIQUE (pair_id, test_id, inverted));'''
 
 	def __init__(self, test, pair, inverted=False):
@@ -110,6 +110,14 @@ class Question(ActiveRecord):
 
 	def __repr__(self):
 		return "<Language('%s')>" % self.name
+
+	def question(self):
+		return self.pair.first_phrase if not self.inverted else \
+			self.pair.second_phrase
+
+	def answer(self):
+		return self.pair.first_phrase if self.inverted else \
+			self.pair.second_phrase
 
 Test.questions = ReferenceSet(Test.id, Question.test_id)
 
