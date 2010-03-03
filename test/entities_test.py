@@ -82,3 +82,11 @@ class TestPair:
 		should_raise_on_save(Pair(self.p2, self.l2, self.p1, self.l1),
 				NonUniqueColumnError)
 		assert Pair.find().count() == 1
+
+	def test_adding_a_pair_with_the_same_phrase(self):
+		Pair(self.p1, self.l1, self.p1, self.l2).save()
+		assert Pair.find().count() == 1
+
+	def test_adding_a_pair_with_the_same_language(self):
+		Pair(self.p1, self.l1, self.p2, self.l1).save()
+		assert Pair.find().count() == 1
