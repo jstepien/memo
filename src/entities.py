@@ -56,10 +56,10 @@ class Pair(ActiveRecord):
 			NULL, second_phrase_id INTEGER NOT NULL, second_language_id INTEGER
 			NOT NULL, UNIQUE (first_phrase_id, first_language_id,
 			second_phrase_id, second_language_id));''',
-			'''CREATE TRIGGER pairs_before_insert BEFORE INSERT ON pairs
-			FOR EACH ROW WHEN EXISTS (SELECT id FROM pairs WHERE
-			NEW.second_language_id = pairs.first_language_id AND
-			NEW.second_phrase_id = pairs.first_phrase_id)
+			'''CREATE TRIGGER IF NOT EXISTS pairs_before_insert
+			BEFORE INSERT ON pairs FOR EACH ROW WHEN EXISTS (SELECT id
+			FROM pairs WHERE NEW.second_language_id = pairs.first_language_id
+			AND NEW.second_phrase_id = pairs.first_phrase_id)
 			BEGIN SELECT RAISE (FAIL, 'columns first_phrase_id, '''
 			'''first_language_id, second_phrase_id, second_language_id are '''
 			'''not unique') END; END;''']
@@ -109,7 +109,7 @@ class Question(ActiveRecord):
 		self.inverted = inverted
 
 	def __repr__(self):
-		return "<Language('%s')>" % self.name
+		return "<Question(%s, %s, %s)>" % (self.test, self.pair, self.inverted)
 
 	def question(self):
 		return self.pair.first_phrase if not self.inverted else \
