@@ -92,13 +92,16 @@ class Question(ActiveRecord):
 	pair_id = Int()
 	test_id = Int()
 	inverted = Bool()
+	# True = correct, False = incorrect, None = not yet given.
+	answer = Bool()
 
 	pair = Reference(pair_id, Pair.id)
 	test = Reference(test_id, Test.id)
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS questions
 			(id INTEGER PRIMARY KEY, pair_id INTEGER, test_id INTEGER NOT NULL,
-			inverted BOOL, UNIQUE (pair_id, test_id, inverted));'''
+			inverted BOOL NOT NULL, answer BOOL,
+			UNIQUE (pair_id, test_id, inverted));'''
 
 	def __init__(self, test, pair, inverted=False):
 		self.test = test

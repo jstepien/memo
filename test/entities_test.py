@@ -130,6 +130,7 @@ class TestQuestion:
 		q = Question.find().one()
 		assert q.test is self.tests[0]
 		assert q.pair is self.pairs[0]
+		assert q.answer is None
 
 	def test_adding_a_question_inverted(self):
 		Question(self.tests[0], self.pairs[0], inverted=True)
