@@ -50,11 +50,18 @@ class Pair(ActiveRecord):
 	second_phrase = Reference(second_phrase_id, Phrase.id)
 	second_language = Reference(second_language_id, Language.id)
 
-	table_schema = '''CREATE TABLE IF NOT EXISTS pairs (id INTEGER PRIMARY KEY,
+	table_schema = ['''CREATE TABLE IF NOT EXISTS pairs (id INTEGER PRIMARY KEY,
 			first_phrase_id INTEGER, first_language_id INTEGER,
 			second_phrase_id INTEGER, second_language_id INTEGER,
 			UNIQUE (first_phrase_id, first_language_id, second_phrase_id,
-			second_language_id));'''
+			second_language_id));''',
+			'''CREATE TRIGGER pairs_before_insert BEFORE INSERT ON pairs
+			FOR EACH ROW WHEN EXISTS (SELECT id FROM pairs WHERE
+			NEW.second_language_id = pairs.first_language_id AND
+			NEW.second_phrase_id = pairs.first_phrase_id)
+			BEGIN SELECT RAISE (FAIL, 'columns first_phrase_id, '''
+			'''first_language_id, second_phrase_id, second_language_id are '''
+			'''not unique') END; END;''']
 
 	def __init__(self, phrase1, lang1, phrase2, lang2):
 		self.first_phrase = phrase1

@@ -22,7 +22,12 @@ class ActiveRecord(object):
 		database = create_database(connection_string)
 		ActiveRecord.store = Store(database)
 		for type in ActiveRecord.subclasses:
-			ActiveRecord.store.execute(type.table_schema)
+			schema = type.table_schema
+			if isinstance(schema, str) or isinstance(schema, unicode):
+				ActiveRecord.store.execute(type.table_schema)
+			else:
+				for statement in schema:
+					ActiveRecord.store.execute(statement)
 
 	@staticmethod
 	def register_subclass(subclass):
@@ -33,7 +38,7 @@ class ActiveRecord(object):
 		try:
 			ActiveRecord.store.commit()
 		except storm.exceptions.IntegrityError as ex:
-			if re.match('column [a-zA-Z, ]+ is not unique', str(ex)) != -1:
+			if re.match('columns? [a-zA-Z_, ]+ (is|are) not unique', str(ex)):
 				raise NonUniqueColumnError()
 			else:
 				raise ex

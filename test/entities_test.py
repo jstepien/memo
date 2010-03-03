@@ -81,3 +81,13 @@ class TestPair:
 			assert Pair.find().count() == 1
 		else:
 			assert False, "Inserted a non-unique pair!"
+
+	def test_adding_a_pair_twice_and_swapped(self):
+		Pair(self.p1, self.l1, self.p2, self.l2).save()
+		Pair(self.p2, self.l2, self.p1, self.l1).save()
+		try:
+			Pair.commit()
+		except NonUniqueColumnError:
+			assert Pair.find().count() == 1
+		else:
+			assert False, "Inserted a non-unique pair!"
