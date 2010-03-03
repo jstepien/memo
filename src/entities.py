@@ -14,7 +14,7 @@ class Phrase(ActiveRecord):
 	value = Unicode()
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS phrases
-			(id INTEGER PRIMARY KEY, value VARCHAR, UNIQUE (value));'''
+			(id INTEGER PRIMARY KEY, value VARCHAR NOT NULL, UNIQUE (value));'''
 
 	def __init__(self, value):
 		self.value = unicode(value)
@@ -29,7 +29,7 @@ class Language(ActiveRecord):
 	name = Unicode()
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS languages
-			(id INTEGER PRIMARY KEY, name VARCHAR, UNIQUE (name));'''
+			(id INTEGER PRIMARY KEY, name VARCHAR NOT NULL, UNIQUE (name));'''
 
 	def __init__(self, name):
 		self.name = unicode(name)
@@ -52,10 +52,10 @@ class Pair(ActiveRecord):
 	second_language = Reference(second_language_id, Language.id)
 
 	table_schema = ['''CREATE TABLE IF NOT EXISTS pairs (id INTEGER PRIMARY KEY,
-			first_phrase_id INTEGER, first_language_id INTEGER,
-			second_phrase_id INTEGER, second_language_id INTEGER,
-			UNIQUE (first_phrase_id, first_language_id, second_phrase_id,
-			second_language_id));''',
+			first_phrase_id INTEGER NOT NULL, first_language_id INTEGER NOT
+			NULL, second_phrase_id INTEGER NOT NULL, second_language_id INTEGER
+			NOT NULL, UNIQUE (first_phrase_id, first_language_id,
+			second_phrase_id, second_language_id));''',
 			'''CREATE TRIGGER pairs_before_insert BEFORE INSERT ON pairs
 			FOR EACH ROW WHEN EXISTS (SELECT id FROM pairs WHERE
 			NEW.second_language_id = pairs.first_language_id AND
@@ -77,7 +77,7 @@ class Test(ActiveRecord):
 	ctime = DateTime()
 
 	table_schema = '''CREATE TABLE IF NOT EXISTS tests
-			(id INTEGER PRIMARY KEY, ctime DATETIME);'''
+			(id INTEGER PRIMARY KEY, ctime DATETIME NOT NULL);'''
 
 	def __init__(self):
 		self.ctime = datetime.now()
