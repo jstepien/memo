@@ -111,5 +111,7 @@ class Question(ActiveRecord):
 	def __repr__(self):
 		return "<Language('%s')>" % self.name
 
+Test.questions = ReferenceSet(Test.id, Question.test_id)
+
 for cls in [Phrase, Language, Pair, Test, Question]:
 	ActiveRecord.register_subclass(cls)
