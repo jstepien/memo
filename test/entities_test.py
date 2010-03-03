@@ -16,6 +16,24 @@ def should_raise_on_save(object, exclass):
 	else:
 		assert False, exclass + " wasn't raised"
 
+class SmallDBSetupMixIn():
+	'''A mixin which adds a method which connects to the database and adds two
+	languages, four words and two pairs.'''
+	def small_db_setup(self):
+		connect_to_sqlite_memory_store()
+		self.langs = [Language(x) for x in (u'polski', u'español')]
+		self.phrases = [Phrase(x) for x in
+				(u'wąż', u'serpiente', u'komputer', u'ordenador')]
+		self._create_pairs()
+		for obj in self.langs + self.phrases + self.pairs:
+			obj.save()
+		ActiveRecord.commit()
+
+	def _create_pairs(self):
+		l, p = self.langs, self.phrases
+		self.pairs = [Pair(arr[0], arr[1], arr[2], arr[3]) for arr in
+				( [p[0], l[0], p[1], l[1]], [p[2], l[0], p[3], l[1]] ) ]
+
 class TestPhrase:
 	def setup(self):
 		connect_to_sqlite_memory_store()
@@ -92,9 +110,9 @@ class TestPair:
 		Pair(self.p1, self.l1, self.p2, self.l1).save()
 		assert Pair.find().count() == 1
 
-class TestTest:
+class TestTest(SmallDBSetupMixIn):
 	def setup(self):
-		connect_to_sqlite_memory_store()
+		self.small_db_setup()
 
 	def test_adding(self):
 		then = datetime.now()
@@ -102,22 +120,17 @@ class TestTest:
 		assert Test.find().count() == 1
 		assert then <= Test.find().one().ctime <= datetime.now()
 
-class TestQuestion:
-	def setup(self):
-		connect_to_sqlite_memory_store()
-		self.langs = [Language(x) for x in (u'polski', u'español')]
-		self.phrases = [Phrase(x) for x in
-				(u'wąż', u'serpiente', u'komputer', u'ordenador')]
-		self.create_pairs()
-		self.tests = [Test(), Test()]
-		for obj in self.langs + self.phrases + self.pairs:
-			obj.save()
-		ActiveRecord.commit()
+	def test_adding_with_questions(self):
+		t = Test()
+		t.save()
+		for p in self.pairs:
+			Question(t, p).save()
+		assert Test.find().one().questions.count() == len(self.pairs)
 
-	def create_pairs(self):
-		l, p = self.langs, self.phrases
-		self.pairs = [Pair(arr[0], arr[1], arr[2], arr[3]) for arr in
-				( [p[0], l[0], p[1], l[1]], [p[2], l[0], p[3], l[1]] ) ]
+class TestQuestion(SmallDBSetupMixIn):
+	def setup(self):
+		self.small_db_setup()
+		self.tests = [Test(), Test()]
 
 	def test_adding_a_question_without_a_test(self):
 		should_raise_on_save(Question(None, self.pairs[0]),
