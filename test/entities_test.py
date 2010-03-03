@@ -6,6 +6,15 @@ from activerecord import *
 def connect_to_sqlite_memory_store():
 	connect("sqlite://:memory:")
 
+def should_raise_on_save(object, exclass):
+	try:
+		object.save()
+		ActiveRecord.commit()
+	except exclass:
+		pass
+	else:
+		assert False, exclass + " wasn't raised"
+
 class TestPhrase:
 	def setup(self):
 		connect_to_sqlite_memory_store()
@@ -20,13 +29,8 @@ class TestPhrase:
 
 	def test_adding_a_unicode_word_twice(self):
 		Phrase(u'źdźbło').save()
-		Phrase(u'źdźbło').save()
-		try:
-			Phrase.commit()
-		except NonUniqueColumnError:
-			assert Phrase.find().count() == 1
-		else:
-			assert False, "Inserted a non-unique phrase!"
+		should_raise_on_save(Phrase(u'źdźbło'), NonUniqueColumnError)
+		assert Phrase.find().count() == 1
 
 class TestLanguage:
 	def setup(self):
@@ -38,17 +42,12 @@ class TestLanguage:
 	def test_adding_a_unicode_language_name(self):
 		Language(u'slovenščina').save()
 		language = Language.find().one()
-		assert u'slovenščina' ==language.name
+		assert u'slovenščina' == language.name
 
 	def test_adding_a_unicode_language_name_twice(self):
-		Phrase(u'slovenščina').save()
-		Phrase(u'slovenščina').save()
-		try:
-			Phrase.commit()
-		except NonUniqueColumnError:
-			assert Phrase.find().count() == 1
-		else:
-			assert False, "Inserted a non-unique phrase!"
+		Language(u'slovenščina').save()
+		should_raise_on_save(Language(u'slovenščina'), NonUniqueColumnError)
+		assert Language.find().count() == 1
 
 class TestPair:
 	def setup(self):
@@ -74,20 +73,12 @@ class TestPair:
 
 	def test_adding_a_pair_twice(self):
 		Pair(self.p1, self.l1, self.p2, self.l2).save()
-		Pair(self.p1, self.l1, self.p2, self.l2).save()
-		try:
-			Pair.commit()
-		except NonUniqueColumnError:
-			assert Pair.find().count() == 1
-		else:
-			assert False, "Inserted a non-unique pair!"
+		should_raise_on_save(Pair(self.p1, self.l1, self.p2, self.l2),
+				NonUniqueColumnError)
+		assert Pair.find().count() == 1
 
 	def test_adding_a_pair_twice_and_swapped(self):
 		Pair(self.p1, self.l1, self.p2, self.l2).save()
-		Pair(self.p2, self.l2, self.p1, self.l1).save()
-		try:
-			Pair.commit()
-		except NonUniqueColumnError:
-			assert Pair.find().count() == 1
-		else:
-			assert False, "Inserted a non-unique pair!"
+		should_raise_on_save(Pair(self.p2, self.l2, self.p1, self.l1),
+				NonUniqueColumnError)
+		assert Pair.find().count() == 1
