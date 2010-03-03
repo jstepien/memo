@@ -1,3 +1,23 @@
 #!/usr/bin/env python
 
-print 0
+import sys
+
+def usage():
+	sys.stderr.write("Usage: %s -s\n" % sys.argv[0])
+	sys.exit(1)
+
+if len(sys.argv) < 2:
+	usage()
+
+known_args = ["-s"]
+arg = sys.argv[1]
+
+if arg not in known_args:
+	usage()
+
+from entities import connect
+import tutor, messaging
+connect("sqlite:baza.sqlite")
+
+if arg == "-s":
+	messaging.send_test(tutor.prepare_test())
