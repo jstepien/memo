@@ -20,7 +20,7 @@ class Phrase(ActiveRecord):
 		self.value = unicode(value)
 
 	def __repr__(self):
-		return "<Phrase('%s')>" % self.value
+		return "<Phrase('%s')>" % self.value.encode('utf-8')
 
 class Language(ActiveRecord):
 	__storm_table__ = 'languages'
@@ -35,7 +35,7 @@ class Language(ActiveRecord):
 		self.name = unicode(name)
 
 	def __repr__(self):
-		return "<Language('%s')>" % self.name
+		return "<Language('%s')>" % self.name.encode('utf-8')
 
 class Pair(ActiveRecord):
 	__storm_table__ = 'pairs'
@@ -69,6 +69,10 @@ class Pair(ActiveRecord):
 		self.first_language = lang1
 		self.second_phrase = phrase2
 		self.second_language = lang2
+
+	def __repr__(self):
+		return "<Pair(%s in %s, %s in %s)>" % (self.first_phrase,
+				self.first_language, self.second_phrase, self.second_language)
 
 class Test(ActiveRecord):
 	__storm_table__ = 'tests'
