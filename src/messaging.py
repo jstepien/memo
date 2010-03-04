@@ -9,7 +9,7 @@ _mail_command = 'mailx "%%s" -s "%s"' % subject
 def send_test(test, addr):
 	questions = sorted(test.questions, key=_question_keygen)
 	prev_key = None
-	message = u""
+	message = u"Test ID: %i\n\n" % test.id
 	for q in questions:
 		p = q.pair
 		if prev_key != _question_keygen(q):
