@@ -34,19 +34,16 @@ def parse_reply(file):
 			test = Test.find(id=int(match.groups()[0])).one()
 			questions_pairs = Pair.find(Pair.id.is_in(
 				Select(Question.pair_id, Question.test_id==test.id)))
-			print repr(questions_pairs.count())
 			continue
 		match = re.match(u'^>\s*(.+) → (.+):$', line)
 		if match:
 			langs = [Language.find(name=match.groups()[i]).one()
 					for i in (0, 1)]
-			print repr(langs)
 			continue
 		match = re.match(u'^>\s*(.+) =\s*(.+)', line)
 		if match:
 			phrases = [Phrase.find(value=match.groups()[i]).one()
 					for i in (0, 1)]
-			print repr(phrases)
 			pair = questions_pairs.find(Pair.first_phrase == phrases[0],
 					Pair.first_language == langs[0],
 					Pair.second_language == langs[1]).one()
@@ -70,7 +67,6 @@ def _check_answer(question, answer):
 	correct_answer = p.first_phrase if question.inverted else p.second_phrase
 	question.result = True if answer is correct_answer else False
 	question.save()
-	print "%s ==> %s ==> %s" % (question, answer, question.result)
 
 def _question_keygen(q):
 	if q.inverted:
