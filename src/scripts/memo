@@ -15,12 +15,12 @@ arg = sys.argv[1]
 if arg not in known_args:
 	usage()
 
-from memo.entities import connect
 from memo.tutor import prepare_test
 from memo.messaging import send_test, parse_reply
+from memo.activerecord import ActiveRecord
 
 dbname = os.path.join(os.environ['HOME'], ".memo", "db.sqlite")
-connect("sqlite:" + dbname)
+ActiveRecord.connect("sqlite:" + dbname)
 
 if arg == "-s":
 	send_test(prepare_test(), os.environ['MEMO_ADDRESS'])
@@ -28,3 +28,5 @@ elif arg == "-r":
 	parse_reply(sys.stdin)
 else:
 	raise Exception("Unexpected arg: " + arg)
+
+ActiveRecord.commit()
