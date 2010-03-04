@@ -3,13 +3,13 @@
 import sys, os
 
 def usage():
-	sys.stderr.write("Usage: %s -s\n" % sys.argv[0])
+	sys.stderr.write("Usage: %s [-s|-r]\n" % sys.argv[0])
 	sys.exit(1)
 
 if len(sys.argv) < 2:
 	usage()
 
-known_args = ["-s"]
+known_args = ["-s", "-r"]
 arg = sys.argv[1]
 
 if arg not in known_args:
@@ -21,3 +21,7 @@ connect("sqlite:baza.sqlite")
 
 if arg == "-s":
 	messaging.send_test(tutor.prepare_test(), os.environ['MEMO_ADDRESS'])
+elif arg == "-r":
+	messaging.parse_reply(sys.stdin)
+else:
+	raise Exception("Unexpected arg: " + arg)
