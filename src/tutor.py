@@ -34,12 +34,14 @@ TestPreparationQuery = '''select ok.id as id, 0 as inverted,
 		union
 		select id, 0 as count from pairs
 	) ok on ok.id = wrong.id group by ok.id
-	order by ratio desc;
+	order by ratio desc, id asc limit %i;
 	'''
+
+QuestionsPerTest = 20
 
 def prepare_test():
 	t = Test()
 	questions = [Question(t, row[0], inverted=(row[1] == 1)) for row in
-			ActiveRecord.execute(TestPreparationQuery)]
+			ActiveRecord.execute(TestPreparationQuery % QuestionsPerTest)]
 	t.save()
 	return t
