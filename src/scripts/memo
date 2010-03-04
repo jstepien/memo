@@ -17,7 +17,9 @@ if arg not in known_args:
 
 from entities import connect
 import tutor, messaging
-connect("sqlite:baza.sqlite")
+
+dbname = os.path.join(os.environ['HOME'], ".memo", "db.sqlite")
+connect("sqlite:" + dbname)
 
 if arg == "-s":
 	messaging.send_test(tutor.prepare_test(), os.environ['MEMO_ADDRESS'])
