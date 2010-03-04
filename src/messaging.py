@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import sys, os
+import sys, os, re
+from entities import *
+from storm.locals import Select # remove this dependency
 
 subject = "Your memo test"
 
@@ -22,6 +24,53 @@ def send_test(test, addr):
 		phrase = p.first_phrase.value if q.inverted else p.second_phrase.value
 		message += u"  %s = \n" % phrase
 	_pipe_to_mail_command(message, addr)
+
+def parse_reply(file):
+	langs = test = questions_pairs = None
+	for line in file:
+		line = line.decode('utf-8')
+		match = re.match(u'^>\s*Test ID: (\d+)', line)
+		if match:
+			test = Test.find(id=int(match.groups()[0])).one()
+			questions_pairs = Pair.find(Pair.id.is_in(
+				Select(Question.pair_id, Question.test_id==test.id)))
+			print repr(questions_pairs.count())
+			continue
+		match = re.match(u'^>\s*(.+) → (.+):$', line)
+		if match:
+			langs = [Language.find(name=match.groups()[i]).one()
+					for i in (0, 1)]
+			print repr(langs)
+			continue
+		match = re.match(u'^>\s*(.+) =\s*(.+)', line)
+		if match:
+			phrases = [Phrase.find(value=match.groups()[i]).one()
+					for i in (0, 1)]
+			print repr(phrases)
+			pair = questions_pairs.find(Pair.first_phrase == phrases[0],
+					Pair.first_language == langs[0],
+					Pair.second_language == langs[1]).one()
+			if pair is not None:
+				_check_answer(test.questions.find(Question.inverted == False,
+					Question.pair == pair, ).one(), phrases[1])
+			else:
+				pair = questions_pairs.find(Pair.second_phrase==phrases[0],
+						Pair.first_language == langs[1],
+						Pair.second_language == langs[0]).one()
+				_check_answer(test.questions.find(Question.inverted == True,
+					Question.pair == pair, ).one(), phrases[1])
+			continue
+		if test != None and re.match(u">\s+", line):
+			break
+		if test != None: raise Exception("no match: '''%s'''" %
+				line.encode('utf-8').rstrip())
+
+def _check_answer(question, answer):
+	p = question.pair
+	correct_answer = p.first_phrase if question.inverted else p.second_phrase
+	question.result = True if answer is correct_answer else False
+	question.save()
+	print "%s ==> %s ==> %s" % (question, answer, question.result)
 
 def _question_keygen(q):
 	if q.inverted:
