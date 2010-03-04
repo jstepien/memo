@@ -13,8 +13,8 @@ class ActiveRecord(object):
 		ActiveRecord.store.add(self)
 
 	@classmethod
-	def find(cls):
-		return ActiveRecord.store.find(cls)
+	def find(cls, *args, **kwargs):
+		return ActiveRecord.store.find(cls, *args, **kwargs)
 
 	@staticmethod
 	def connect(connection_string):
