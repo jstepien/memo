@@ -15,15 +15,16 @@ arg = sys.argv[1]
 if arg not in known_args:
 	usage()
 
-from entities import connect
-import tutor, messaging
+from memo.entities import connect
+from memo.tutor import prepare_test
+from memo.messaging import send_test, parse_reply
 
 dbname = os.path.join(os.environ['HOME'], ".memo", "db.sqlite")
 connect("sqlite:" + dbname)
 
 if arg == "-s":
-	messaging.send_test(tutor.prepare_test(), os.environ['MEMO_ADDRESS'])
+	send_test(prepare_test(), os.environ['MEMO_ADDRESS'])
 elif arg == "-r":
-	messaging.parse_reply(sys.stdin)
+	parse_reply(sys.stdin)
 else:
 	raise Exception("Unexpected arg: " + arg)
