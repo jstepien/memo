@@ -40,7 +40,7 @@ class DBSetupMixIn():
 			u'wąż', u'serpiente', u'komputer', u'ordenador',
 			u'cebula', u'cebolla', u'iść', u'ir')]
 		self._create_pairs()
-		tutor.QuestionsPerTest = 4
+		tutor.QuestionsPerTest = 8
 		for obj in self.langs + self.phrases + self.pairs:
 			obj.save()
 		self.tests = [self._create_completed_test(),
