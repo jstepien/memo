@@ -17,11 +17,11 @@ def send_test(test, addr):
 		if prev_key != _question_keygen(q):
 			prev_key = _question_keygen(q)
 			if q.inverted:
-				langs = (p.first_language, p.second_language)
-			else:
 				langs = (p.second_language, p.first_language)
+			else:
+				langs = (p.first_language, p.second_language)
 			message += u"%s → %s:\n" % (langs[0].name, langs[1].name)
-		phrase = p.first_phrase.value if q.inverted else p.second_phrase.value
+		phrase = p.second_phrase.value if q.inverted else p.first_phrase.value
 		message += u"  %s = \n" % phrase
 	_pipe_to_mail_command(message, addr)
 
