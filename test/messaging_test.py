@@ -9,7 +9,7 @@ class TestReceiving(DBSetupMixIn):
 		self.small_db_setup()
 
 	def test_parsing_a_tiny_reply(self):
-		f = open("test/reply1.eml")
+		f = open("test/test_parsing_a_tiny_reply.eml")
 		messaging.parse_reply(f)
 		questions = Question.find(test_id=2)
 		base_conds = [Question.pair_id == Pair.id]
