@@ -63,7 +63,7 @@ def parse_reply(file):
 				_check_answer(test.questions.find(Question.inverted == True,
 					Question.pair == pair, ).one(), phrases[1])
 			continue
-		if test != None and re.match(u">\s+", line):
+		if test != None and re.match(u"^>*\s*$", line):
 			break
 		if test != None: raise Exception("no match: '''%s'''" %
 				line.encode('utf-8').rstrip())
