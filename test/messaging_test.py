@@ -25,3 +25,12 @@ class TestReceiving(DBSetupMixIn):
 				[Phrase.value==u'cebolla']).one().result == False
 		assert questions.find(*conds_inv +
 				[Phrase.value==u'serpiente']).one().result == True
+
+	def test_parsing_a_reply_with_invalid_question(self):
+		f = open("test/test_parsing_a_reply_with_invalid_question.eml")
+		try:
+			messaging.parse_reply(f)
+		except messaging.IncorrectReply:
+			pass
+		else:
+			assert False, "messaging.IncorrectReply wasn't thrown"

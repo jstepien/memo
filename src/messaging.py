@@ -44,6 +44,9 @@ def parse_reply(file):
 		if match:
 			phrases = [Phrase.find(value=match.groups()[i]).one()
 					for i in (0, 1)]
+			if phrases[0] is None:
+				raise IncorrectReply("Found a phrase which isn't in the " +
+						"database")
 			pair = questions_pairs.find(Pair.first_phrase == phrases[0],
 					Pair.first_language == langs[0],
 					Pair.second_language == langs[1]).one()
@@ -54,6 +57,9 @@ def parse_reply(file):
 				pair = questions_pairs.find(Pair.second_phrase==phrases[0],
 						Pair.first_language == langs[1],
 						Pair.second_language == langs[0]).one()
+				if pair is None:
+					raise IncorrectReply("Found a phrase which wasn't in the " +
+							"test number %i" % test.id)
 				_check_answer(test.questions.find(Question.inverted == True,
 					Question.pair == pair, ).one(), phrases[1])
 			continue
@@ -78,3 +84,6 @@ def _pipe_to_mail_command(str, addr):
 	pipe = os.popen(_mail_command % addr, 'w')
 	pipe.write(str.encode('utf-8'))
 	pipe.close()
+
+class IncorrectReply(Exception):
+	pass
